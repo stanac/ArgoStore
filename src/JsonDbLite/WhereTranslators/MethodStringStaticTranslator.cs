@@ -60,11 +60,12 @@ namespace JsonDbLite.WhereTranslators
 
             private WhereClauseExpressionData TranslateEquals(MethodCallExpression e)
             {
-                bool ignoreCase = true;
+                bool ignoreCase = false;
 
                 if (e.Arguments.Count == 3)
                 {
                     var value = WhereTranslatorStrategy.Translate(e.Arguments[2]);
+                    ignoreCase = (value as WhereConstantExpressionData).Value.Contains("IgnoreCase");
                 }
 
                 return new WhereMethodCallExpressionData

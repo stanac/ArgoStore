@@ -1,4 +1,5 @@
 ﻿using JsonDbLite.Expressions;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -11,8 +12,17 @@ namespace JsonDbLite.WhereTranslators
         public WhereClauseExpressionData Translate(Expression expression)
         {
             MemberExpression e = expression as MemberExpression;
-            var member = e.Member as PropertyInfo;
-            return new WherePropertyExpressionData { Name = member.Name, IsBoolean = member.PropertyType == typeof(bool) };
+            if (e.Member is PropertyInfo pInf)
+            {
+                return new WherePropertyExpressionData { Name = pInf.Name, IsBoolean = pInf.PropertyType == typeof(bool) };
+            }
+            if (e.Member is FieldInfo fInf && e.Expression is ConstantExpression ce)
+            {
+                string value = fInf.GetValue(ce.Value).ToString();
+                return new WhereConstantExpressionData { Value = value };
+            }
+
+            throw new NotSupportedException($"MemberExpression with member of type \"{e.Member.GetType().FullName}\" isn't supported");
         }
     }
 }
