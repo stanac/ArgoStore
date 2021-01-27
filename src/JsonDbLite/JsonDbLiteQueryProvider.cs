@@ -27,6 +27,9 @@ namespace JsonDbLite
         {
             if (expression is null) throw new ArgumentNullException(nameof(expression));
 
+            var visitor = new QueryVisitor();
+            string sql = visitor.Translate(expression);
+
             throw new NotImplementedException();
         }
 

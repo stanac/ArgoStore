@@ -12,7 +12,7 @@ namespace JsonDbLite.Expressions
         {
             if (data is null) throw new ArgumentNullException(nameof(data));
 
-            throw new NotImplementedException();
+            return "not implemented";
         }
     }
 }
