@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.Sqlite" Version="5.0.2" />
-    <PackageReference Include="RT.Comb" Version="2.5.0" />
     <PackageReference Include="System.Text.Json" Version="5.0.1" />
   </ItemGroup>
 

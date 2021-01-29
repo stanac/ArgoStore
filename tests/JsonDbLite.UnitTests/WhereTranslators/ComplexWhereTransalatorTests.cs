@@ -29,17 +29,17 @@ namespace JsonDbLite.UnitTests.WhereTranslators
             (w.Right as WhereBinaryLogicalExpressionData).IsAnd.Should().BeTrue();
         }
 
-        [Fact]
-        public void Transalte_ExpressionWithIEnumerableContains_TranslatesToExpectedExpression()
-        {
-            string[] allowedNames = new[] { "Marcus", "Kovalski" };
+        //[Fact]
+        //public void Transalte_ExpressionWithIEnumerableContains_TranslatesToExpectedExpression()
+        //{
+        //    string[] allowedNames = new[] { "Marcus", "Kovalski" };
 
-            Expression<Func<TestEntityPerson, bool>> ex = x => allowedNames.Contains(x.Name);
+        //    Expression<Func<TestEntityPerson, bool>> ex = x => allowedNames.Contains(x.Name);
 
-            WhereClauseExpressionData where = WhereTranslatorStrategy.Translate(ex);
+        //    WhereClauseExpressionData where = WhereTranslatorStrategy.Translate(ex);
 
 
-        }
+        //}
 
     }
 }

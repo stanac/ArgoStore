@@ -30,7 +30,7 @@ namespace JsonDbLite.UnitTests.WhereTranslators
 
             where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
 
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringIsWhiteSpace);
+            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringIsNullOrWhiteSpace);
         }
 
         [Fact]

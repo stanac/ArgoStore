@@ -11,7 +11,7 @@ namespace JsonDbLite.WhereTranslators
         {
             if (expression is MethodCallExpression m)
             {
-                if (m.Method.DeclaringType.IsGenericType && m.Method.DeclaringType.GetGenericTypeDefinition() == typeof(Enumerable))
+                if (m.Method.DeclaringType == typeof(Enumerable) && m.Method.Name == "Contains")
                 {
 
                 }

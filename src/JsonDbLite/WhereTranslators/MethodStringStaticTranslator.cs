@@ -44,7 +44,7 @@ namespace JsonDbLite.WhereTranslators
             {
                 return new WhereMethodCallExpressionData
                 {
-                    MethodName = WhereMethodCallExpressionData.SupportedMethodNames.StringIsWhiteSpace,
+                    MethodName = WhereMethodCallExpressionData.SupportedMethodNames.StringIsNullOrWhiteSpace,
                     Arguments = new WhereClauseExpressionData[] { WhereTranslatorStrategy.Translate(e.Arguments[0]) }
                 };
             }
