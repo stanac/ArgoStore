@@ -18,7 +18,7 @@ namespace JsonDbLite.WhereTranslators
 
             if (translator == null)
             {
-                throw new InvalidOperationException($"No where translator for expression with node type {expression.NodeType} {expression}");
+                throw new InvalidOperationException($"No where translator found for expression with node type \"{expression.NodeType}\", type: \"{expression.GetType().Name}\" and expression \"{expression}\"");
             }
 
             return translator.Translate(expression);

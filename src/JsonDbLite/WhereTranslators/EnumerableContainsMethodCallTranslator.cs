@@ -11,10 +11,7 @@ namespace JsonDbLite.WhereTranslators
         {
             if (expression is MethodCallExpression m)
             {
-                if (m.Method.DeclaringType == typeof(Enumerable) && m.Method.Name == "Contains")
-                {
-
-                }
+                return m.Method.DeclaringType == typeof(Enumerable) && m.Method.Name == "Contains";
             }
 
             return false;
@@ -22,7 +19,21 @@ namespace JsonDbLite.WhereTranslators
 
         public WhereClauseExpressionData Translate(Expression expression)
         {
-            throw new NotImplementedException();
+            var m = expression as MethodCallExpression;
+
+            if (m.Arguments.Count != 2)
+            {
+                throw new NotSupportedException($"Enumerable.Contains not supported with {m.Arguments.Count} argument(s), expression: {expression}");
+            }
+
+            var arg1 = WhereTranslatorStrategy.Translate(m.Arguments[0]);
+            var arg2 = WhereTranslatorStrategy.Translate(m.Arguments[1]);
+
+            return new WhereMethodCallExpressionData
+            {
+                Arguments = new[] { arg2, arg1 },
+                MethodName = WhereMethodCallExpressionData.SupportedMethodNames.EnumerableContains
+            };
         }
     }
 }
