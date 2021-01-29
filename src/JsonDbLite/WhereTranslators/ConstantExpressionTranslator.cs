@@ -19,6 +19,8 @@ namespace JsonDbLite.WhereTranslators
                 value = e.Value.ToString();
             }
 
+            // todo: add support for other types
+            
             if (expression.Type == typeof(string))
             {
                 return new WhereConstantExpressionData { IsString = true, Value = value };
@@ -30,6 +32,10 @@ namespace JsonDbLite.WhereTranslators
             else if (expression.Type == typeof(bool))
             {
                 return new WhereConstantExpressionData { IsBoolean = true, Value = value };
+            }
+            else if (expression.Type == typeof(int))
+            {
+                return new WhereConstantExpressionData { Value = value };
             }
 
             throw new NotSupportedException($"Constant of type {expression.Type.Name} isn't supported");

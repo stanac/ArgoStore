@@ -19,6 +19,7 @@ namespace JsonDbLite.WhereTranslators
             switch (e.NodeType)
             {
                 case ExpressionType.And:
+                case ExpressionType.AndAlso:
                     ret = new WhereBinaryLogicalExpressionData { IsOr = false };
                     break;
 
