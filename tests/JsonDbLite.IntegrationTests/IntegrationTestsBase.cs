@@ -22,7 +22,7 @@ namespace JsonDbLite.IntegrationTests
             if (_config.RunIntegrationTests)
             {
                 TestDbFilePath = Path.Combine(_config.WorkingDir, "test-db-" + Guid.NewGuid().ToString("N") + ".sqlite");
-                TestDbConnectionString = $"Data Source={TestDbFilePath};Version=3;";
+                TestDbConnectionString = $"Data Source={TestDbFilePath};";
             }
         }
 

@@ -8,10 +8,12 @@ namespace JsonDbLite
     internal class JsonDbLiteQueryProvider : IQueryProvider
     {
         private readonly Configuration _config;
+        private readonly EntityTableHelper _entityTableHelper;
 
         public JsonDbLiteQueryProvider(Configuration config)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
+            _entityTableHelper = new EntityTableHelper(config);
         }
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
@@ -36,6 +38,8 @@ namespace JsonDbLite
 
             var visitor = new QueryVisitor();
             string sql = visitor.Translate(expression);
+
+            _entityTableHelper.EnsureEntityTableExists(visitor.ExpData.EntityType);
 
             throw new NotImplementedException();
         }
