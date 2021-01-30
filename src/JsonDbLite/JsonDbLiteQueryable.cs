@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace JsonDbLite
 {
-    public class JsonDbLiteQueryable<T> : IQueryable<T>
+    internal class JsonDbLiteQueryable<T> : IQueryable<T>
     {
         public JsonDbLiteQueryable(JsonDbLiteQueryProvider provider)
         {

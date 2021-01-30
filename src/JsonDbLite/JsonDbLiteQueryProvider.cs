@@ -5,8 +5,15 @@ using System.Linq.Expressions;
 
 namespace JsonDbLite
 {
-    public class JsonDbLiteQueryProvider : IQueryProvider
+    internal class JsonDbLiteQueryProvider : IQueryProvider
     {
+        private readonly Configuration _config;
+
+        public JsonDbLiteQueryProvider(Configuration config)
+        {
+            _config = config ?? throw new ArgumentNullException(nameof(config));
+        }
+
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
         {
             if (expression is null) throw new ArgumentNullException(nameof(expression));
