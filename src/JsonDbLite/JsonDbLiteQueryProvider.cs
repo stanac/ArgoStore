@@ -1,5 +1,7 @@
 ﻿using JsonDbLite.Helpers;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -9,11 +11,18 @@ namespace JsonDbLite
     {
         private readonly Configuration _config;
         private readonly EntityTableHelper _entityTableHelper;
+        private readonly IDbAccess _dbAccess;
 
         public JsonDbLiteQueryProvider(Configuration config)
+            : this (config, new DbAccess(config?.ConnectionString))
+        {
+        }
+
+        public JsonDbLiteQueryProvider(Configuration config, IDbAccess dbAccess)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _entityTableHelper = new EntityTableHelper(config);
+            _dbAccess = dbAccess ?? throw new ArgumentNullException(nameof(dbAccess));
         }
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
@@ -34,14 +43,7 @@ namespace JsonDbLite
 
         public TResult Execute<TResult>(Expression expression)
         {
-            if (expression is null) throw new ArgumentNullException(nameof(expression));
-
-            var visitor = new QueryVisitor();
-            string sql = visitor.Translate(expression);
-
-            _entityTableHelper.EnsureEntityTableExists(visitor.ExpData.EntityType);
-
-            throw new NotImplementedException();
+            throw new NotSupportedException("Generic method CreateQuery isn't supported");
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -51,7 +53,16 @@ namespace JsonDbLite
 
         public object Execute(Expression expression)
         {
-            throw new NotSupportedException("Non generic method Execute isn't supported");
+            if (expression is null) throw new ArgumentNullException(nameof(expression));
+
+            var visitor = new QueryVisitor();
+            string sql = visitor.Translate(expression);
+
+            _entityTableHelper.EnsureEntityTableExists(visitor.ExpData.EntityType);
+
+            IReadOnlyList<string> result = _dbAccess.QueryJsonField(sql);
+
+            return result.Select(x => _config.Serializer.Deserialize(x, visitor.ExpData.EntityType));
         }
     }
 }

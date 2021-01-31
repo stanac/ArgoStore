@@ -6,6 +6,7 @@ namespace JsonDbLite
     {
         public string ConnectionString { get; set; }
         public bool CreateEntitiesOnTheFly { get; set; } = true;
+        public IJsonDbLiteSerializer Serializer { get; set; } = new JsonDbLiteSerializer();
 
         public void EnsureValid()
         {

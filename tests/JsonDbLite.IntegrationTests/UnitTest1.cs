@@ -15,6 +15,8 @@ namespace JsonDbLite.IntegrationTests
                 var persons = session.Query<Person>()
                     .Where(x => x.Name == "1")
                     .ToList();
+
+                int count = persons.Count;
             }
         }
     }

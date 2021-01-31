@@ -38,7 +38,7 @@ namespace JsonDbLite.Expressions
 
         private static string Translate(WherePropertyExpressionData w)
         {
-            return $"json_extract(json_data, $.{w.Name})";
+            return $"json_extract(json_data, '$.{w.Name}')";
         }
 
         private static string Translate(WhereConstantExpressionData w)

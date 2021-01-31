@@ -32,7 +32,11 @@ namespace JsonDbLite
 
         public IQueryProvider Provider { get; }
 
-        public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)Provider.Execute<T>(Expression)).GetEnumerator();
+        public IEnumerator<T> GetEnumerator()
+        {
+            var res = (IEnumerable)Provider.Execute(Expression);
+            return res.Cast<T>().GetEnumerator();
+        }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
