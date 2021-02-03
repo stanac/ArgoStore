@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -49,6 +50,21 @@ namespace JsonDbLite
             if (string.IsNullOrWhiteSpace(json)) throw new ArgumentException($"'{nameof(json)}' cannot be null or whitespace", nameof(json));
 
             return JsonSerializer.Deserialize(json, resultType, _jso);
+        }
+
+        public string ConvertPropertyNameToCorrectCase(string propertyName)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentException($"'{nameof(propertyName)}' cannot be null or whitespace", nameof(propertyName));
+
+            if (propertyName.All(char.IsUpper))
+            {
+                return propertyName.ToLower();
+            }
+
+            char[] chars = propertyName.ToCharArray();
+            chars[0] = char.ToLower(chars[0]);
+
+            return new string(chars);
         }
 
         private static JsonSerializerOptions CreateOptions()

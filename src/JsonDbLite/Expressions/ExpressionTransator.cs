@@ -5,9 +5,10 @@ namespace JsonDbLite.Expressions
 {
     internal static class ExpressionTransator
     {
-        public static string Translate(ExpressionData data)
+        public static string Translate(ExpressionData data, IJsonDbLiteSerializer serializer)
         {
             if (data is null) throw new ArgumentNullException(nameof(data));
+            if (serializer is null) throw new ArgumentNullException(nameof(serializer));
 
             string sql = Translate(data.Select) + $"\nFROM {EntityTableHelper.GetTableName(data.EntityType)}";
 
@@ -15,7 +16,8 @@ namespace JsonDbLite.Expressions
             {
                 if (data.Where.Count == 1)
                 {
-                    sql += "\nWHERE " + SqlWhereTranslator.Translate(data.Where[0]);
+                    var sqlWhereTranslator = new SqlWhereTranslator(serializer);
+                    sql += "\nWHERE " + sqlWhereTranslator.Translate(data.Where[0]);
                 }
                 else
                 {

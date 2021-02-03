@@ -56,7 +56,7 @@ namespace JsonDbLite
             if (expression is null) throw new ArgumentNullException(nameof(expression));
 
             var visitor = new QueryVisitor();
-            string sql = visitor.Translate(expression);
+            string sql = visitor.Translate(expression, _config.Serializer);
 
             _entityTableHelper.EnsureEntityTableExists(visitor.ExpData.EntityType);
 

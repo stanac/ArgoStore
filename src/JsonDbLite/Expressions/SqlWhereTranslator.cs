@@ -2,9 +2,16 @@
 
 namespace JsonDbLite.Expressions
 {
-    internal static class SqlWhereTranslator
+    internal class SqlWhereTranslator
     {
-        public static string Translate (WhereClauseExpressionData w)
+        private readonly IJsonDbLiteSerializer _serializer;
+
+        public SqlWhereTranslator(IJsonDbLiteSerializer serializer)
+        {
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        }
+
+        public string Translate (WhereClauseExpressionData w)
         {
             if (w is null) throw new ArgumentNullException(nameof(w));
 
@@ -21,27 +28,27 @@ namespace JsonDbLite.Expressions
             throw new NotSupportedException($"{nameof(WhereClauseExpressionData)} Translate not supported for {w.GetType().Name}");
         }
 
-        private static string Translate (WhereNotExpressionData w)
+        private string Translate (WhereNotExpressionData w)
         {
             return Translate(w.Negate());
         }
 
-        private static string Translate(WhereBinaryLogicalExpressionData w)
+        private string Translate(WhereBinaryLogicalExpressionData w)
         {
             return $"{Translate(w.Left)} {(w.IsAnd ? "AND" : "OR")} {Translate(w.Right)}";
         }
 
-        private static string Translate(WhereBinaryComparisonExpressionData w)
+        private string Translate(WhereBinaryComparisonExpressionData w)
         {
             return $"{Translate(w.Left)} {w.OperatorString} {Translate(w.Right)}";
         }
 
-        private static string Translate(WherePropertyExpressionData w)
+        private string Translate(WherePropertyExpressionData w)
         {
-            return $"json_extract(json_data, '$.{w.Name}')";
+            return $"json_extract(json_data, '$.{_serializer.ConvertPropertyNameToCorrectCase(w.Name)}')";
         }
 
-        private static string Translate(WhereConstantExpressionData w)
+        private string Translate(WhereConstantExpressionData w)
         {
             if (w.IsString)
             {
@@ -51,11 +58,11 @@ namespace JsonDbLite.Expressions
             return w.Value;
         }
 
-        private static string Translate(WhereMethodCallExpressionData w)
+        private string Translate(WhereMethodCallExpressionData w)
         {
             throw new NotImplementedException();
         }
 
-        private static string EscapeParam(string s) => s.Replace("'", "''");
+        private string EscapeParam(string s) => s.Replace("'", "''");
     }
 }

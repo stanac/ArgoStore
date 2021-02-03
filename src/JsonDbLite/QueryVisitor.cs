@@ -15,13 +15,13 @@ namespace JsonDbLite
         private const string MethodIsNullOrEmpty = "IsNullOrEmpty";
         private const string MethodIsNullOrWhiteSpace = "IsNullOrWhiteSpace";
 
-        public string Translate(Expression expression)
+        public string Translate(Expression expression, IJsonDbLiteSerializer serializer)
         {
             if (expression is null) throw new ArgumentNullException(nameof(expression));
 
             Visit(expression);
 
-            return ExpressionTransator.Translate(ExpData);
+            return ExpressionTransator.Translate(ExpData, serializer);
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
