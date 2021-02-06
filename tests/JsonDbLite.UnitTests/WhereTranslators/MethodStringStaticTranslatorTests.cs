@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
-using JsonDbLite.Expressions;
-using JsonDbLite.WhereTranslators;
+using JsonDbLite.ExpressionToStatementTranslators;
 using System;
 using System.Linq.Expressions;
 using Xunit;
@@ -14,11 +13,11 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => string.IsNullOrEmpty("");
 
-            WhereClauseExpressionData where = WhereTranslatorStrategy.Translate(ex);
+            Statement where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
+            where.Should().BeOfType(typeof(MethodCallStatement));
 
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringIsNullOrEmpty);
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringIsNullOrEmpty);
         }
 
         [Fact]
@@ -26,11 +25,11 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => string.IsNullOrWhiteSpace("");
 
-            WhereClauseExpressionData where = WhereTranslatorStrategy.Translate(ex);
+            Statement where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
+            where.Should().BeOfType(typeof(MethodCallStatement));
 
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringIsNullOrWhiteSpace);
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringIsNullOrWhiteSpace);
         }
 
         [Fact]
@@ -38,11 +37,11 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => string.Equals("Marcus", "MARCUS");
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
+            where.Should().BeOfType(typeof(MethodCallStatement));
 
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringEquals);
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringEquals);
         }
 
         [Theory]
@@ -56,15 +55,15 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => string.Equals("Marcus", "MARCUS", c);
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
+            where.Should().BeOfType(typeof(MethodCallStatement));
 
-            WhereMethodCallExpressionData.SupportedMethodNames expected = shouldIgnoreCase 
-                ? WhereMethodCallExpressionData.SupportedMethodNames.StringEqualsIgnoreCase
-                : WhereMethodCallExpressionData.SupportedMethodNames.StringEquals;
+            MethodCallStatement.SupportedMethodNames expected = shouldIgnoreCase
+                ? MethodCallStatement.SupportedMethodNames.StringEqualsIgnoreCase
+                : MethodCallStatement.SupportedMethodNames.StringEquals;
 
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(expected);
+            (where as MethodCallStatement).MethodName.Should().Be(expected);
         }
     }
 }

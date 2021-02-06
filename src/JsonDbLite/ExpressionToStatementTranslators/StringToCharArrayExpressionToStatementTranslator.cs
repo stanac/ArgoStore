@@ -1,12 +1,11 @@
-﻿using JsonDbLite.Expressions;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace JsonDbLite.WhereTranslators
+namespace JsonDbLite.ExpressionToStatementTranslators
 {
-    internal class StringToCharArrayTranslator : IWhereTranslator
+    internal class StringToCharArrayExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
         public bool CanTranslate(Expression expression)
         {
@@ -18,29 +17,29 @@ namespace JsonDbLite.WhereTranslators
             return false;
         }
 
-        public WhereClauseExpressionData Translate(Expression expression)
+        public Statement Translate(Expression expression)
         {
             var m = expression as MethodCallExpression;
 
-            WhereClauseExpressionData calledOn;
+            Statement calledOn;
 
             try
             {
-                calledOn = WhereTranslatorStrategy.Translate(m.Object);
+                calledOn = ExpressionToStatementTranslatorStrategy.Translate(m.Object);
             }
             catch (Exception ex)
             {
                 throw new NotSupportedException($"ToCharArray cannot be called on {m.Object.NodeType}", ex);
             }
 
-            if (!(calledOn is WhereConstantExpressionData))
+            if (!(calledOn is ConstantStatement))
             {
                 throw new NotSupportedException($"ToCharArray cannot be called on {m.Object.NodeType}");
             }
 
-            string value = (calledOn as WhereConstantExpressionData).Value;
+            string value = (calledOn as ConstantStatement).Value;
 
-            return new WhereConstantExpressionData
+            return new ConstantStatement
             {
                 Values = new List<string>(value.ToCharArray().Select(x => x.ToString())),
                 IsCollection = true

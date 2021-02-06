@@ -1,23 +1,22 @@
-﻿using JsonDbLite.Expressions;
-using JsonDbLite.Helpers;
+﻿using JsonDbLite.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace JsonDbLite.WhereTranslators
+namespace JsonDbLite.ExpressionToStatementTranslators
 {
-    internal class MemberExpressionTranslator : IWhereTranslator
+    internal class MemberExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
         public bool CanTranslate(Expression expression) => expression is MemberExpression;
     
-        public WhereClauseExpressionData Translate(Expression expression)
+        public Statement Translate(Expression expression)
         {
             MemberExpression e = expression as MemberExpression;
             if (e.Member is PropertyInfo pInf)
             {
-                return new WherePropertyExpressionData { Name = pInf.Name, IsBoolean = pInf.PropertyType == typeof(bool) };
+                return new PropertyAccessStatement { Name = pInf.Name, IsBoolean = pInf.PropertyType == typeof(bool) };
             }
             if (e.Member is FieldInfo fInf && e.Expression is ConstantExpression ce)
             {
@@ -32,7 +31,7 @@ namespace JsonDbLite.WhereTranslators
                         values.Add(v.ToString());
                     }
 
-                    return new WhereConstantExpressionData
+                    return new ConstantStatement
                     {
                         IsCollection = true,
                         Values = values
@@ -40,7 +39,7 @@ namespace JsonDbLite.WhereTranslators
                 }
                 else
                 {
-                    return new WhereConstantExpressionData { Value = value.ToString() };
+                    return new ConstantStatement { Value = value.ToString() };
                 }
             }
 

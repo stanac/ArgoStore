@@ -1,7 +1,5 @@
 ﻿using JsonDbLite.Helpers;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -55,14 +53,15 @@ namespace JsonDbLite
         {
             if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-            var visitor = new QueryVisitor();
-            string sql = visitor.Translate(expression, _config.Serializer);
+            var statement = ExpressionToStatementTranslators.ExpressionToStatementTranslatorStrategy.Translate(expression);
 
-            _entityTableHelper.EnsureEntityTableExists(visitor.ExpData.EntityType);
+            // _entityTableHelper.EnsureEntityTableExists(visitor.ExpData.EntityType);
+            // 
+            // IReadOnlyList<string> result = _dbAccess.QueryJsonField(sql);
+            // 
+            // return result.Select(x => _config.Serializer.Deserialize(x, visitor.ExpData.EntityType));
 
-            IReadOnlyList<string> result = _dbAccess.QueryJsonField(sql);
-
-            return result.Select(x => _config.Serializer.Deserialize(x, visitor.ExpData.EntityType));
+            throw new NotImplementedException();
         }
     }
 }

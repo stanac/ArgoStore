@@ -1,11 +1,10 @@
-﻿using JsonDbLite.Expressions;
-using System;
+﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace JsonDbLite.WhereTranslators
+namespace JsonDbLite.ExpressionToStatementTranslators
 {
-    internal class EnumerableContainsMethodCallTranslator : IWhereTranslator
+    internal class EnumerableContainsMethodCallExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
         public bool CanTranslate(Expression expression)
         {
@@ -17,7 +16,7 @@ namespace JsonDbLite.WhereTranslators
             return false;
         }
 
-        public WhereClauseExpressionData Translate(Expression expression)
+        public Statement Translate(Expression expression)
         {
             var m = expression as MethodCallExpression;
 
@@ -26,13 +25,13 @@ namespace JsonDbLite.WhereTranslators
                 throw new NotSupportedException($"Enumerable.Contains not supported with {m.Arguments.Count} argument(s), expression: {expression}");
             }
 
-            var arg1 = WhereTranslatorStrategy.Translate(m.Arguments[0]);
-            var arg2 = WhereTranslatorStrategy.Translate(m.Arguments[1]);
+            var arg1 = ExpressionToStatementTranslatorStrategy.Translate(m.Arguments[0]);
+            var arg2 = ExpressionToStatementTranslatorStrategy.Translate(m.Arguments[1]);
 
-            return new WhereMethodCallExpressionData
+            return new MethodCallStatement
             {
                 Arguments = new[] { arg2, arg1 },
-                MethodName = WhereMethodCallExpressionData.SupportedMethodNames.EnumerableContains
+                MethodName = MethodCallStatement.SupportedMethodNames.EnumerableContains
             };
         }
     }

@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
-using JsonDbLite.Expressions;
-using JsonDbLite.WhereTranslators;
+using JsonDbLite.ExpressionToStatementTranslators;
 using System;
 using System.Linq.Expressions;
 using Xunit;
@@ -14,15 +13,15 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Func<TestEntityPerson, bool>> ex = x => x.Name.Trim() == "Marcus";
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            var methodCall = (where as WhereBinaryComparisonExpressionData)?.Left as WhereMethodCallExpressionData;
+            var methodCall = (where as BinaryComparisonStatement)?.Left as MethodCallStatement;
 
             methodCall.Should().NotBeNull();
-            methodCall.Arguments[0].Should().BeOfType(typeof(WherePropertyExpressionData));
-            (methodCall.Arguments[0] as WherePropertyExpressionData).Name.Should().Be(nameof(TestEntityPerson.Name));
+            methodCall.Arguments[0].Should().BeOfType(typeof(PropertyAccessStatement));
+            (methodCall.Arguments[0] as PropertyAccessStatement).Name.Should().Be(nameof(TestEntityPerson.Name));
 
-            methodCall.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrim);
+            methodCall.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrim);
         }
 
         [Fact]
@@ -30,10 +29,10 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => "".ToUpper();
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringToUpper);
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringToUpper);
         }
 
         [Fact]
@@ -41,22 +40,22 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => "".ToLower();
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringToLower);
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringToLower);
         }
 
         [Fact]
         public void Translate_StringTrim_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".Trim();
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrim);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrim);
             m.Arguments.Length.Should().Be(1);
         }
 
@@ -64,36 +63,36 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         public void Translate_StringTrimWithParams_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".Trim('a', 'b', 'c');
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrim);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrim);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
         public void Translate_StringTrimWithStringToCharArray_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".Trim("abc".ToCharArray());
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrim);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrim);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
@@ -101,18 +100,18 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             string variable = "abc";
             Expression<Action> ex = () => "".Trim(variable.ToCharArray());
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrim);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrim);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
@@ -120,30 +119,30 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             char[] variable = "abc".ToCharArray();
             Expression<Action> ex = () => "".Trim(variable);
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrim);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrim);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
         public void Translate_StringTrimStart_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimStart();
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimStart);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimStart);
             m.Arguments.Length.Should().Be(1);
         }
 
@@ -151,36 +150,36 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         public void Translate_StringTrimStartWithParams_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimStart('a', 'b', 'c');
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimStart);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimStart);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
         public void Translate_StringTrimStartWithStringToCharArray_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimStart("abc".ToCharArray());
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimStart);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimStart);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
@@ -188,18 +187,18 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             string variable = "abc";
             Expression<Action> ex = () => "".TrimStart(variable.ToCharArray());
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimStart);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimStart);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
@@ -207,30 +206,30 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             char[] variable = "abc".ToCharArray();
             Expression<Action> ex = () => "".TrimStart(variable);
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimStart);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimStart);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
         public void Translate_StringTrimEnd_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimEnd();
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimEnd);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimEnd);
             m.Arguments.Length.Should().Be(1);
         }
 
@@ -238,36 +237,36 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         public void Translate_StringTrimEndWithParams_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimEnd('a', 'b', 'c');
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimEnd);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimEnd);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
         public void Translate_StringTrimEndWithStringToCharArray_TransaltedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimEnd("abc".ToCharArray());
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimEnd);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimEnd);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
@@ -275,18 +274,18 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             string variable = "abc";
             Expression<Action> ex = () => "".TrimEnd(variable.ToCharArray());
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimEnd);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimEnd);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
@@ -294,18 +293,18 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             char[] variable = "abc".ToCharArray();
             Expression<Action> ex = () => "".TrimEnd(variable);
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            var m = where as WhereMethodCallExpressionData;
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            var m = where as MethodCallStatement;
 
-            m.MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringTrimEnd);
+            m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringTrimEnd);
             m.Arguments.Length.Should().Be(2);
-            m.Arguments[1].As<WhereConstantExpressionData>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Count.Should().Be(3);
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("a");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("b");
-            m.Arguments[1].As<WhereConstantExpressionData>().Values.Should().Contain("c");
+            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[1].As<ConstantStatement>().Values.Count.Should().Be(3);
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("a");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("b");
+            m.Arguments[1].As<ConstantStatement>().Values.Should().Contain("c");
         }
 
         [Fact]
@@ -313,10 +312,10 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => "12345".Contains("123");
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringContains);
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringContains);
         }
 
         [Fact]
@@ -324,10 +323,10 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => "12345".Contains("123", StringComparison.OrdinalIgnoreCase);
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringContainsIgnoreCase);
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringContainsIgnoreCase);
         }
 
         [Fact]
@@ -335,10 +334,10 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => "12345".StartsWith("123");
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringStartsWith);
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringStartsWith);
         }
 
         [Fact]
@@ -346,10 +345,10 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => "12345".StartsWith("123", StringComparison.OrdinalIgnoreCase);
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringStartsWithIgnoreCase);
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringStartsWithIgnoreCase);
         }
 
         [Fact]
@@ -357,10 +356,10 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => "12345".EndsWith("123");
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringEndsWith);
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringEndsWith);
         }
 
         [Fact]
@@ -368,10 +367,10 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Action> ex = () => "12345".EndsWith("123", StringComparison.OrdinalIgnoreCase);
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WhereMethodCallExpressionData));
-            (where as WhereMethodCallExpressionData).MethodName.Should().Be(WhereMethodCallExpressionData.SupportedMethodNames.StringEndsWithIgnoreCase);
+            where.Should().BeOfType(typeof(MethodCallStatement));
+            (where as MethodCallStatement).MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.StringEndsWithIgnoreCase);
         }
     }
 }

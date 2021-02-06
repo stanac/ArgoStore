@@ -1,14 +1,13 @@
-﻿using JsonDbLite.Expressions;
-using System;
+﻿using System;
 using System.Linq.Expressions;
 
-namespace JsonDbLite.WhereTranslators
+namespace JsonDbLite.ExpressionToStatementTranslators
 {
-    internal class ConstantExpressionTranslator : IWhereTranslator
+    internal class ConstantStatementTranslator : IExpressionToStatementTranslator
     {
         public bool CanTranslate(Expression expression) => expression is ConstantExpression;
 
-        public WhereClauseExpressionData Translate(Expression expression)
+        public Statement Translate(Expression expression)
         {
             var e = expression as ConstantExpression;
 
@@ -23,23 +22,23 @@ namespace JsonDbLite.WhereTranslators
             
             if (expression.Type == typeof(string))
             {
-                return new WhereConstantExpressionData { IsString = true, Value = value };
+                return new ConstantStatement { IsString = true, Value = value };
             }
             else if (expression.Type.IsEnum)
             {
-                return new WhereConstantExpressionData { IsString = false, Value = value };
+                return new ConstantStatement { IsString = false, Value = value };
             }
             else if (expression.Type == typeof(bool))
             {
-                return new WhereConstantExpressionData { IsBoolean = true, Value = value };
+                return new ConstantStatement { IsBoolean = true, Value = value };
             }
             else if (expression.Type == typeof(int))
             {
-                return new WhereConstantExpressionData { Value = value };
+                return new ConstantStatement { Value = value };
             }
             else if (expression.Type == typeof(char))
             {
-                return new WhereConstantExpressionData { IsString = true, Value = value };
+                return new ConstantStatement { IsString = true, Value = value };
             }
 
             throw new NotSupportedException($"Constant of type {expression.Type.Name} isn't supported");

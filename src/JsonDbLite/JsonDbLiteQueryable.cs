@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace JsonDbLite
 {
-    internal class JsonDbLiteQueryable<T> : IQueryable<T>
+    internal class JsonDbLiteQueryable<T> : IJsonDbLiteQueryable<T>
     {
         public JsonDbLiteQueryable(JsonDbLiteQueryProvider provider)
         {
@@ -38,7 +38,11 @@ namespace JsonDbLite
             return res.Cast<T>().GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        public string ToSqlString()
+        {
+            throw new NotImplementedException();
+        }
 
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

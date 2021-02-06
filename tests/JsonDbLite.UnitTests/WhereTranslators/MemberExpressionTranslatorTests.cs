@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
-using JsonDbLite.Expressions;
-using JsonDbLite.WhereTranslators;
+using JsonDbLite.ExpressionToStatementTranslators;
 using System;
 using System.Linq.Expressions;
 using Xunit;
@@ -14,11 +13,11 @@ namespace JsonDbLite.UnitTests.WhereTranslators
         {
             Expression<Func<TestEntityPerson, bool>> ex = x => x.Active;
 
-            var where = WhereTranslatorStrategy.Translate(ex);
+            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(WherePropertyExpressionData));
+            where.Should().BeOfType(typeof(PropertyAccessStatement));
 
-            var p = where as WherePropertyExpressionData;
+            var p = where as PropertyAccessStatement;
             p.Name.Should().Be("Active");
             p.IsBoolean.Should().BeTrue();
         }
