@@ -1,5 +1,6 @@
 ﻿using ArgoStore.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -53,15 +54,19 @@ namespace ArgoStore
         {
             if (expression is null) throw new ArgumentNullException(nameof(expression));
 
-            var statement = ExpressionToStatementTranslators.ExpressionToStatementTranslatorStrategy.Translate(expression);
+            Statement statement = ExpressionToStatementTranslators.ExpressionToStatementTranslatorStrategy.Translate(expression);
 
-            // _entityTableHelper.EnsureEntityTableExists(visitor.ExpData.EntityType);
-            // 
-            // IReadOnlyList<string> result = _dbAccess.QueryJsonField(sql);
-            // 
-            // return result.Select(x => _config.Serializer.Deserialize(x, visitor.ExpData.EntityType));
+            TopStatement ts = TopStatement.Create(statement);
 
-            throw new NotImplementedException();
+            StatementToSqlTranslator translator = new StatementToSqlTranslator(_config.Serializer);
+
+            string sql = translator.ToSql(ts);
+
+            _entityTableHelper.EnsureEntityTableExists(ts.TargetType);
+            
+            IReadOnlyList<string> result = _dbAccess.QueryJsonField(sql);
+            
+            return result.Select(x => _config.Serializer.Deserialize(x, ts.TargetType));
         }
     }
 }

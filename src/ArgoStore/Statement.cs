@@ -17,15 +17,61 @@ namespace ArgoStore
         public abstract Statement Copy();
     }
 
+    internal class TopStatement
+    {
+        public Type TargetType { get; }
+        public SelectStatement SelectStatement { get; }
+
+        public TopStatement(WhereStatement where)
+        {
+            SelectStatement = new SelectStatement
+            {
+                WhereStatement = where ?? throw new ArgumentNullException(nameof(where)),
+                TargetType = where.TargetType ?? throw new ArgumentException("TargetType not set", nameof(where))
+            };
+
+            TargetType = where.TargetType;
+        }
+
+        public TopStatement(SelectStatement select)
+        {
+            SelectStatement = select ?? throw new ArgumentNullException(nameof(select));
+            TargetType = select.TargetType ?? throw new ArgumentException("TargetType not set", nameof(select));
+        }
+
+        public static TopStatement Create(Statement statement)
+        {
+            if (statement is null) throw new ArgumentNullException(nameof(statement));
+
+            if (statement is SelectStatement ss)
+            {
+                return new TopStatement(ss);
+            }
+            
+            if (statement is WhereStatement ws)
+            {
+                return new TopStatement(ws);
+            }
+
+            throw new ArgumentException($"Cannot create {nameof(TopStatement)} from {statement.GetType().FullName}", nameof(statement));
+        }
+    }
+
     internal class SelectStatement : Statement
     {
-        public Statement Statement { get; set; }
+        public WhereStatement WhereStatement { get; set; }
+        public Type TargetType { get; set; }
+        public bool SelectStar { get; set; } = true;
+        public List<Statement> SelectElements { get; set; } = new List<Statement>();
 
         public override Statement Copy()
         {
             return new SelectStatement
             {
-                Statement = Statement?.Copy()
+                WhereStatement = WhereStatement?.Copy() as WhereStatement,
+                TargetType = TargetType,
+                SelectStar = SelectStar,
+                SelectElements = SelectElements?.Select(x => x.Copy())?.ToList()
             };
         }
 
@@ -38,13 +84,14 @@ namespace ArgoStore
         {
             return new SelectStatement
             {
-                Statement = Statement?.ReduceIfPossible()
+                WhereStatement = WhereStatement?.ReduceIfPossible() as WhereStatement
             };
         }
 
         public override string ToDebugString()
         {
-            return $"SELECT {Statement?.ToDebugString()}";
+            // TODO: check selected properties
+            return $"SELECT {WhereStatement?.ToDebugString()}";
         }
     }
 
@@ -52,6 +99,8 @@ namespace ArgoStore
     {
         public Statement Statement { get; set; }
 
+        public Type TargetType { get; set; }
+
         public override Statement Copy()
         {
             return new WhereStatement
@@ -69,7 +118,8 @@ namespace ArgoStore
         {
             return new WhereStatement
             {
-                Statement = Statement.ReduceIfPossible()
+                Statement = Statement.ReduceIfPossible(),
+                TargetType = TargetType
             };
         }
 
@@ -83,6 +133,8 @@ namespace ArgoStore
     {
         public Statement Left { get; set; }
         public Statement Right { get; set; }
+
+        public abstract string OperatorString { get; }
     }
 
     internal class BinaryLogicalStatement : BinaryStatement
@@ -121,13 +173,15 @@ namespace ArgoStore
         }
 
         public override string ToDebugString() => $"{Left?.ToDebugString()} {(IsOr ? "||" : "&&")} {Right?.ToDebugString()}";
+
+        public override string OperatorString => IsAnd ? "AND" : "OR";
     }
 
     internal class BinaryComparisonStatement : BinaryStatement
     {
         public Operators Operator { get; set; }
 
-        public string OperatorString
+        public override string OperatorString
         {
             get
             {
