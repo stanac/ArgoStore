@@ -255,7 +255,8 @@ namespace ArgoStore.IntegrationTests
             });
 
             dbTableHelper.EnsureEntityTableExists<Person>();
-            
+            dbTableHelper.EnsureEntityTableExists<Person>();
+
             ArgoStoreSerializer s = new ArgoStoreSerializer();
             var persons = s.Deserialize<List<Person>>(_personsJson);
 

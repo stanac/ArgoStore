@@ -19,7 +19,40 @@ namespace ArgoStore
             _connectionString = connectionString;
         }
 
-        public IReadOnlyList<string> QueryJsonField(string sql)
+        public IEnumerable<object[]> QueryFields(string sql)
+        {
+            if (string.IsNullOrWhiteSpace(sql)) throw new ArgumentException($"'{nameof(sql)}' cannot be null or whitespace", nameof(sql));
+
+            List<string> result = new List<string>();
+
+            using (var con = new SqliteConnection(_connectionString))
+            {
+                con.Open();
+
+                var cmd = con.CreateCommand();
+                cmd.CommandText = sql;
+
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    object[] row = new object[reader.FieldCount];
+
+                    for (int i = 0; i < row.Length; i++)
+                    {
+                        row[i] = reader[0];
+                        if (row[i] is DBNull)
+                        {
+                            row[i] = null;
+                        }
+                    }
+
+                    yield return row;
+                }
+            }
+        }
+
+        public IEnumerable<object> QueryField(string sql)
         {
             if (string.IsNullOrWhiteSpace(sql)) throw new ArgumentException($"'{nameof(sql)}' cannot be null or whitespace", nameof(sql));
 
@@ -41,14 +74,12 @@ namespace ArgoStore
                         throw new InvalidOperationException("Reader returned more than 1 column for query:\n" + sql);
                     }
 
-                    result.Add((string)reader[0]);
+                    if (reader[0] is DBNull) yield return null;
+                    else yield return reader[0];
                 }
-
-                return result;
             }
         }
-
-        public async Task<IReadOnlyList<string>> QueryJsonFieldAsync(string sql)
+        public IEnumerable<string> QueryJsonField(string sql)
         {
             if (string.IsNullOrWhiteSpace(sql)) throw new ArgumentException($"'{nameof(sql)}' cannot be null or whitespace", nameof(sql));
 
@@ -56,25 +87,28 @@ namespace ArgoStore
 
             using (var con = new SqliteConnection(_connectionString))
             {
-                await con.OpenAsync();
+                con.Open();
 
                 var cmd = con.CreateCommand();
                 cmd.CommandText = sql;
 
-                var reader = await cmd.ExecuteReaderAsync();
+                var reader = cmd.ExecuteReader();
 
-                while (await reader.ReadAsync())
+                while (reader.Read())
                 {
                     if (reader.FieldCount != 1)
                     {
                         throw new InvalidOperationException("Reader returned more than 1 column for query:\n" + sql);
                     }
 
-                    result.Add((string)reader[0]);
+                    yield return (string)reader[0];
                 }
-
-                return result;
             }
+        }
+
+        public Task<IEnumerable<string>> QueryJsonFieldAsync(string sql)
+        {
+            throw new NotImplementedException();
         }
     }
 }

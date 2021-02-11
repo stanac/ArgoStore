@@ -1,5 +1,6 @@
 ﻿using ArgoStore.Helpers;
 using System;
+using System.Linq;
 
 namespace ArgoStore
 {
@@ -18,9 +19,9 @@ namespace ArgoStore
 
             string elementsToSelect = "json_data";
 
-            if (!statement.SelectStatement.SelectStar)
+            if (statement.SelectStatement.SelectElements.Count > 0)
             {
-                throw new NotImplementedException();
+                elementsToSelect = string.Join(", ", statement.SelectStatement.SelectElements.Select(x => ToSqlInternal(x.Statement)));
             }
 
             string sql = $@"SELECT {elementsToSelect}
@@ -44,6 +45,7 @@ WHERE {ToSqlInternal(statement.SelectStatement.WhereStatement.Statement)}
             switch (statement)
             {
                 case BinaryStatement s1: return ToSqlInternal(s1);
+                case SelectStarParameterStatement s2: return ToSqlInternal(s2);
                 case PropertyAccessStatement s3: return ToSqlInternal(s3);
                 case ConstantStatement s4: return ToSqlInternal(s4);
                 case MethodCallStatement s5: return ToSqlInternal(s5);
@@ -84,6 +86,11 @@ WHERE {ToSqlInternal(statement.SelectStatement.WhereStatement.Statement)}
             }
 
             return statement.Value;
+        }
+
+        private string ToSqlInternal(SelectStarParameterStatement statement)
+        {
+            return "json_data";
         }
 
         private string ToSqlInternal(MethodCallStatement statement)

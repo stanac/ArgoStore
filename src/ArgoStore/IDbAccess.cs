@@ -5,7 +5,9 @@ namespace ArgoStore
 {
     internal interface IDbAccess
     {
-        IReadOnlyList<string> QueryJsonField(string sql);
-        Task<IReadOnlyList<string>> QueryJsonFieldAsync(string sql);
+        IEnumerable<string> QueryJsonField(string sql);
+        IEnumerable<object[]> QueryFields(string sql);
+        IEnumerable<object> QueryField(string sql);
+        Task<IEnumerable<string>> QueryJsonFieldAsync(string sql);
     }
 }

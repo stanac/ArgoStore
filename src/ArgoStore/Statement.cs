@@ -27,7 +27,16 @@ namespace ArgoStore
             SelectStatement = new SelectStatement
             {
                 WhereStatement = where ?? throw new ArgumentNullException(nameof(where)),
-                TargetType = where.TargetType ?? throw new ArgumentException("TargetType not set", nameof(where))
+                TargetType = where.TargetType ?? throw new ArgumentException("TargetType not set", nameof(where)),
+                SelectElements = new List<SelectStatementElement>
+                {
+                    new SelectStatementElement
+                    {
+                        ReturnType = where.TargetType,
+                        SelectsJson = true,
+                        Statement = new SelectStarParameterStatement()
+                    }
+                }
             };
 
             TargetType = where.TargetType;
@@ -61,8 +70,7 @@ namespace ArgoStore
     {
         public WhereStatement WhereStatement { get; set; }
         public Type TargetType { get; set; }
-        public bool SelectStar { get; set; } = true;
-        public List<Statement> SelectElements { get; set; } = new List<Statement>();
+        public List<SelectStatementElement> SelectElements { get; set; } = new List<SelectStatementElement>();
 
         public override Statement Copy()
         {
@@ -70,8 +78,7 @@ namespace ArgoStore
             {
                 WhereStatement = WhereStatement?.Copy() as WhereStatement,
                 TargetType = TargetType,
-                SelectStar = SelectStar,
-                SelectElements = SelectElements?.Select(x => x.Copy())?.ToList()
+                SelectElements = SelectElements?.Select(x => x.Copy())?.Cast<SelectStatementElement>()?.ToList()
             };
         }
 
@@ -84,15 +91,59 @@ namespace ArgoStore
         {
             return new SelectStatement
             {
-                WhereStatement = WhereStatement?.ReduceIfPossible() as WhereStatement
+                WhereStatement = WhereStatement?.ReduceIfPossible() as WhereStatement,
+                TargetType = TargetType,
+                SelectElements = SelectElements?.Select(x => x.ReduceIfPossible())?.Cast<SelectStatementElement>()?.ToList()
             };
         }
 
         public override string ToDebugString()
         {
-            // TODO: check selected properties
-            return $"SELECT {WhereStatement?.ToDebugString()}";
+            return $"SELECT {string.Join(", ", SelectElements.Select(x => x.ToDebugString()))} {WhereStatement?.ToDebugString()}";
         }
+    }
+
+    internal class SelectStatementElement : Statement
+    {
+        public Statement Statement { get; set; }
+        public Type ReturnType { get; set; }
+        public bool SelectsJson { get; set; }
+
+        public override Statement Copy()
+        {
+            return new SelectStatementElement
+            {
+                Statement = Statement?.Copy(),
+                ReturnType = ReturnType,
+                SelectsJson = SelectsJson
+            };
+        }
+
+        public override Statement Negate()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override Statement ReduceIfPossible()
+        {
+            return this;
+        }
+
+        public override string ToDebugString() => $"{Statement?.ToDebugString()}";
+    }
+
+    internal class SelectStarParameterStatement : Statement
+    {
+        public override Statement Copy() => new SelectStarParameterStatement();
+
+        public override Statement Negate()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override Statement ReduceIfPossible() => this;
+
+        public override string ToDebugString() => "*";
     }
 
     internal class WhereStatement : Statement

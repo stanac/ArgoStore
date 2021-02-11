@@ -63,10 +63,23 @@ namespace ArgoStore
             string sql = translator.ToSql(ts);
 
             _entityTableHelper.EnsureEntityTableExists(ts.TargetType);
-            
-            IReadOnlyList<string> result = _dbAccess.QueryJsonField(sql);
-            
-            return result.Select(x => _config.Serializer.Deserialize(x, ts.TargetType));
+
+            if (ts.SelectStatement.SelectElements.Count == 1)
+            {
+                if (ts.SelectStatement.SelectElements[0].SelectsJson)
+                {
+                    IEnumerable<string> result = _dbAccess.QueryJsonField(sql);
+
+                    return result.Select(x => _config.Serializer.Deserialize(x, ts.TargetType));
+                }
+                else
+                {
+                    return _dbAccess.QueryField(sql);
+                }
+            }
+
+
+            throw new NotImplementedException();
         }
     }
 }

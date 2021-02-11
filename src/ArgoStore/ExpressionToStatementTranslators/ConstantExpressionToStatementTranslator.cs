@@ -3,9 +3,22 @@ using System.Linq.Expressions;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {
-    internal class ConstantStatementTranslator : IExpressionToStatementTranslator
+    internal class ConstantExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
-        public bool CanTranslate(Expression expression) => expression is ConstantExpression;
+        public bool CanTranslate(Expression expression)
+        {
+            if (expression is ConstantExpression ce)
+            {
+                if (ce.Type.IsGenericType && ce.Type.GetGenericTypeDefinition() == typeof(IArgoStoreQueryable<>))
+                {
+                    return false;
+                }
+
+                return true;
+            }
+
+            return false;
+        }
 
         public Statement Translate(Expression expression)
         {
