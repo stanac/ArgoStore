@@ -80,7 +80,7 @@ namespace ArgoStore
 
             string sql = translator.ToSql(ts);
 
-            _entityTableHelper.EnsureEntityTableExists(ts.TargetType);
+            _entityTableHelper.EnsureEntityTableExists(ts.TypeFrom);
 
             if (ts.SelectStatement.SelectElements.Count == 1)
             {
@@ -88,16 +88,17 @@ namespace ArgoStore
                 {
                     IEnumerable<string> result = _dbAccess.QueryJsonField(sql);
 
-                    return result.Select(x => _config.Serializer.Deserialize(x, ts.TargetType));
+                    return result.Select(x => _config.Serializer.Deserialize(x, ts.TypeFrom));
                 }
                 else
                 {
                     return _dbAccess.QueryField(sql);
                 }
             }
-
-
-            throw new NotImplementedException();
+            else
+            {
+                var fields = _dbAccess.QueryFields(sql);
+            }
         }
 
         private static void GuardEmptyCallectionLinqCall(Expression e)

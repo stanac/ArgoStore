@@ -3,6 +3,7 @@ using ArgoStore.IntegrationTests.Entities;
 using System.Linq;
 using Xunit;
 using System;
+using System.Collections.Generic;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -10,15 +11,21 @@ namespace ArgoStore.IntegrationTests
     {
         private const string TestNameImogenCampbell = "Imogen Campbell";
 
-        [Fact]
-        public void WhereOnlyTest()
+        public LinqMethodsTests()
         {
-            using (var session = GetNewDocumentSession())
+            using (IDocumentSession session = GetNewDocumentSession())
             {
                 TestData td = new TestData(TestDbConnectionString);
                 td.InsertTestPersons();
+            }
+        }
 
-                var persons = session.Query<Person>()
+        [Fact]
+        public void WhereOnlyTest()
+        {
+            using (IDocumentSession session = GetNewDocumentSession())
+            {
+                List<Person> persons = session.Query<Person>()
                     .Where(x => x.Name == TestNameImogenCampbell)
                     .ToList();
 
@@ -32,12 +39,9 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void ToListOnlyTest()
         {
-            using (var session = GetNewDocumentSession())
+            using (IDocumentSession session = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
-                var persons = session.Query<Person>()
+                List<Person> persons = session.Query<Person>()
                     .ToList();
 
                 int count = persons.Count;
@@ -50,12 +54,9 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void SelectWholeObjectTest()
         {
-            using (var session = GetNewDocumentSession())
+            using (IDocumentSession session = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
-                var persons = session.Query<Person>()
+                List<Person> persons = session.Query<Person>()
                     .Select(x => x)
                     .ToList();
 
@@ -67,12 +68,9 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void SelectOnlySinglePropertyTest()
         {
-            using (var session = GetNewDocumentSession())
+            using (IDocumentSession session = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
-                var persons = session.Query<Person>()
+                List<string> persons = session.Query<Person>()
                     .Select(x => x.Name)
                     .ToList();
 
@@ -84,12 +82,9 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void SelectOnWhereOnArgoQueryable()
         {
-            using (var s = GetNewDocumentSession())
+            using (IDocumentSession s = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
-                var persons = s.Query<Person>()
+                List<string> persons = s.Query<Person>()
                     .Where(x => x.Name == TestNameImogenCampbell)
                     .Select(x => x.Name)
                     .ToList();
@@ -104,11 +99,8 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void FirstOrDefaultOnWhere()
         {
-            using (var s = GetNewDocumentSession())
+            using (IDocumentSession s = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
                 Person person = s.Query<Person>()
                     .Where(x => x.Name == TestNameImogenCampbell)
                     .FirstOrDefault();
@@ -121,11 +113,8 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void NonExistingFirstOrDefaultOnWhere()
         {
-            using (var s = GetNewDocumentSession())
+            using (IDocumentSession s = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
                 Person person = s.Query<Person>()
                     .Where(x => x.Name == "non existing")
                     .FirstOrDefault();
@@ -137,11 +126,8 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void NonExistingFirstOnWhere_ThrowsException()
         {
-            using (var s = GetNewDocumentSession())
+            using (IDocumentSession s = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
                 Action query = () =>
                 {
                     Person person = s.Query<Person>()
@@ -156,11 +142,8 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void FirstOrDefaultOnQueryable()
         {
-            using (var s = GetNewDocumentSession())
+            using (IDocumentSession s = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
                 Person person = s.Query<Person>()
                     .FirstOrDefault();
 
@@ -172,11 +155,8 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void FirstOrDefaultWithLambdaOnQueryable()
         {
-            using (var s = GetNewDocumentSession())
+            using (IDocumentSession s = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
                 Person person = s.Query<Person>()
                     .FirstOrDefault(x => x.Name == TestNameImogenCampbell);
 
@@ -188,11 +168,8 @@ namespace ArgoStore.IntegrationTests
         [Fact]
         public void FirstOrDefaultWithLambdaOnWhere()
         {
-            using (var s = GetNewDocumentSession())
+            using (IDocumentSession s = GetNewDocumentSession())
             {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-
                 Person person = s.Query<Person>()
                     .Where(x => x.Name != "a")
                     .FirstOrDefault(x => x.Name == TestNameImogenCampbell);
@@ -205,6 +182,19 @@ namespace ArgoStore.IntegrationTests
                     .FirstOrDefault(x => x.Name == TestNameImogenCampbell);
 
                 person.Should().BeNull();
+            }
+        }
+
+        [Fact]
+        public void SelectOnQueryableNewAnonymousObject()
+        {
+            using (IDocumentSession s = GetNewDocumentSession())
+            {
+                var p = s.Query<Person>()
+                    .Select(x => new { x.Name, x.CackeDay })
+                    .ToList();
+
+                p.Count.Should().BeGreaterThan(2);
             }
         }
     }

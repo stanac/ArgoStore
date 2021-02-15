@@ -1,5 +1,7 @@
-﻿using System;
+﻿using ArgoStore.Helpers;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -19,7 +21,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                     SelectStatementElement.CreateWithStar(targetType)
                 };
 
-                return new SelectStatement(where, targetType, selectElements, null, method);
+                return new SelectStatement(where, targetType, targetType, selectElements, null, method);
             }
 
             if (lambda.Body.NodeType == ExpressionType.MemberAccess)
@@ -35,11 +37,28 @@ namespace ArgoStore.ExpressionToStatementTranslators
                         new SelectStatementElement(statement, pi.PropertyType, false)
                     };
 
-                    return new SelectStatement(where, targetType, selectElements, null, method);
+                    return new SelectStatement(where, targetType, pi.PropertyType, selectElements, null, method);
                 }
             }
 
-            throw new NotImplementedException();
+            if (lambda.Body.NodeType == ExpressionType.New)
+            {
+                List<SelectStatementElement> selectElements = (lambda.Body as NewExpression)
+                    .Members
+                    .Select(x =>
+                    {
+                        Type type = TypeHelpers.GetMemberType(x);
+                        PropertyAccessStatement pa = new PropertyAccessStatement(x.Name, type == typeof(bool));
+                        return new SelectStatementElement(pa, type, false);
+                    })
+                    .ToList();
+
+                Type toType = (lambda.Body as NewExpression).Type;
+
+                return new SelectStatement(null, targetType, toType, selectElements, null, method);
+            }
+
+            throw new NotSupportedException($"{nameof(SelectLambdaTranslator)} cannot translate {lambda}");
         }
     }
 }

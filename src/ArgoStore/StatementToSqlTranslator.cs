@@ -25,7 +25,7 @@ namespace ArgoStore
             }
 
             string sql = $@"SELECT {elementsToSelect}
-FROM {EntityTableHelper.GetTableName(statement.TargetType)}";
+FROM {EntityTableHelper.GetTableName(statement.TypeFrom)}";
 
             if (statement.SelectStatement.WhereStatement != null)
             {

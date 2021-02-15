@@ -40,7 +40,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                 SelectStatementElement.CreateWithStar(where.TargetType)
             };
 
-            return new SelectStatement(where, where.TargetType, selectElements, 1, methodName);
+            return new SelectStatement(where, where.TargetType, where.TargetType, selectElements, 1, methodName);
         }
 
         private static bool IsWhereCall(Expression e)

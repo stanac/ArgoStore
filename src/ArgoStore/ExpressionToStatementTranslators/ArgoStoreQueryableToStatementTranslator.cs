@@ -27,7 +27,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                 SelectStatementElement.CreateWithStar(targetType)
             };
 
-            return new SelectStatement(null, targetType, selectStatements, null, SelectStatement.CalledByMethods.Select);
+            return new SelectStatement(null, targetType, targetType, selectStatements, null, SelectStatement.CalledByMethods.Select);
         }
     }
 }

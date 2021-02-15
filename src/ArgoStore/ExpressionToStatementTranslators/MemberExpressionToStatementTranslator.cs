@@ -16,7 +16,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
             MemberExpression e = expression as MemberExpression;
             if (e.Member is PropertyInfo pInf)
             {
-                return new PropertyAccessStatement { Name = pInf.Name, IsBoolean = pInf.PropertyType == typeof(bool) };
+                return new PropertyAccessStatement(e.Member.Name, pInf.PropertyType == typeof(bool));
             }
 
             if (e.Member is FieldInfo fInf && e.Expression is ConstantExpression ce)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace ArgoStore.Helpers
 {
@@ -32,6 +33,23 @@ namespace ArgoStore.Helpers
             if (elementType == null) throw new ArgumentNullException(nameof(elementType));
 
             return typeof(IEnumerable<>).MakeGenericType(elementType);
+        }
+
+        public static Type GetMemberType(MemberInfo mi)
+        {
+            if (mi is null) throw new ArgumentNullException(nameof(mi));
+
+            if (mi is PropertyInfo pi)
+            {
+                return pi.PropertyType;
+            }
+
+            if (mi is FieldInfo fi)
+            {
+                return fi.FieldType;
+            }
+
+            throw new NotSupportedException($"Cannot {nameof(GetMemberType)} from {mi.GetType().FullName}");
         }
 
         private static bool TypeIsEnumerableOfT(Type t) =>

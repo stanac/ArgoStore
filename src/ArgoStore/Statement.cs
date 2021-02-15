@@ -17,7 +17,8 @@ namespace ArgoStore
 
     internal class TopStatement
     {
-        public Type TargetType { get; }
+        public Type TypeFrom { get; }
+        public Type TypeTo { get; }
         public SelectStatement SelectStatement { get; }
 
         public TopStatement(WhereStatement where, SelectStatement.CalledByMethods method)
@@ -27,14 +28,16 @@ namespace ArgoStore
                 SelectStatementElement.CreateWithStar(where.TargetType)
             };
 
-            SelectStatement = new SelectStatement(where, where.TargetType, selectElements, null, method);
-            TargetType = where.TargetType;
+            SelectStatement = new SelectStatement(where, where.TargetType, where.TargetType, selectElements, null, method);
+            TypeFrom = where.TargetType;
+            TypeTo = where.TargetType;
         }
 
         public TopStatement(SelectStatement select)
         {
             SelectStatement = select ?? throw new ArgumentNullException(nameof(select));
-            TargetType = select.TargetType ?? throw new ArgumentException("TargetType not set", nameof(select));
+            TypeFrom = select.TypeFrom ?? throw new ArgumentException("TypeFrom not set", nameof(select));
+            TypeTo = select.TypeTo ?? throw new ArgumentException("TypeTo not set", nameof(select));
         }
 
         public static TopStatement Create(Statement statement)
@@ -58,15 +61,17 @@ namespace ArgoStore
     internal class SelectStatement : Statement
     {
         public WhereStatement WhereStatement { get; }
-        public Type TargetType { get; }
+        public Type TypeFrom { get; }
+        public Type TypeTo { get; }
         public IReadOnlyList<SelectStatementElement> SelectElements { get; } = new List<SelectStatementElement>();
         public int? Top { get; }
         public CalledByMethods CalledByMethod { get; }
 
-        public SelectStatement(WhereStatement whereStatement, Type targetType, IReadOnlyList<SelectStatementElement> selectElements, int? top, CalledByMethods calledByMethod)
+        public SelectStatement(WhereStatement whereStatement, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements, int? top, CalledByMethods calledByMethod)
         {
             WhereStatement = whereStatement;
-            TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
+            TypeFrom = typeFrom ?? throw new ArgumentNullException(nameof(typeFrom));
+            TypeTo = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
             SelectElements = selectElements ?? throw new ArgumentNullException(nameof(selectElements));
             Top = top;
             CalledByMethod = calledByMethod;
@@ -285,6 +290,14 @@ namespace ArgoStore
 
     internal class PropertyAccessStatement : Statement
     {
+        public PropertyAccessStatement(string name, bool isBoolean)
+        {
+            if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace", nameof(name));
+
+            Name = name;
+            IsBoolean = isBoolean;
+        }
+
         public string Name { get; set; }
         public bool IsBoolean { get; set; }
 

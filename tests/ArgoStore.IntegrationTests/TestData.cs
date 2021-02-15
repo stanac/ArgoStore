@@ -268,37 +268,6 @@ namespace ArgoStore.IntegrationTests
 
         internal void InsertTestPersons()
         {
-            for (int i = 0; i < 10; i++)
-            {
-                try
-                {
-                    InsertTestPersonsInner();
-                    return;
-                }
-                catch (SqliteException ex)
-                {
-                    if (ex.Message.Contains("no such table"))
-                    {
-                        Thread.Sleep(100);
-
-                        var th = new EntityTableHelper(new Configuration
-                        {
-                            ConnectionString = _connectionString,
-                            CreateEntitiesOnTheFly = true,
-                            Serializer = new ArgoStoreSerializer()
-                        });
-
-                        th.EnsureEntityTableExists<Person>();
-                        Thread.Sleep(100);
-                        InsertTestPersonsInner();
-                        return;
-                    }
-                }
-            }
-        }
-
-        internal void InsertTestPersonsInner()
-        {
             EntityTableHelper dbTableHelper = new EntityTableHelper(new Configuration
             {
                 ConnectionString = _connectionString,
