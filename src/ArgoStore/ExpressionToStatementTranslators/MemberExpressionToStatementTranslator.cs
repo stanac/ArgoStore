@@ -18,12 +18,18 @@ namespace ArgoStore.ExpressionToStatementTranslators
             {
                 return new PropertyAccessStatement { Name = pInf.Name, IsBoolean = pInf.PropertyType == typeof(bool) };
             }
+
             if (e.Member is FieldInfo fInf && e.Expression is ConstantExpression ce)
             {
                 object value = fInf.GetValue(ce.Value);
+                Type valueType = value.GetType();
 
-                if (TypeHelpers.IsCollectionType(value.GetType()))
+                if (TypeHelpers.IsCollectionType(valueType))
                 {
+                    Type collectionType = TypeHelpers.GetCollectionElementType(valueType);
+                    bool isString = collectionType == typeof(string);
+                    bool isBool = collectionType == typeof(bool);
+
                     List<string> values = new List<string>();
 
                     foreach (var v in value as IEnumerable)
@@ -31,15 +37,11 @@ namespace ArgoStore.ExpressionToStatementTranslators
                         values.Add(v.ToString());
                     }
 
-                    return new ConstantStatement
-                    {
-                        IsCollection = true,
-                        Values = values
-                    };
+                    return new ConstantStatement(isString, isBool, values);
                 }
                 else
                 {
-                    return new ConstantStatement { Value = value.ToString() };
+                    return new ConstantStatement(valueType == typeof(string), valueType == typeof(bool), value.ToString());
                 }
             }
 

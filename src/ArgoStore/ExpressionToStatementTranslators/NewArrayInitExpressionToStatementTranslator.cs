@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿using ArgoStore.Helpers;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace ArgoStore.ExpressionToStatementTranslators
@@ -11,13 +14,15 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             var exp = expression as NewArrayExpression;
 
-            var translated = exp.Expressions.Select(x => ExpressionToStatementTranslatorStrategy.Translate(x) as ConstantStatement).Select(x => x.Value).ToList();
+            List<ConstantStatement> constants = exp.Expressions.Select(x => ExpressionToStatementTranslatorStrategy.Translate(x) as ConstantStatement).ToList();
+            List<string> translated = constants.Select(x => x.Value).ToList();
 
-            return new ConstantStatement
-            {
-                Values = translated,
-                IsCollection = true
-            };
+            Type elementType = TypeHelpers.GetCollectionElementType(exp.Type);
+
+            bool isString = elementType == typeof(string) || elementType == typeof(char) || elementType.IsEnum;
+            bool isBool = elementType == typeof(bool);
+
+            return new ConstantStatement(isString, isBool, translated);
         }
     }
 }

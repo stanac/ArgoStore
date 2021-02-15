@@ -5,7 +5,7 @@ using Xunit;
 
 namespace ArgoStore.IntegrationTests
 {
-    public class SimpleTests : IntegrationTestsBase
+    public class LinqMethodsTests : IntegrationTestsBase
     {
         private const string TestNameImogenCampbell = "Imogen Campbell";
 
@@ -80,23 +80,40 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
+        [Fact]
+        public void SelectOnWhereOnArgoQueryable()
+        {
+            using (var s = GetNewDocumentSession())
+            {
+                TestData td = new TestData(TestDbConnectionString);
+                td.InsertTestPersons();
+
+                var persons = s.Query<Person>()
+                    .Where(x => x.Name == TestNameImogenCampbell)
+                    .Select(x => x.Name)
+                    .ToList();
+
+                int count = persons.Count;
+                count.Should().Be(1);
+
+                persons.First().Should().Be(TestNameImogenCampbell);
+            }
+        }
+
         //[Fact]
-        //public void Test2()
+        //public void FirstOrDefaultTest()
         //{
         //    using (var s = GetNewDocumentSession())
         //    {
         //        TestData td = new TestData(TestDbConnectionString);
         //        td.InsertTestPersons();
 
-        //        var persons = s.Query<Person>()
+        //        Person person = s.Query<Person>()
         //            .Where(x => x.Name == TestNameImogenCampbell)
-        //            .Select(x => x.Name)
-        //            .ToList();
+        //            .FirstOrDefault();
 
-        //        int count = persons.Count;
-        //        count.Should().Be(1);
-
-        //        persons.First().Should().Be(TestNameImogenCampbell);
+        //        person.Should().NotBeNull();
+        //        person.Name.Should().Be(TestNameImogenCampbell);
         //    }
         //}
     }

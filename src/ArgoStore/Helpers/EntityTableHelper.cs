@@ -8,8 +8,8 @@ namespace ArgoStore.Helpers
     internal class EntityTableHelper
     {
         private readonly Configuration _config;
-        private static readonly CacheHashSet<Type> _createdTables = new CacheHashSet<Type>();
-        private static readonly IDictionary<Type, IReadOnlyList<string>> _entityColumnsNames = new ConcurrentDictionary<Type, IReadOnlyList<string>>();
+        private readonly CacheHashSet<Type> _createdTables = new CacheHashSet<Type>();
+        private readonly IDictionary<Type, IReadOnlyList<string>> _entityColumnsNames = new ConcurrentDictionary<Type, IReadOnlyList<string>>();
 
         public EntityTableHelper(Configuration config)
         {

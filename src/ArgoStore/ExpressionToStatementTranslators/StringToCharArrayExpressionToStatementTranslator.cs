@@ -39,11 +39,9 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             string value = (calledOn as ConstantStatement).Value;
 
-            return new ConstantStatement
-            {
-                Values = new List<string>(value.ToCharArray().Select(x => x.ToString())),
-                IsCollection = true
-            };
+            List<string> values = new List<string>(value.ToCharArray().Select(x => x.ToString())).ToList();
+
+            return new ConstantStatement(true, false, values);
         }
     }
 }

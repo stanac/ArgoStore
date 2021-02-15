@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {
@@ -23,19 +20,14 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             var ce = expression as ConstantExpression;
 
-            return new SelectStatement
+            Type targetType = ce.Type.GetGenericArguments()[0];
+
+            var selectStatements = new List<SelectStatementElement>
             {
-                TargetType = ce.Type.GetGenericArguments()[0],
-                SelectElements = new List<SelectStatementElement>
-                {
-                    new SelectStatementElement
-                    {
-                        SelectsJson = true,
-                        Statement = new SelectStarParameterStatement(),
-                        ReturnType = ce.Type.GetGenericArguments()[0]
-                    }
-                }
+                SelectStatementElement.CreateWithStar(targetType)
             };
+
+            return new SelectStatement(null, targetType, selectStatements, null, SelectStatement.CalledByMethods.Select);
         }
     }
 }

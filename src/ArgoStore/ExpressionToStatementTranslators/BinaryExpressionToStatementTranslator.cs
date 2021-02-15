@@ -13,52 +13,40 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (e == null) throw new ArgumentException($"{nameof(expression)} is not BinaryExpression", nameof(expression));
 
-            BinaryStatement ret;
+            var left = ExpressionToStatementTranslatorStrategy.Translate(e.Left);
+            var right = ExpressionToStatementTranslatorStrategy.Translate(e.Right);
 
             switch (e.NodeType)
             {
                 case ExpressionType.And:
                 case ExpressionType.AndAlso:
-                    ret = new BinaryLogicalStatement { IsOr = false };
-                    break;
-
+                    return new BinaryLogicalStatement(left, right, false);
+                    
                 case ExpressionType.Or:
                 case ExpressionType.OrElse:
-                    ret = new BinaryLogicalStatement { IsOr = true };
-                    break;
-
+                    return new BinaryLogicalStatement(left, right, true);
+                    
                 case ExpressionType.Equal:
-                    ret = new BinaryComparisonStatement { Operator = BinaryComparisonStatement.Operators.Equal };
-                    break;
+                    return new BinaryComparisonStatement(left, right, BinaryComparisonStatement.Operators.Equal);
 
                 case ExpressionType.NotEqual:
-                    ret = new BinaryComparisonStatement { Operator = BinaryComparisonStatement.Operators.NotEqual };
-                    break;
+                    return new BinaryComparisonStatement(left, right, BinaryComparisonStatement.Operators.NotEqual);
 
                 case ExpressionType.LessThan:
-                    ret = new BinaryComparisonStatement { Operator = BinaryComparisonStatement.Operators.LessThan };
-                    break;
+                    return new BinaryComparisonStatement(left, right, BinaryComparisonStatement.Operators.LessThan);
 
                 case ExpressionType.LessThanOrEqual:
-                    ret = new BinaryComparisonStatement { Operator = BinaryComparisonStatement.Operators.LessThanOrEqual };
-                    break;
+                    return new BinaryComparisonStatement(left, right, BinaryComparisonStatement.Operators.LessThanOrEqual);
 
                 case ExpressionType.GreaterThan:
-                    ret = new BinaryComparisonStatement { Operator = BinaryComparisonStatement.Operators.GreaterThan };
-                    break;
+                    return new BinaryComparisonStatement(left, right, BinaryComparisonStatement.Operators.GreaterThan);
 
                 case ExpressionType.GreaterThanOrEqual:
-                    ret = new BinaryComparisonStatement { Operator = BinaryComparisonStatement.Operators.GreaterThanOrEqual };
-                    break;
+                    return new BinaryComparisonStatement(left, right, BinaryComparisonStatement.Operators.GreaterThanOrEqual);
 
                 default:
                     throw new NotSupportedException($"Binary operator \"{expression.NodeType}\" isn't supported");
             }
-
-            ret.Left = ExpressionToStatementTranslatorStrategy.Translate(e.Left);
-            ret.Right = ExpressionToStatementTranslatorStrategy.Translate(e.Right);
-
-            return ret;
         }
     }
 }

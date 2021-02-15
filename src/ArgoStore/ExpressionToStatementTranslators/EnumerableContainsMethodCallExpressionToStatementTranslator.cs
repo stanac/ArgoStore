@@ -28,11 +28,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
             var arg1 = ExpressionToStatementTranslatorStrategy.Translate(m.Arguments[0]);
             var arg2 = ExpressionToStatementTranslatorStrategy.Translate(m.Arguments[1]);
 
-            return new MethodCallStatement
-            {
-                Arguments = new[] { arg2, arg1 },
-                MethodName = MethodCallStatement.SupportedMethodNames.EnumerableContains
-            };
+            return new MethodCallStatement(MethodCallStatement.SupportedMethodNames.EnumerableContains, arg1, arg2);
         }
     }
 }

@@ -41,20 +41,14 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             private Statement TranslateIsNullOrWhiteSpace(MethodCallExpression e)
             {
-                return new MethodCallStatement
-                {
-                    MethodName = MethodCallStatement.SupportedMethodNames.StringIsNullOrWhiteSpace,
-                    Arguments = new Statement[] { ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0]) }
-                };
+                var arg = ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0]);
+                return new MethodCallStatement(MethodCallStatement.SupportedMethodNames.StringIsNullOrWhiteSpace, arg);
             }
 
             private Statement TranslateIsNullOrEmpty(MethodCallExpression e)
             {
-                return new MethodCallStatement
-                {
-                    MethodName = MethodCallStatement.SupportedMethodNames.StringIsNullOrEmpty,
-                    Arguments = new Statement[] { ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0]) }
-                };
+                var arg = ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0]);
+                return new MethodCallStatement(MethodCallStatement.SupportedMethodNames.StringIsNullOrEmpty, arg);
             }
 
             private Statement TranslateEquals(MethodCallExpression e)
@@ -67,11 +61,9 @@ namespace ArgoStore.ExpressionToStatementTranslators
                     ignoreCase = (value as ConstantStatement).Value.Contains("IgnoreCase");
                 }
 
-                return new MethodCallStatement
-                {
-                    MethodName = ignoreCase ? MethodCallStatement.SupportedMethodNames.StringEqualsIgnoreCase : MethodCallStatement.SupportedMethodNames.StringEquals,
-                    Arguments = new Statement[] { ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0]), ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[1]) }
-                };
+                MethodCallStatement.SupportedMethodNames methodName = ignoreCase ? MethodCallStatement.SupportedMethodNames.StringEqualsIgnoreCase : MethodCallStatement.SupportedMethodNames.StringEquals;
+                var args = new Statement[] { ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0]), ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[1]) };
+                return new MethodCallStatement(methodName, args);
             }
         }
     }

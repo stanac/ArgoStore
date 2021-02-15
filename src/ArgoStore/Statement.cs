@@ -13,8 +13,6 @@ namespace ArgoStore
         public abstract Statement Negate();
 
         public abstract Statement ReduceIfPossible();
-
-        public abstract Statement Copy();
     }
 
     internal class TopStatement
@@ -22,23 +20,14 @@ namespace ArgoStore
         public Type TargetType { get; }
         public SelectStatement SelectStatement { get; }
 
-        public TopStatement(WhereStatement where)
+        public TopStatement(WhereStatement where, SelectStatement.CalledByMethods method)
         {
-            SelectStatement = new SelectStatement
+            var selectElements = new List<SelectStatementElement>
             {
-                WhereStatement = where ?? throw new ArgumentNullException(nameof(where)),
-                TargetType = where.TargetType ?? throw new ArgumentException("TargetType not set", nameof(where)),
-                SelectElements = new List<SelectStatementElement>
-                {
-                    new SelectStatementElement
-                    {
-                        ReturnType = where.TargetType,
-                        SelectsJson = true,
-                        Statement = new SelectStarParameterStatement()
-                    }
-                }
+                SelectStatementElement.CreateWithStar(where.TargetType)
             };
 
+            SelectStatement = new SelectStatement(where, where.TargetType, selectElements, null, method);
             TargetType = where.TargetType;
         }
 
@@ -59,7 +48,7 @@ namespace ArgoStore
             
             if (statement is WhereStatement ws)
             {
-                return new TopStatement(ws);
+                return new TopStatement(ws, SelectStatement.CalledByMethods.Select); // todo: check CalledByMethods.Select in other methods
             }
 
             throw new ArgumentException($"Cannot create {nameof(TopStatement)} from {statement.GetType().FullName}", nameof(statement));
@@ -68,18 +57,21 @@ namespace ArgoStore
 
     internal class SelectStatement : Statement
     {
-        public WhereStatement WhereStatement { get; set; }
-        public Type TargetType { get; set; }
-        public List<SelectStatementElement> SelectElements { get; set; } = new List<SelectStatementElement>();
+        public WhereStatement WhereStatement { get; }
+        public Type TargetType { get; }
+        public IReadOnlyList<SelectStatementElement> SelectElements { get; } = new List<SelectStatementElement>();
+        public int? Top { get; }
+        public CalledByMethods CalledByMethod { get; }
 
-        public override Statement Copy()
+        public SelectStatement(WhereStatement whereStatement, Type targetType, IReadOnlyList<SelectStatementElement> selectElements, int? top, CalledByMethods calledByMethod)
         {
-            return new SelectStatement
-            {
-                WhereStatement = WhereStatement?.Copy() as WhereStatement,
-                TargetType = TargetType,
-                SelectElements = SelectElements?.Select(x => x.Copy())?.Cast<SelectStatementElement>()?.ToList()
-            };
+            WhereStatement = whereStatement;
+            TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
+            SelectElements = selectElements ?? throw new ArgumentNullException(nameof(selectElements));
+            Top = top;
+            CalledByMethod = calledByMethod;
+
+            if (top.HasValue && top < 1) throw new ArgumentException($"{nameof(top)} cannot be less than 1", nameof(top));
         }
 
         public override Statement Negate()
@@ -87,37 +79,33 @@ namespace ArgoStore
             throw new NotSupportedException();
         }
 
-        public override Statement ReduceIfPossible()
-        {
-            return new SelectStatement
-            {
-                WhereStatement = WhereStatement?.ReduceIfPossible() as WhereStatement,
-                TargetType = TargetType,
-                SelectElements = SelectElements?.Select(x => x.ReduceIfPossible())?.Cast<SelectStatementElement>()?.ToList()
-            };
-        }
+        public override Statement ReduceIfPossible() => this;
 
         public override string ToDebugString()
         {
             return $"SELECT {string.Join(", ", SelectElements.Select(x => x.ToDebugString()))} {WhereStatement?.ToDebugString()}";
         }
+
+        public enum CalledByMethods
+        {
+            Select, First, FirstOrDefault, Single, SingleOrDefault, Count
+        }
     }
 
     internal class SelectStatementElement : Statement
     {
-        public Statement Statement { get; set; }
-        public Type ReturnType { get; set; }
-        public bool SelectsJson { get; set; }
-
-        public override Statement Copy()
+        public SelectStatementElement(Statement statement, Type returnType, bool selectsJson)
         {
-            return new SelectStatementElement
-            {
-                Statement = Statement?.Copy(),
-                ReturnType = ReturnType,
-                SelectsJson = SelectsJson
-            };
+            Statement = statement ?? throw new ArgumentNullException(nameof(statement));
+            ReturnType = returnType ?? throw new ArgumentNullException(nameof(returnType));
+            SelectsJson = selectsJson;
         }
+
+        public static SelectStatementElement CreateWithStar(Type returnType) => new SelectStatementElement(new SelectStarParameterStatement(), returnType, true);
+
+        public Statement Statement { get; }
+        public Type ReturnType { get; }
+        public bool SelectsJson { get; }
 
         public override Statement Negate()
         {
@@ -134,8 +122,6 @@ namespace ArgoStore
 
     internal class SelectStarParameterStatement : Statement
     {
-        public override Statement Copy() => new SelectStarParameterStatement();
-
         public override Statement Negate()
         {
             throw new NotSupportedException();
@@ -148,31 +134,22 @@ namespace ArgoStore
 
     internal class WhereStatement : Statement
     {
-        public Statement Statement { get; set; }
-
-        public Type TargetType { get; set; }
-
-        public override Statement Copy()
+        public WhereStatement(Statement statement, Type targetType)
         {
-            return new WhereStatement
-            {
-                Statement = Statement?.Copy()
-            };
+            Statement = statement ?? throw new ArgumentNullException(nameof(statement));
+            TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
         }
+
+        public Statement Statement { get; }
+
+        public Type TargetType { get; }
 
         public override Statement Negate()
         {
             throw new NotSupportedException();
         }
 
-        public override Statement ReduceIfPossible()
-        {
-            return new WhereStatement
-            {
-                Statement = Statement.ReduceIfPossible(),
-                TargetType = TargetType
-            };
-        }
+        public override Statement ReduceIfPossible() => new WhereStatement(Statement.ReduceIfPossible(), TargetType);
 
         public override string ToDebugString()
         {
@@ -182,46 +159,32 @@ namespace ArgoStore
 
     internal abstract class BinaryStatement : Statement
     {
-        public Statement Left { get; set; }
-        public Statement Right { get; set; }
+        protected BinaryStatement(Statement left, Statement right)
+        {
+            Left = left ?? throw new ArgumentNullException(nameof(left));
+            Right = right ?? throw new ArgumentNullException(nameof(right));
+        }
+
+        public Statement Left { get; }
+        public Statement Right { get; }
 
         public abstract string OperatorString { get; }
     }
 
     internal class BinaryLogicalStatement : BinaryStatement
     {
+        public BinaryLogicalStatement(Statement left, Statement right, bool isOr)
+            : base (left, right)
+        {
+            IsOr = isOr;
+        }
+
         public bool IsOr { get; set; }
         public bool IsAnd => !IsOr;
 
-        public override Statement Copy()
-        {
-            return new BinaryLogicalStatement
-            {
-                Left = Left?.Copy(),
-                Right = Right?.Copy(),
-                IsOr = IsOr
-            };
-        }
+        public override Statement Negate() => new BinaryLogicalStatement(Left.Negate(), Right.Negate(), !IsOr);
 
-        public override Statement Negate()
-        {
-            return new BinaryLogicalStatement
-            {
-                Left = Left?.Negate(),
-                Right = Right?.Negate(),
-                IsOr = !IsOr
-            };
-        }
-
-        public override Statement ReduceIfPossible()
-        {
-            return new BinaryLogicalStatement
-            {
-                Left = Left?.ReduceIfPossible(),
-                Right = Right?.ReduceIfPossible(),
-                IsOr = IsOr
-            };
-        }
+        public override Statement ReduceIfPossible() => new BinaryLogicalStatement(Left.ReduceIfPossible(), Right.ReduceIfPossible(), IsOr);
 
         public override string ToDebugString() => $"{Left?.ToDebugString()} {(IsOr ? "||" : "&&")} {Right?.ToDebugString()}";
 
@@ -230,7 +193,13 @@ namespace ArgoStore
 
     internal class BinaryComparisonStatement : BinaryStatement
     {
-        public Operators Operator { get; set; }
+        public BinaryComparisonStatement(Statement left, Statement right, Operators oper)
+            : base(left, right)
+        {
+            Operator = oper;
+        }
+
+        public Operators Operator { get; }
 
         public override string OperatorString
         {
@@ -257,15 +226,7 @@ namespace ArgoStore
             }
         }
 
-        public override Statement Negate()
-        {
-            return new BinaryComparisonStatement
-            {
-                Left = Left.Copy(),
-                Right = Right.Copy(),
-                Operator = GetNegatedOperator()
-            };
-        }
+        public override Statement Negate() => new BinaryComparisonStatement(Left, Right, GetNegatedOperator());
 
         private Operators GetNegatedOperator()
         {
@@ -288,27 +249,9 @@ namespace ArgoStore
             throw new IndexOutOfRangeException();
         }
 
-        public override Statement Copy()
-        {
-            return new BinaryComparisonStatement
-            {
-                Left = Left?.Copy(),
-                Right = Right?.Copy(),
-                Operator = Operator
-            };
-        }
-
         public override string ToDebugString() => $"{Left?.ToDebugString()} {OperatorString} {Right?.ToDebugString()}";
 
-        public override Statement ReduceIfPossible()
-        {
-            return new BinaryComparisonStatement
-            {
-                Left = Left?.ReduceIfPossible(),
-                Right = Right?.ReduceIfPossible(),
-                Operator = Operator
-            };
-        }
+        public override Statement ReduceIfPossible() => new BinaryComparisonStatement(Left.ReduceIfPossible(), Right.ReduceIfPossible(), Operator);
 
         public enum Operators
         {
@@ -323,17 +266,9 @@ namespace ArgoStore
     {
         public Statement InnerStatement { get; set; }
 
-        public override Statement Copy()
-        {
-            return new NotStatement
-            {
-                InnerStatement = InnerStatement?.Copy()
-            };
-        }
-
         public override Statement Negate()
         {
-            return InnerStatement.Copy();
+            return InnerStatement;
         }
 
         public override string ToDebugString() => $"NOT ({InnerStatement})";
@@ -346,83 +281,61 @@ namespace ArgoStore
         public string Name { get; set; }
         public bool IsBoolean { get; set; }
 
-        public override Statement Copy()
-        {
-            return new PropertyAccessStatement
-            {
-                Name = Name,
-                IsBoolean = IsBoolean
-            };
-        }
-
         public override Statement Negate()
         {
             if (IsBoolean)
             {
-                return new BinaryComparisonStatement
-                {
-                    Operator = BinaryComparisonStatement.Operators.Equal,
-                    Left = this,
-                    Right = new ConstantStatement
-                    {
-                        IsBoolean = true,
-                        Value = "False"
-                    }
-                };
+                Statement right = ConstantStatement.CreateBoolean(false);
+
+                return new BinaryComparisonStatement(this, right, BinaryComparisonStatement.Operators.Equal);
             }
 
             throw new NotSupportedException();
         }
 
-        public override Statement ReduceIfPossible() => Copy();
+        public override Statement ReduceIfPossible() => this;
 
         public override string ToDebugString() => $"$.{Name}";
     }
 
     internal class ConstantStatement : Statement
     {
-        public bool IsString { get; set; }
-        public bool IsBoolean { get; set; }
-        public bool IsCollection { get; set; }
-        public string Value { get; set; }
-        public List<string> Values { get; set; }
-
-        public override Statement Copy()
+        public ConstantStatement(bool isString, bool isBoolean, string value)
         {
-            List<string> values = null;
-
-            if (Values != null) values = Values.AsEnumerable().ToList();
-
-            return new ConstantStatement
-            {
-                IsBoolean = IsBoolean,
-                IsCollection = IsCollection,
-                IsString = IsString,
-                Value = Value,
-                Values = values
-            };
+            IsString = isString;
+            IsBoolean = isBoolean;
+            Value = value;
         }
+
+        public ConstantStatement(bool isString, bool isBoolean, List<string> values)
+        {
+            IsString = isString;
+            IsBoolean = isBoolean;
+            Values = values ?? throw new ArgumentNullException(nameof(values));
+            IsCollection = true;
+        }
+
+        public bool IsString { get; }
+        public bool IsBoolean { get; }
+        public bool IsCollection { get; }
+        public string Value { get; }
+        public List<string> Values { get; }
+
+        public static ConstantStatement CreateBoolean(bool value) => new ConstantStatement(false, true, value.ToString());
 
         public override Statement Negate()
         {
             if (IsBoolean)
             {
-                return new BinaryComparisonStatement
-                {
-                    Left = this,
-                    Operator = BinaryComparisonStatement.Operators.Equal,
-                    Right = new ConstantStatement
-                    {
-                        Value = "False",
-                        IsBoolean = true
-                    }
-                };
+                Statement right = ConstantStatement.CreateBoolean(false);
+
+                return new BinaryComparisonStatement(this, right, BinaryComparisonStatement.Operators.Equal);
             }
 
             throw new NotSupportedException($"Cannot negate non boolean value");
         }
 
-        public override Statement ReduceIfPossible() => Copy();
+        public override Statement ReduceIfPossible() => this;
 
         public override string ToDebugString()
         {
@@ -447,36 +360,34 @@ namespace ArgoStore
         };
 
         public Statement[] Arguments { get; set; }
-        public SupportedMethodNames? MethodName { get; set; }
-        public bool Negated { get; set; }
+        public SupportedMethodNames MethodName { get; set; }
+        public bool Negated { get; }
 
-        public bool IsResultBoolean => MethodName.HasValue && _booleanResultMethodNames.Contains(MethodName.Value);
-
-        public override Statement Copy()
+        public MethodCallStatement(SupportedMethodNames methodName, params Statement[] arguments)
+            : this (methodName, false, arguments)
         {
-            return new MethodCallStatement
-            {
-                MethodName = MethodName,
-                Arguments = Arguments?.Select(x => x.Copy())?.ToArray()
-            };
         }
+
+        public MethodCallStatement(SupportedMethodNames methodName, bool negated, params Statement[] arguments)
+        {
+            MethodName = methodName;
+            Negated = negated;
+            Arguments = arguments ?? throw new ArgumentNullException(nameof(arguments));
+        }
+
+        public bool IsResultBoolean => _booleanResultMethodNames.Contains(MethodName);
 
         public override Statement Negate()
         {
-            if (MethodName.HasValue && !_booleanResultMethodNames.Contains(MethodName.Value))
+            if (!_booleanResultMethodNames.Contains(MethodName))
             {
-                throw new NotSupportedException($"Cannot negate non boolean method {MethodName.Value}");
+                throw new NotSupportedException($"Cannot negate non boolean method {MethodName}");
             }
 
-            return new MethodCallStatement
-            {
-                Arguments = Arguments?.Select(x => x.Copy())?.ToArray(),
-                MethodName = MethodName,
-                Negated = !Negated
-            };
+            return new MethodCallStatement(MethodName, !Negated, Arguments);
         }
 
-        public override Statement ReduceIfPossible() => Copy();
+        public override Statement ReduceIfPossible() => this;
 
         public override string ToDebugString() => $"{MethodName}({string.Join(", ", Arguments?.Select(x => x.ToDebugString()))})";
 

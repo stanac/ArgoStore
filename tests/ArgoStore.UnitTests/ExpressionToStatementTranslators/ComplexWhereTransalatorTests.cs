@@ -42,16 +42,16 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
             var m = where as MethodCallStatement;
             m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.EnumerableContains);
             m.Arguments.Should().HaveCount(2);
-            m.Arguments[0].Should().BeOfType(typeof(PropertyAccessStatement));
-            m.Arguments[0].As<PropertyAccessStatement>().Name.Should().Be(nameof(TestEntityPerson.Name));
-            m.Arguments[1].Should().BeOfType(typeof(ConstantStatement));
-            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<ConstantStatement>().Values.Should().NotBeNull();
-            m.Arguments[1].As<ConstantStatement>().Values.Should().HaveCount(allowedNames.Length);
+            m.Arguments[0].Should().BeOfType(typeof(ConstantStatement));
+            m.Arguments[0].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[0].As<ConstantStatement>().Values.Should().NotBeNull();
+            m.Arguments[0].As<ConstantStatement>().Values.Should().HaveCount(allowedNames.Length);
+            m.Arguments[1].Should().BeOfType(typeof(PropertyAccessStatement));
+            m.Arguments[1].As<PropertyAccessStatement>().Name.Should().Be(nameof(TestEntityPerson.Name));
 
             foreach (var n in allowedNames)
             {
-                m.Arguments[1].As<ConstantStatement>().Values.Should().Contain(n);
+                m.Arguments[0].As<ConstantStatement>().Values.Should().Contain(n);
             }
         }
 
@@ -68,16 +68,16 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
             var m = where as MethodCallStatement;
             m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.EnumerableContains);
             m.Arguments.Should().HaveCount(2);
-            m.Arguments[0].Should().BeOfType(typeof(PropertyAccessStatement));
-            m.Arguments[0].As<PropertyAccessStatement>().Name.Should().Be(nameof(TestEntityPerson.Name));
-            m.Arguments[1].Should().BeOfType(typeof(ConstantStatement));
-            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<ConstantStatement>().Values.Should().NotBeNull();
-            m.Arguments[1].As<ConstantStatement>().Values.Should().HaveCount(allowedNames.Count);
+            m.Arguments[0].Should().BeOfType(typeof(ConstantStatement));
+            m.Arguments[0].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[0].As<ConstantStatement>().Values.Should().NotBeNull();
+            m.Arguments[0].As<ConstantStatement>().Values.Should().HaveCount(allowedNames.Count);
+            m.Arguments[1].Should().BeOfType(typeof(PropertyAccessStatement));
+            m.Arguments[1].As<PropertyAccessStatement>().Name.Should().Be(nameof(TestEntityPerson.Name));
 
             foreach (var n in allowedNames)
             {
-                m.Arguments[1].As<ConstantStatement>().Values.Should().Contain(n);
+                m.Arguments[0].As<ConstantStatement>().Values.Should().Contain(n);
             }
         }
 
@@ -94,16 +94,16 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
             var m = where as MethodCallStatement;
             m.MethodName.Should().Be(MethodCallStatement.SupportedMethodNames.EnumerableContains);
             m.Arguments.Should().HaveCount(2);
-            m.Arguments[0].Should().BeOfType(typeof(PropertyAccessStatement));
-            m.Arguments[0].As<PropertyAccessStatement>().Name.Should().Be(nameof(TestEntityPerson.BirthYear));
-            m.Arguments[1].Should().BeOfType(typeof(ConstantStatement));
-            m.Arguments[1].As<ConstantStatement>().IsCollection.Should().BeTrue();
-            m.Arguments[1].As<ConstantStatement>().Values.Should().NotBeNull();
-            m.Arguments[1].As<ConstantStatement>().Values.Should().HaveCount(years.Count);
+            m.Arguments[0].Should().BeOfType(typeof(ConstantStatement));
+            m.Arguments[0].As<ConstantStatement>().IsCollection.Should().BeTrue();
+            m.Arguments[0].As<ConstantStatement>().Values.Should().NotBeNull();
+            m.Arguments[0].As<ConstantStatement>().Values.Should().HaveCount(years.Count);
+            m.Arguments[1].Should().BeOfType(typeof(PropertyAccessStatement));
+            m.Arguments[1].As<PropertyAccessStatement>().Name.Should().Be(nameof(TestEntityPerson.BirthYear));
 
             foreach (var n in years)
             {
-                m.Arguments[1].As<ConstantStatement>().Values.Should().Contain(n.ToString());
+                m.Arguments[0].As<ConstantStatement>().Values.Should().Contain(n.ToString());
             }
         }
     }

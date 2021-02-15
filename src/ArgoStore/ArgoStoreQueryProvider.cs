@@ -42,7 +42,7 @@ namespace ArgoStore
 
         public TResult Execute<TResult>(Expression expression)
         {
-            throw new NotSupportedException("Generic method CreateQuery isn't supported");
+            return (TResult)Execute(expression);
         }
 
         public IQueryable CreateQuery(Expression expression)

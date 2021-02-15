@@ -3,6 +3,7 @@ using ArgoStore.IntegrationTests.Entities;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -246,7 +247,57 @@ namespace ArgoStore.IntegrationTests
   ""cackeDay"": ""2020-09-01""
 }]";
 
+        public TestData(string connectionString)
+        {
+            if (string.IsNullOrWhiteSpace(connectionString))
+            {
+                throw new ArgumentException($"'{nameof(connectionString)}' cannot be null or whitespace", nameof(connectionString));
+            }
+
+            _connectionString = connectionString;
+
+            var th = new EntityTableHelper(new Configuration
+            {
+                ConnectionString = _connectionString,
+                CreateEntitiesOnTheFly = true,
+                Serializer = new ArgoStoreSerializer()
+            });
+
+            th.EnsureEntityTableExists<Person>();
+        }
+
         internal void InsertTestPersons()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                try
+                {
+                    InsertTestPersonsInner();
+                    return;
+                }
+                catch (SqliteException ex)
+                {
+                    if (ex.Message.Contains("no such table"))
+                    {
+                        Thread.Sleep(100);
+
+                        var th = new EntityTableHelper(new Configuration
+                        {
+                            ConnectionString = _connectionString,
+                            CreateEntitiesOnTheFly = true,
+                            Serializer = new ArgoStoreSerializer()
+                        });
+
+                        th.EnsureEntityTableExists<Person>();
+                        Thread.Sleep(100);
+                        InsertTestPersonsInner();
+                        return;
+                    }
+                }
+            }
+        }
+
+        internal void InsertTestPersonsInner()
         {
             EntityTableHelper dbTableHelper = new EntityTableHelper(new Configuration
             {
@@ -283,17 +334,5 @@ namespace ArgoStore.IntegrationTests
                 }
             }
         }
-
-        public TestData(string connectionString)
-        {
-            if (string.IsNullOrWhiteSpace(connectionString))
-            {
-                throw new ArgumentException($"'{nameof(connectionString)}' cannot be null or whitespace", nameof(connectionString));
-            }
-
-            _connectionString = connectionString;
-        }
-
-
     }
 }

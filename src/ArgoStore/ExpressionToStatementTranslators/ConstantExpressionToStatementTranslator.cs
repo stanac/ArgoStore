@@ -35,23 +35,23 @@ namespace ArgoStore.ExpressionToStatementTranslators
             
             if (expression.Type == typeof(string))
             {
-                return new ConstantStatement { IsString = true, Value = value };
+                return new ConstantStatement(true, false, value);
             }
             else if (expression.Type.IsEnum)
             {
-                return new ConstantStatement { IsString = false, Value = value };
+                return new ConstantStatement(true, false, value);
             }
             else if (expression.Type == typeof(bool))
             {
-                return new ConstantStatement { IsBoolean = true, Value = value };
+                return new ConstantStatement(false, true, value);
             }
             else if (expression.Type == typeof(int))
             {
-                return new ConstantStatement { Value = value };
+                return new ConstantStatement(false, false, value);
             }
             else if (expression.Type == typeof(char))
             {
-                return new ConstantStatement { IsString = true, Value = value };
+                return new ConstantStatement(true, false, value);
             }
 
             throw new NotSupportedException($"Constant of type {expression.Type.Name} isn't supported");

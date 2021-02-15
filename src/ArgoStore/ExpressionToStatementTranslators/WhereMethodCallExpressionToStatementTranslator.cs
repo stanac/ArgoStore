@@ -19,11 +19,10 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             MethodCallExpression e = expression as MethodCallExpression;
 
-            return new WhereStatement
-            {
-                TargetType = GetTargetType(e.Arguments[0]),
-                Statement = ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[1])
-            };
+            Statement statement = ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[1]);
+            Type targetType = GetTargetType(e.Arguments[0]);
+
+            return new WhereStatement(statement, targetType);
         }
 
         private Type GetTargetType(Expression expression)

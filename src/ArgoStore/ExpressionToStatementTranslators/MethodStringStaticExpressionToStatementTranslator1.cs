@@ -53,11 +53,9 @@ namespace ArgoStore.ExpressionToStatementTranslators
                 args.Add(arg);
             }
 
-            return new MethodCallStatement
-            {
-                MethodName = (MethodCallStatement.SupportedMethodNames)Enum.Parse(typeof(MethodCallStatement.SupportedMethodNames), "String" + e.Method.Name),
-                Arguments = args.ToArray()
-            };
+            MethodCallStatement.SupportedMethodNames methodName = (MethodCallStatement.SupportedMethodNames)Enum.Parse(typeof(MethodCallStatement.SupportedMethodNames), "String" + e.Method.Name);
+
+            return new MethodCallStatement(methodName, args.ToArray());
         }
 
         private Statement TranslateBoolMethod(MethodCallExpression e)
@@ -82,11 +80,9 @@ namespace ArgoStore.ExpressionToStatementTranslators
                 methodName += "IgnoreCase";
             }
 
-            return new MethodCallStatement
-            {
-                Arguments = arguments.ToArray(),
-                MethodName = (MethodCallStatement.SupportedMethodNames)Enum.Parse(typeof(MethodCallStatement.SupportedMethodNames), methodName)
-            };
+            var methodNameE = (MethodCallStatement.SupportedMethodNames)Enum.Parse(typeof(MethodCallStatement.SupportedMethodNames), methodName);
+
+            return new MethodCallStatement(methodNameE, arguments.ToArray());
         }
     }
 }

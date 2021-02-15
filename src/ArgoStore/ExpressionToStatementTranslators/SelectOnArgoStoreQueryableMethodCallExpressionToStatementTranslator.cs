@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {
@@ -24,46 +22,8 @@ namespace ArgoStore.ExpressionToStatementTranslators
             Type targetType = GetTargetType(me.Arguments[0]);
 
             LambdaExpression lambda = GetSelectLambda(me);
-            
-            if (lambda.Body.NodeType == ExpressionType.Parameter)
-            {
-                return new SelectStatement
-                {
-                    TargetType = targetType,
-                    SelectElements = new List<SelectStatementElement>
-                    {
-                        new SelectStatementElement
-                        {
-                            SelectsJson = true,
-                            Statement = new SelectStarParameterStatement()
-                        }
-                    }
-                };
-            }
 
-            if (lambda.Body.NodeType == ExpressionType.MemberAccess)
-            {
-                var memAccess = lambda.Body as MemberExpression;
-
-                if (memAccess.Member is PropertyInfo pi)
-                {
-                    return new SelectStatement
-                    {
-                        TargetType = targetType,
-                        SelectElements = new List<SelectStatementElement>
-                        {
-                            new SelectStatementElement
-                            {
-                                Statement = ExpressionToStatementTranslatorStrategy.Translate(lambda.Body),
-                                ReturnType = pi.PropertyType,
-                                SelectsJson = false
-                            }
-                        }
-                    };
-                }
-            }
-
-            throw new NotImplementedException();
+            return SelectLambdaTranslator.Translate(lambda, targetType, null, SelectStatement.CalledByMethods.Select);
         }
 
         private Type GetTargetType(Expression expression)
