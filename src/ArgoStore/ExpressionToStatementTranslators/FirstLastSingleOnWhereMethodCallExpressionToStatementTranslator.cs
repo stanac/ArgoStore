@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {
-    internal class FirstOrDefaultOrSingleOrDefaultOnWhereMethodCallExpressionToStatementTranslator : IExpressionToStatementTranslator
+    internal class FirstLastSingleOnWhereMethodCallExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
-        private static string[] SupportedMethodNames = new[] { "First", "FirstOrDefault", "Single", "SingleOrDefault" };
+        private static string[] SupportedMethodNames = new[] { "First", "FirstOrDefault", "Single", "SingleOrDefault", "Last", "LastOrDefault" };
 
         public bool CanTranslate(Expression expression)
         {
@@ -30,10 +30,9 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (me.Arguments.Count == 2)
             {
-                LambdaExpression lambda = GetSelectLambda(me.Arguments[1]);
+                Statement lambdaContition = ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[1]);
 
-                // todo: translate lambda
-                throw new NotImplementedException();
+                where.AddConjunctedCondition(lambdaContition);
             }
 
             List<SelectStatementElement> selectElements = new List<SelectStatementElement>
@@ -41,7 +40,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                 SelectStatementElement.CreateWithStar(where.TargetType)
             };
 
-            return new SelectStatement(where, where.TargetType, selectElements, null, methodName);
+            return new SelectStatement(where, where.TargetType, selectElements, 1, methodName);
         }
 
         private static bool IsWhereCall(Expression e)
@@ -59,21 +58,6 @@ namespace ArgoStore.ExpressionToStatementTranslators
                 }
             }
             return false;
-        }
-
-        private LambdaExpression GetSelectLambda(Expression e)
-        {
-            while (e.NodeType == ExpressionType.Quote)
-            {
-                e = (e as UnaryExpression).Operand;
-            }
-
-            if (e is LambdaExpression le)
-            {
-                return le;
-            }
-
-            throw new InvalidOperationException($"Expected lambda in Select \"{e.NodeType}\", \"{e.Type.FullName}\", \"{e}\"");
         }
 
         private static bool IsLambda(Expression e)

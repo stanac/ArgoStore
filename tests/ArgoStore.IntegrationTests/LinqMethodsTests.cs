@@ -153,36 +153,59 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        //[Fact]
-        //public void FirstOrDefaultOnQueryable()
-        //{
-        //    using (var s = GetNewDocumentSession())
-        //    {
-        //        TestData td = new TestData(TestDbConnectionString);
-        //        td.InsertTestPersons();
+        [Fact]
+        public void FirstOrDefaultOnQueryable()
+        {
+            using (var s = GetNewDocumentSession())
+            {
+                TestData td = new TestData(TestDbConnectionString);
+                td.InsertTestPersons();
 
-        //        Person person = s.Query<Person>()
-        //            .FirstOrDefault();
+                Person person = s.Query<Person>()
+                    .FirstOrDefault();
 
-        //        person.Should().NotBeNull();
-        //        person.Name.Should().Be(TestNameImogenCampbell);
-        //    }
-        //}
+                person.Should().NotBeNull();
+                person.Name.Should().Be(TestNameImogenCampbell);
+            }
+        }
 
-        //[Fact]
-        //public void FirstOrDefaultOnQueryableWithLambda()
-        //{
-        //    using (var s = GetNewDocumentSession())
-        //    {
-        //        TestData td = new TestData(TestDbConnectionString);
-        //        td.InsertTestPersons();
+        [Fact]
+        public void FirstOrDefaultWithLambdaOnQueryable()
+        {
+            using (var s = GetNewDocumentSession())
+            {
+                TestData td = new TestData(TestDbConnectionString);
+                td.InsertTestPersons();
 
-        //        Person person = s.Query<Person>()
-        //            .FirstOrDefault(x => x.Name == TestNameImogenCampbell);
+                Person person = s.Query<Person>()
+                    .FirstOrDefault(x => x.Name == TestNameImogenCampbell);
 
-        //        person.Should().NotBeNull();
-        //        person.Name.Should().Be(TestNameImogenCampbell);
-        //    }
-        //}
+                person.Should().NotBeNull();
+                person.Name.Should().Be(TestNameImogenCampbell);
+            }
+        }
+
+        [Fact]
+        public void FirstOrDefaultWithLambdaOnWhere()
+        {
+            using (var s = GetNewDocumentSession())
+            {
+                TestData td = new TestData(TestDbConnectionString);
+                td.InsertTestPersons();
+
+                Person person = s.Query<Person>()
+                    .Where(x => x.Name != "a")
+                    .FirstOrDefault(x => x.Name == TestNameImogenCampbell);
+
+                person.Should().NotBeNull();
+                person.Name.Should().Be(TestNameImogenCampbell);
+
+                person = s.Query<Person>()
+                    .Where(x => x.Name != TestNameImogenCampbell)
+                    .FirstOrDefault(x => x.Name == TestNameImogenCampbell);
+
+                person.Should().BeNull();
+            }
+        }
     }
 }

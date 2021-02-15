@@ -21,7 +21,7 @@ namespace ArgoStore.Helpers
 
             if (TypeIsEnumerableOfT(collectionType) || TypeImplementsIEnumerableOfT(collectionType))
             {
-                return collectionType.GetInterfaces().First(TypeIsEnumerableOfT).GetGenericArguments().First();
+                return collectionType.GenericTypeArguments.Last();
             }
 
             throw new ArgumentException($"Type {nameof(collectionType)} is not a generic collection type or typed array");

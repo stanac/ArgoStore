@@ -17,7 +17,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (translator == null)
             {
-                throw new InvalidOperationException($"No where translator found for expression with node type \"{expression.NodeType}\", type: \"{expression.GetType().Name}\" and expression \"{expression}\"");
+                throw new InvalidOperationException($"No translator found for expression with node type \"{expression.NodeType}\", type: \"{expression.GetType().Name}\" and expression \"{expression}\"");
             }
 
             return translator.Translate(expression).ReduceIfPossible();

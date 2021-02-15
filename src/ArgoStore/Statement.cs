@@ -88,7 +88,7 @@ namespace ArgoStore
 
         public enum CalledByMethods
         {
-            Select, First, FirstOrDefault, Single, SingleOrDefault, Count
+            Select, First, FirstOrDefault, Last, LastOrDefault, Single, SingleOrDefault, Count
         }
     }
 
@@ -140,7 +140,7 @@ namespace ArgoStore
             TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
         }
 
-        public Statement Statement { get; }
+        public Statement Statement { get; private set; }
 
         public Type TargetType { get; }
 
@@ -150,6 +150,13 @@ namespace ArgoStore
         }
 
         public override Statement ReduceIfPossible() => new WhereStatement(Statement.ReduceIfPossible(), TargetType);
+
+        public void AddConjunctedCondition(Statement statement)
+        {
+            if (statement is null) throw new ArgumentNullException(nameof(statement));
+
+            Statement = new BinaryLogicalStatement(Statement, statement, false);
+        }
 
         public override string ToDebugString()
         {
