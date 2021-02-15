@@ -1,5 +1,6 @@
 ﻿using ArgoStore.Helpers;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -42,7 +43,24 @@ namespace ArgoStore
 
         public TResult Execute<TResult>(Expression expression)
         {
-            return (TResult)Execute(expression);
+            object result = Execute(expression);
+
+            Type resultType = result.GetType();
+
+            if (TypeHelpers.IsCollectionType(resultType))
+            {
+                IEnumerable resultCollection = result as IEnumerable;
+
+                var list = resultCollection.Cast<object>().ToList();
+
+                if (list.Any()) return (TResult)list.First();
+
+                GuardEmptyCallectionLinqCall(expression);
+
+                return default(TResult);
+            }
+
+            throw new NotSupportedException();
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -80,6 +98,14 @@ namespace ArgoStore
 
 
             throw new NotImplementedException();
+        }
+
+        private static void GuardEmptyCallectionLinqCall(Expression e)
+        {
+            if (e is MethodCallExpression me && (me.Method.Name == "First" || me.Method.Name == "Single" || me.Method.Name == "Last"))
+            {
+                throw new InvalidOperationException("Sequence contains no elements");
+            }
         }
     }
 }

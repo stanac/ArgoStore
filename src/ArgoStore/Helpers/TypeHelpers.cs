@@ -21,7 +21,7 @@ namespace ArgoStore.Helpers
 
             if (TypeIsEnumerableOfT(collectionType) || TypeImplementsIEnumerableOfT(collectionType))
             {
-                return collectionType.GenericTypeArguments[0];
+                return collectionType.GetInterfaces().First(TypeIsEnumerableOfT).GetGenericArguments().First();
             }
 
             throw new ArgumentException($"Type {nameof(collectionType)} is not a generic collection type or typed array");
@@ -35,10 +35,10 @@ namespace ArgoStore.Helpers
         }
 
         private static bool TypeIsEnumerableOfT(Type t) =>
-            t.IsGenericType && t.IsInterface && t.GenericTypeArguments.Length == 1 && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+            t.IsGenericType && t.IsInterface && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);
 
         private static bool TypeImplementsIEnumerableOfT(Type t) =>
-            t.IsGenericType && t.GenericTypeArguments.Length == 1 && t.GetInterfaces().Any(IsInterfaceTypeGenericIEnumerable);
+            t.IsGenericType && t.GetInterfaces().Any(IsInterfaceTypeGenericIEnumerable);
 
         private static bool IsInterfaceTypeGenericIEnumerable(Type t) =>
             t.IsInterface && t.IsGenericType && t.GenericTypeArguments.Length == 1 && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);

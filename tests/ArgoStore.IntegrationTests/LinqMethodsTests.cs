@@ -2,6 +2,7 @@ using FluentAssertions;
 using ArgoStore.IntegrationTests.Entities;
 using System.Linq;
 using Xunit;
+using System;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -100,8 +101,60 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
+        [Fact]
+        public void FirstOrDefaultOnWhere()
+        {
+            using (var s = GetNewDocumentSession())
+            {
+                TestData td = new TestData(TestDbConnectionString);
+                td.InsertTestPersons();
+
+                Person person = s.Query<Person>()
+                    .Where(x => x.Name == TestNameImogenCampbell)
+                    .FirstOrDefault();
+
+                person.Should().NotBeNull();
+                person.Name.Should().Be(TestNameImogenCampbell);
+            }
+        }
+
+        [Fact]
+        public void NonExistingFirstOrDefaultOnWhere()
+        {
+            using (var s = GetNewDocumentSession())
+            {
+                TestData td = new TestData(TestDbConnectionString);
+                td.InsertTestPersons();
+
+                Person person = s.Query<Person>()
+                    .Where(x => x.Name == "non existing")
+                    .FirstOrDefault();
+
+                person.Should().BeNull();
+            }
+        }
+
+        [Fact]
+        public void NonExistingFirstOnWhere_ThrowsException()
+        {
+            using (var s = GetNewDocumentSession())
+            {
+                TestData td = new TestData(TestDbConnectionString);
+                td.InsertTestPersons();
+
+                Action query = () =>
+                {
+                    Person person = s.Query<Person>()
+                        .Where(x => x.Name == "non existing")
+                        .First();
+                };
+
+                query.Should().Throw<InvalidOperationException>();
+            }
+        }
+
         //[Fact]
-        //public void FirstOrDefaultTest()
+        //public void FirstOrDefaultOnQueryable()
         //{
         //    using (var s = GetNewDocumentSession())
         //    {
@@ -109,8 +162,23 @@ namespace ArgoStore.IntegrationTests
         //        td.InsertTestPersons();
 
         //        Person person = s.Query<Person>()
-        //            .Where(x => x.Name == TestNameImogenCampbell)
         //            .FirstOrDefault();
+
+        //        person.Should().NotBeNull();
+        //        person.Name.Should().Be(TestNameImogenCampbell);
+        //    }
+        //}
+
+        //[Fact]
+        //public void FirstOrDefaultOnQueryableWithLambda()
+        //{
+        //    using (var s = GetNewDocumentSession())
+        //    {
+        //        TestData td = new TestData(TestDbConnectionString);
+        //        td.InsertTestPersons();
+
+        //        Person person = s.Query<Person>()
+        //            .FirstOrDefault(x => x.Name == TestNameImogenCampbell);
 
         //        person.Should().NotBeNull();
         //        person.Name.Should().Be(TestNameImogenCampbell);
