@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace ArgoStore.Helpers
 {
@@ -60,5 +61,14 @@ namespace ArgoStore.Helpers
 
         private static bool IsInterfaceTypeGenericIEnumerable(Type t) =>
             t.IsInterface && t.IsGenericType && t.GenericTypeArguments.Length == 1 && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);
+
+        public static bool IsAnonymousType(Type type)
+        {
+            if (type is null) throw new ArgumentNullException(nameof(type));
+
+            return type.GetCustomAttribute<CompilerGeneratedAttribute>(false) != null
+                && type.IsGenericType && type.Name.Contains("AnonymousType")
+                && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"));
+        }
     }
 }

@@ -100,7 +100,7 @@ namespace ArgoStore
                 Type[] propTypes = ts.SelectStatement.SelectElements.Select(x => x.ReturnType).ToArray();
                 IEnumerable<object[]> rows = _dbAccess.QueryFields(sql, propTypes);
 
-                return CreateResultObjects(rows, ts.SelectStatement.TypeTo);
+                return CreateResultObjects(rows, ts.SelectStatement);
             }
         }
 
@@ -112,21 +112,44 @@ namespace ArgoStore
             }
         }
 
-        private static IEnumerable<object> CreateResultObjects(IEnumerable<object[]> rows, Type resultType)
+        private static IEnumerable<object> CreateResultObjects(IEnumerable<object[]> rows, SelectStatement selectStatement)
         {
-            foreach (var r in rows)
+            if (TypeHelpers.IsAnonymousType(selectStatement.TypeTo))
             {
-                yield return CreateResultObject(r, resultType);
+                foreach (var r in rows)
+                {
+                    yield return CreateResultAnonymousObject(r, selectStatement);
+                }
+            }
+            else
+            {
+                foreach (var r in rows)
+                {
+                    yield return CreateResultObject(r, selectStatement);
+                }
             }
         }
 
-        private static object CreateResultObject(object[] row, Type resultType)
+        private static object CreateResultObject(object[] row, SelectStatement selectStatement)
         {
-            var ctors = resultType.GetConstructors();
+            // todo: optimize, remove reflection
+            object result = Activator.CreateInstance(selectStatement.TypeTo);
+
+            for (int i = 0; i < selectStatement.SelectElements.Count; i++)
+            {
+                selectStatement.TypeTo.GetProperty(selectStatement.SelectElements[i].BindingProperty).SetValue(result, row[i]);
+            }
+
+            return result;
+        }
+
+        private static object CreateResultAnonymousObject(object[] row, SelectStatement selectStatement)
+        {
+            var ctors = selectStatement.TypeTo.GetConstructors();
             var parameters = ctors[0].GetParameters();
 
             // todo: optimize if possible
-            return Activator.CreateInstance(resultType, row);
+            return Activator.CreateInstance(selectStatement.TypeTo, row);
         }
     }
 }

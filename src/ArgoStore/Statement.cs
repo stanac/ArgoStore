@@ -100,18 +100,22 @@ namespace ArgoStore
 
     internal class SelectStatementElement : Statement
     {
-        public SelectStatementElement(Statement statement, Type returnType, bool selectsJson)
+        public SelectStatementElement(Statement statement, Type returnType, bool selectsJson, string bindingProperty)
         {
+            if (string.IsNullOrWhiteSpace(bindingProperty)) throw new ArgumentException($"'{nameof(bindingProperty)}' cannot be null or whitespace", nameof(bindingProperty));
+
             Statement = statement ?? throw new ArgumentNullException(nameof(statement));
             ReturnType = returnType ?? throw new ArgumentNullException(nameof(returnType));
             SelectsJson = selectsJson;
+            BindingProperty = bindingProperty;
         }
 
-        public static SelectStatementElement CreateWithStar(Type returnType) => new SelectStatementElement(new SelectStarParameterStatement(), returnType, true);
+        public static SelectStatementElement CreateWithStar(Type returnType) => new SelectStatementElement(new SelectStarParameterStatement(), returnType, true, "*");
 
         public Statement Statement { get; }
         public Type ReturnType { get; }
         public bool SelectsJson { get; }
+        public string BindingProperty { get; }
         public string PropertyName { get; }
 
         public override Statement Negate()

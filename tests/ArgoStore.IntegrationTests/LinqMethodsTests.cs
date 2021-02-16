@@ -213,5 +213,35 @@ namespace ArgoStore.IntegrationTests
                 p.All(x => !string.IsNullOrWhiteSpace(x.Name)).Should().BeTrue();
             }
         }
+
+        [Fact]
+        public void SelectOnQueryableNewObject()
+        {
+            using (IDocumentSession s = GetNewDocumentSession())
+            {
+                var p = s.Query<Person>()
+                    .Select(x => new Person { Name = x.Name, CackeDay = x.CackeDay })
+                    .ToList();
+
+                p.Count.Should().BeGreaterThan(2);
+                p.All(x => !string.IsNullOrWhiteSpace(x.Name)).Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        public void SelectOnQueryableNewObjectReBindDifferentProperties()
+        {
+            using (IDocumentSession s = GetNewDocumentSession())
+            {
+                var p = s.Query<Person>()
+                    .Select(x => new Person { Name = x.EmailAddress, EmailAddress = x.Name })
+                    .ToList();
+
+                p.Count.Should().BeGreaterThan(2);
+                p.All(x => !string.IsNullOrWhiteSpace(x.Name) && x.Name.Contains("@")).Should().BeTrue();
+                p.All(x => !string.IsNullOrWhiteSpace(x.EmailAddress) && !x.EmailAddress.Contains("@")).Should().BeTrue();
+            }
+        }
+
     }
 }
