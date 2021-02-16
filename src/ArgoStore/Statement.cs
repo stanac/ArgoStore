@@ -56,21 +56,44 @@ namespace ArgoStore
 
             throw new ArgumentException($"Cannot create {nameof(TopStatement)} from {statement.GetType().FullName}", nameof(statement));
         }
+
+        internal void SetAliases()
+        {
+            if (SelectStatement != null)
+            {
+                SelectStatement.SetAliases(0);
+            }
+        }
     }
 
     internal class SelectStatement : Statement
     {
-        public WhereStatement WhereStatement { get; }
+        public WhereStatement WhereStatement { get; private set; }
+        public SelectStatement SubQueryStatement { get; private set; }
         public Type TypeFrom { get; }
         public Type TypeTo { get; }
         public IReadOnlyList<SelectStatementElement> SelectElements { get; } = new List<SelectStatementElement>();
         public int? Top { get; }
         public CalledByMethods CalledByMethod { get; }
+        public string Alias { get; private set; }
         
         public SelectStatement(WhereStatement whereStatement, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
             int? top, CalledByMethods calledByMethod)
+            : this (typeFrom, typeTo, selectElements, top, calledByMethod)
         {
-            WhereStatement = whereStatement;
+            WhereStatement = whereStatement ?? throw new ArgumentNullException(nameof(whereStatement));
+        }
+
+        public SelectStatement(SelectStatement subQueryStatement, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
+            int? top, CalledByMethods calledByMethod)
+            : this (typeFrom, typeTo, selectElements, top, calledByMethod)
+        {
+            SubQueryStatement = subQueryStatement ?? throw new ArgumentNullException(nameof(subQueryStatement));
+        }
+
+        public SelectStatement(Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
+            int? top, CalledByMethods calledByMethod)
+        {
             TypeFrom = typeFrom ?? throw new ArgumentNullException(nameof(typeFrom));
             TypeTo = typeTo ?? throw new ArgumentNullException(nameof(typeTo));
             SelectElements = selectElements ?? throw new ArgumentNullException(nameof(selectElements));
@@ -80,16 +103,41 @@ namespace ArgoStore
             if (top.HasValue && top < 1) throw new ArgumentException($"{nameof(top)} cannot be less than 1", nameof(top));
         }
 
+        public static SelectStatement Create(Statement from, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
+            int? top, CalledByMethods calledByMethod)
+        {
+            if (from == null) return new SelectStatement(typeFrom, typeTo, selectElements, top, calledByMethod);
+
+            if (from is WhereStatement w) return new SelectStatement(w, typeFrom, typeTo, selectElements, top, calledByMethod);
+
+            if (from is SelectStatement s) return new SelectStatement(s, typeFrom, typeTo, selectElements, top, calledByMethod);
+
+            throw new ArgumentException($"{from} statement of type {from.GetType().FullName} not supported in SelectStatement.Create", nameof(from));
+        }
+
         public override Statement Negate()
         {
             throw new NotSupportedException();
         }
 
-        public override Statement ReduceIfPossible() => this;
+        public override Statement ReduceIfPossible()
+        {
+            if (SubQueryStatement != null) SubQueryStatement = SubQueryStatement.ReduceIfPossible() as SelectStatement;
+            if (WhereStatement != null) WhereStatement = WhereStatement.ReduceIfPossible() as WhereStatement;
+            return this;
+        }
 
         public override string ToDebugString()
         {
             return $"SELECT {string.Join(", ", SelectElements.Select(x => x.ToDebugString()))} {WhereStatement?.ToDebugString()}";
+        }
+
+        internal void SetAliases(int level)
+        {
+            Alias = $"\"..t{level}\"";
+
+            if (WhereStatement != null) WhereStatement.SetAliases(level);
+            if (SubQueryStatement != null) SubQueryStatement.SetAliases(level + 1);
         }
 
         public enum CalledByMethods
@@ -151,6 +199,8 @@ namespace ArgoStore
             TargetType = targetType ?? throw new ArgumentNullException(nameof(targetType));
         }
 
+        public string Alias { get; private set; }
+
         public Statement Statement { get; private set; }
 
         public Type TargetType { get; }
@@ -172,6 +222,11 @@ namespace ArgoStore
         public override string ToDebugString()
         {
             return $"WHERE {Statement?.ToDebugString()}";
+        }
+
+        internal void SetAliases(int level)
+        {
+            Alias = $"\"..t{level}\"";
         }
     }
 

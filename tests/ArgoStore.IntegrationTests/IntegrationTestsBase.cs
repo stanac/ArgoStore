@@ -16,7 +16,7 @@ namespace ArgoStore.IntegrationTests
         {
             Skip.IfNot(_config.RunIntegrationTests,
                 "Integration tests not enabled, one of the following environment variables needs to point to a directory: \"ram_disk_db_test_dir\", \"db_tests_dir\". " +
-                "Test will try to use \"ram_disk_db_test_dir\" and if that is not possible or variable isn't set they will try to use \"db_tests_dir\""
+                "Tests will try to use \"ram_disk_db_test_dir\" and if that is not possible or variable isn't set tests will try to use \"db_tests_dir\""
                 );
 
             if (_config.RunIntegrationTests)

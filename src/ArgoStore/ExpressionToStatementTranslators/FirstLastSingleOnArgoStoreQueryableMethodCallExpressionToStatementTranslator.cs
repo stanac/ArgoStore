@@ -40,7 +40,12 @@ namespace ArgoStore.ExpressionToStatementTranslators
                 SelectStatementElement.CreateWithStar(targetType)
             };
 
-            return new SelectStatement(whereStatement, targetType, targetType, selectElements, 1, method);
+            if (whereStatement != null)
+            {
+                return new SelectStatement(whereStatement, targetType, targetType, selectElements, 1, method);
+            }
+
+            return new SelectStatement(targetType, targetType, selectElements, 1, method);
         }
 
         private Type GetTargetType(Expression expression)

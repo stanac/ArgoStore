@@ -9,7 +9,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 {
     internal static class SelectLambdaTranslator
     {
-        public static SelectStatement Translate(LambdaExpression lambda, Type targetType, WhereStatement where, SelectStatement.CalledByMethods method)
+        public static SelectStatement Translate(LambdaExpression lambda, Type targetType, Statement from, SelectStatement.CalledByMethods method)
         {
             if (lambda is null) throw new ArgumentNullException(nameof(lambda));
             if (targetType is null) throw new ArgumentNullException(nameof(targetType));
@@ -21,7 +21,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                     SelectStatementElement.CreateWithStar(targetType)
                 };
 
-                return new SelectStatement(where, targetType, targetType, selectElements, null, method);
+                return SelectStatement.Create(from, targetType, targetType, selectElements, null, method);
             }
 
             if (lambda.Body.NodeType == ExpressionType.MemberAccess)
@@ -37,7 +37,11 @@ namespace ArgoStore.ExpressionToStatementTranslators
                         new SelectStatementElement(statement, pi.PropertyType, false, pi.Name)
                     };
 
-                    return new SelectStatement(where, targetType, pi.PropertyType, selectElements, null, method);
+                    Type fromType = targetType;
+                    if (from is WhereStatement w) fromType = w.TargetType;
+                    else if (from is SelectStatement s) fromType = s.TypeFrom;
+
+                    return SelectStatement.Create(from, fromType, targetType, selectElements, null, method);
                 }
             }
 
@@ -55,7 +59,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
                 Type toType = (lambda.Body as NewExpression).Type;
 
-                return new SelectStatement(where, targetType, toType, selectElements, null, method);
+                return SelectStatement.Create(from, targetType, toType, selectElements, null, method);
             }
 
             if (lambda.Body.NodeType == ExpressionType.MemberInit)
@@ -77,7 +81,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                     }
                 }
 
-                return new SelectStatement(where, targetType, mi.NewExpression.Type, selectElements, null, method);
+                return SelectStatement.Create(from, targetType, mi.NewExpression.Type, selectElements, null, method);
             }
 
             throw new NotSupportedException($"{nameof(SelectLambdaTranslator)} cannot translate {lambda}");
