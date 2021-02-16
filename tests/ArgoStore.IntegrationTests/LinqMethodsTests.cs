@@ -195,6 +195,22 @@ namespace ArgoStore.IntegrationTests
                     .ToList();
 
                 p.Count.Should().BeGreaterThan(2);
+                p.All(x => !string.IsNullOrWhiteSpace(x.Name)).Should().BeTrue();
+            }
+        }
+
+        [Fact]
+        public void SelectOnWhereNewAnonymousObject()
+        {
+            using (IDocumentSession s = GetNewDocumentSession())
+            {
+                var p = s.Query<Person>()
+                    .Where(x => x.Name != "non existing")
+                    .Select(x => new { x.Name, x.CackeDay })
+                    .ToList();
+
+                p.Count.Should().BeGreaterThan(2);
+                p.All(x => !string.IsNullOrWhiteSpace(x.Name)).Should().BeTrue();
             }
         }
     }

@@ -19,7 +19,7 @@ namespace ArgoStore
             _connectionString = connectionString;
         }
 
-        public IEnumerable<object[]> QueryFields(string sql)
+        public IEnumerable<object[]> QueryFields(string sql, Type[] expectedResultTypes)
         {
             if (string.IsNullOrWhiteSpace(sql)) throw new ArgumentException($"'{nameof(sql)}' cannot be null or whitespace", nameof(sql));
 
@@ -40,11 +40,13 @@ namespace ArgoStore
 
                     for (int i = 0; i < row.Length; i++)
                     {
-                        row[i] = reader[0];
+                        row[i] = reader[i];
                         if (row[i] is DBNull)
                         {
                             row[i] = null;
                         }
+
+                        row[i] = ArgoStoreConvert.To(expectedResultTypes[i], row[i]);
                     }
 
                     yield return row;

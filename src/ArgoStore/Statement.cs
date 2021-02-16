@@ -66,8 +66,9 @@ namespace ArgoStore
         public IReadOnlyList<SelectStatementElement> SelectElements { get; } = new List<SelectStatementElement>();
         public int? Top { get; }
         public CalledByMethods CalledByMethod { get; }
-
-        public SelectStatement(WhereStatement whereStatement, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements, int? top, CalledByMethods calledByMethod)
+        
+        public SelectStatement(WhereStatement whereStatement, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
+            int? top, CalledByMethods calledByMethod)
         {
             WhereStatement = whereStatement;
             TypeFrom = typeFrom ?? throw new ArgumentNullException(nameof(typeFrom));
@@ -111,6 +112,7 @@ namespace ArgoStore
         public Statement Statement { get; }
         public Type ReturnType { get; }
         public bool SelectsJson { get; }
+        public string PropertyName { get; }
 
         public override Statement Negate()
         {

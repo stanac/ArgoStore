@@ -97,7 +97,10 @@ namespace ArgoStore
             }
             else
             {
-                var fields = _dbAccess.QueryFields(sql);
+                Type[] propTypes = ts.SelectStatement.SelectElements.Select(x => x.ReturnType).ToArray();
+                IEnumerable<object[]> rows = _dbAccess.QueryFields(sql, propTypes);
+
+                return CreateResultObjects(rows, ts.SelectStatement.TypeTo);
             }
         }
 
@@ -107,6 +110,23 @@ namespace ArgoStore
             {
                 throw new InvalidOperationException("Sequence contains no elements");
             }
+        }
+
+        private static IEnumerable<object> CreateResultObjects(IEnumerable<object[]> rows, Type resultType)
+        {
+            foreach (var r in rows)
+            {
+                yield return CreateResultObject(r, resultType);
+            }
+        }
+
+        private static object CreateResultObject(object[] row, Type resultType)
+        {
+            var ctors = resultType.GetConstructors();
+            var parameters = ctors[0].GetParameters();
+
+            // todo: optimize if possible
+            return Activator.CreateInstance(resultType, row);
         }
     }
 }
