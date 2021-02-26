@@ -13,6 +13,8 @@ namespace ArgoStore
         public abstract Statement Negate();
 
         public abstract Statement ReduceIfPossible();
+
+        public string StatementTypeName => GetType().Name;
     }
 
     internal class TopStatement
@@ -62,6 +64,7 @@ namespace ArgoStore
             if (SelectStatement != null)
             {
                 SelectStatement.SetAliases(0);
+                SelectStatement.SetSubQueryAliases(null);
             }
         }
     }
@@ -138,6 +141,78 @@ namespace ArgoStore
 
             if (WhereStatement != null) WhereStatement.SetAliases(level);
             if (SubQueryStatement != null) SubQueryStatement.SetAliases(level + 1);
+
+            if (SelectElements != null)
+            {
+                for (int i = 0; i < SelectElements.Count; i++)
+                {
+                    SelectElements[i].Alias = $"\"...c{i}\"";
+                }
+            }
+        }
+
+        internal void SetFromSubQueryProperties()
+        {
+            foreach (var s in SelectElements)
+            {
+                s.FromSubQuery = SubQueryStatement != null;
+            }
+
+            if (SubQueryStatement != null)
+            {
+                SubQueryStatement.SetFromSubQueryProperties();
+            }
+        }
+
+        internal void SetSubQueryAliases(SelectStatement parent)
+        {
+            if (SubQueryStatement != null)
+            {
+                SubQueryStatement.SetSubQueryAliases(this);
+            }
+
+            PropertyAccessStatement FindPropertyAccessStatement(Statement s)
+            {
+                if (s is SelectStatementElement sse1)
+                {
+                    return FindPropertyAccessStatement(sse1.Statement);
+                }
+
+                if (s is MethodCallStatement m)
+                {
+                    foreach (var a in m.Arguments)
+                    {
+                        var t = FindPropertyAccessStatement(a);
+                        if (t != null) return t;
+                    }
+                }
+
+                if (s is PropertyAccessStatement pa) return pa;
+
+                return null;
+            }
+
+            if (parent != null)
+            {
+                foreach (SelectStatementElement e in parent.SelectElements)
+                {
+                    var parentProp = FindPropertyAccessStatement(e);
+                    if (parentProp == null)
+                    {
+                        throw new InvalidOperationException($"Failed to find parent prop");
+                    }
+                    
+                    foreach (var te in SelectElements)
+                    {
+                        var prop = FindPropertyAccessStatement(te.Statement);
+
+                        if (prop != null && prop.Name == parentProp.Name)
+                        {
+                            e.BindsToSubQueryAlias = prop.SubQueryAlias;
+                        }
+                    }
+                }
+            }
         }
 
         public enum CalledByMethods
@@ -162,6 +237,9 @@ namespace ArgoStore
 
         public Statement Statement { get; }
         public Type ReturnType { get; }
+        public string Alias { get; set; }
+        public bool FromSubQuery { get; set; }
+        public string BindsToSubQueryAlias { get; set; }
         public bool SelectsJson { get; }
         public string BindingProperty { get; }
         public string PropertyName { get; }
@@ -177,6 +255,7 @@ namespace ArgoStore
         }
 
         public override string ToDebugString() => $"{Statement?.ToDebugString()}";
+
     }
 
     internal class SelectStarParameterStatement : Statement
@@ -332,7 +411,6 @@ namespace ArgoStore
             LessThan, LessThanOrEqual,
             GreaterThan, GreaterThanOrEqual
         }
-
     }
 
     internal class NotStatement : Statement
@@ -359,9 +437,10 @@ namespace ArgoStore
             IsBoolean = isBoolean;
         }
 
-        public string Name { get; set; }
-        public bool IsBoolean { get; set; }
-
+        public string Name { get; }
+        public bool IsBoolean { get; }
+        public string SubQueryAlias { get; set; }
+        
         public override Statement Negate()
         {
             if (IsBoolean)
@@ -377,6 +456,7 @@ namespace ArgoStore
         public override Statement ReduceIfPossible() => this;
 
         public override string ToDebugString() => $"$.{Name}";
+
     }
 
     internal class ConstantStatement : Statement

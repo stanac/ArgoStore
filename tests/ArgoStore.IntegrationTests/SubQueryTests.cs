@@ -37,5 +37,21 @@ namespace ArgoStore.IntegrationTests
                 p.All(x => !string.IsNullOrWhiteSpace(x)).Should().BeTrue();
             }
         }
+
+        //[Fact]
+        //public void Fact2()
+        //{
+        //    using (IDocumentSession s = GetNewDocumentSession())
+        //    {
+        //        List<string> p = s.Query<Person>()
+        //            .Where(x => x.Name != "a")
+        //            .Select(x => new { Joined = x.Name + x.EmailAddress, x.EmailConfirmed })
+        //            .Select(x => x.Joined)
+        //            .ToList();
+
+        //        p.Count.Should().BeGreaterThan(2);
+        //        p.All(x => !string.IsNullOrWhiteSpace(x)).Should().BeTrue();
+        //    }
+        //}
     }
 }

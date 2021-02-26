@@ -7,7 +7,7 @@ namespace ArgoStore
     internal class StatementToSqlTranslator
     {
         private readonly IArgoStoreSerializer _serialzier;
-
+        
         public StatementToSqlTranslator(IArgoStoreSerializer serialzier)
         {
             _serialzier = serialzier ?? throw new ArgumentNullException(nameof(serialzier));
@@ -19,27 +19,24 @@ namespace ArgoStore
 
             statement.SetAliases();
 
-            return ToSqlInternal(statement.SelectStatement);
+            string sql = ToSqlInternal(statement.SelectStatement);
+
+            return sql;
         }
 
         private string ToSqlInternal(SelectStatement select)
         {
-            string elementsToSelect = "json_data";
-
-            if (select.SelectElements.Count > 0)
-            {
-                elementsToSelect = string.Join(", ", select.SelectElements.Select(x => ToSqlInternal(x.Statement, select.Alias)));
-            }
+            string sql = SelectElementsToSql(select);
 
             string from = $@"
 FROM {EntityTableHelper.GetTableName(select.TypeFrom)} {select.Alias}";
 
             if (select.SubQueryStatement != null)
             {
-                from = "\n(" + ToSqlInternal(select.SubQueryStatement) + ") " + select.Alias;
+                from = "\nFROM (" + ToSqlInternal(select.SubQueryStatement) + ") " + select.Alias;
             }
 
-            string sql = $"SELECT {elementsToSelect}{from}";
+            sql += from;
 
             if (select.WhereStatement != null)
             {
@@ -58,7 +55,6 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
             switch (statement)
             {
                 case BinaryStatement s1: return ToSqlInternal(s1, alias);
-                case SelectStarParameterStatement s2: return ToSqlInternal(s2, alias);
                 case PropertyAccessStatement s3: return ToSqlInternal(s3, alias);
                 case ConstantStatement s4: return ToSqlInternal(s4, alias);
                 case MethodCallStatement s5: return ToSqlInternal(s5, alias);
@@ -101,14 +97,36 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
             return statement.Value;
         }
 
-        private string ToSqlInternal(SelectStarParameterStatement statement, string alias)
-        {
-            return $"{alias}.json_data";
-        }
-
         private string ToSqlInternal(MethodCallStatement statement, string alias)
         {
             throw new NotImplementedException();
+        }
+
+        private string SelectElementsToSql(SelectStatement statement)
+        {
+            if (statement.SubQueryStatement != null)
+            {
+                string sql = "SELECT ";
+                
+                for (int i = 0; i < statement.SelectElements.Count; i++)
+                {
+                    if (i != statement.SelectElements.Count - 1)
+                    {
+                        sql += ", ";
+                    }
+                }
+
+                throw new NotImplementedException();
+            }
+            else
+            {
+                if (statement.SelectElements.Count == 1 && statement.SelectElements[0].Statement is SelectStarParameterStatement)
+                {
+                    return "SELECT json_data";
+                }
+
+                return "SELECT " + string.Join(", ", statement.SelectElements.Select(x => ToSqlInternal(x.Statement, statement.Alias) + $" {x.Alias}"));
+            }
         }
     }
 }
