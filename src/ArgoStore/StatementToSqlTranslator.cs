@@ -4,10 +4,10 @@ using System.Linq;
 
 namespace ArgoStore
 {
-    internal class StatementToSqlTranslator
+    internal class StatementToSqlTranslator : IStatementToSqlTranslator
     {
         private readonly IArgoStoreSerializer _serialzier;
-        
+
         public StatementToSqlTranslator(IArgoStoreSerializer serialzier)
         {
             _serialzier = serialzier ?? throw new ArgumentNullException(nameof(serialzier));
@@ -107,7 +107,7 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
             if (statement.SubQueryStatement != null)
             {
                 string sql = "SELECT ";
-                
+
                 for (int i = 0; i < statement.SelectElements.Count; i++)
                 {
                     if (i != statement.SelectElements.Count - 1)

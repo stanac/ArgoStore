@@ -34,7 +34,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
                     var selectElements = new List<SelectStatementElement>
                     {
-                        new SelectStatementElement(statement, pi.PropertyType, false, pi.Name)
+                        new SelectStatementElement(statement, pi.PropertyType, false, pi.Name, pi.Name)
                     };
 
                     Type fromType = targetType;
@@ -47,15 +47,20 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (lambda.Body.NodeType == ExpressionType.New)
             {
-                List<SelectStatementElement> selectElements = (lambda.Body as NewExpression)
-                    .Members
-                    .Select(x =>
-                    {
-                        Type type = TypeHelpers.GetMemberType(x);
-                        PropertyAccessStatement pa = new PropertyAccessStatement(x.Name, type == typeof(bool));
-                        return new SelectStatementElement(pa, type, false, x.Name);
-                    })
-                    .ToList();
+                var ne = lambda.Body as NewExpression;
+
+                List<SelectStatementElement> selectElements = new List<SelectStatementElement>();
+
+                for (int i = 0; i < ne.Members.Count; i++)
+                {
+                    Type type = TypeHelpers.GetMemberType(ne.Members[i]);
+                    PropertyAccessStatement pa = new PropertyAccessStatement(ne.Members[i].Name, type == typeof(bool));
+
+                    var prop = ExpressionToStatementTranslatorStrategy.Translate(ne.Arguments[i]) as PropertyAccessStatement;
+
+                    var sse = new SelectStatementElement(pa, type, false, prop.Name, ne.Members[i].Name);
+                    selectElements.Add(sse);
+                }
 
                 Type toType = (lambda.Body as NewExpression).Type;
 
@@ -73,7 +78,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                     if (b is MemberAssignment ma)
                     {
                         Statement s = ExpressionToStatementTranslatorStrategy.Translate(ma.Expression);
-                        selectElements.Add(new SelectStatementElement(s, TypeHelpers.GetMemberType(ma.Member), false, ma.Member.Name));
+                        selectElements.Add(new SelectStatementElement(s, TypeHelpers.GetMemberType(ma.Member), false, ma.Member.Name, ma.Member.Name));
                     }
                     else
                     {

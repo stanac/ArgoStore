@@ -223,17 +223,23 @@ namespace ArgoStore
 
     internal class SelectStatementElement : Statement
     {
-        public SelectStatementElement(Statement statement, Type returnType, bool selectsJson, string bindingProperty)
+        public SelectStatementElement(Statement statement, Type returnType, bool selectsJson, string inputProperty, string outputProperty)
         {
-            if (string.IsNullOrWhiteSpace(bindingProperty)) throw new ArgumentException($"'{nameof(bindingProperty)}' cannot be null or whitespace", nameof(bindingProperty));
-
             Statement = statement ?? throw new ArgumentNullException(nameof(statement));
             ReturnType = returnType ?? throw new ArgumentNullException(nameof(returnType));
             SelectsJson = selectsJson;
-            BindingProperty = bindingProperty;
+
+            if (!selectsJson)
+            {
+                if (string.IsNullOrWhiteSpace(inputProperty)) throw new ArgumentException($"Parameter {nameof(inputProperty)} needs to be set when {nameof(selectsJson)} is false", nameof(inputProperty));
+                if (string.IsNullOrWhiteSpace(outputProperty)) throw new ArgumentException($"Parameter {nameof(outputProperty)} needs to be set when {nameof(selectsJson)} is false", nameof(outputProperty));
+            }
+
+            InputProperty = inputProperty;
+            OutputProperty = outputProperty;
         }
 
-        public static SelectStatementElement CreateWithStar(Type returnType) => new SelectStatementElement(new SelectStarParameterStatement(), returnType, true, "*");
+        public static SelectStatementElement CreateWithStar(Type returnType) => new SelectStatementElement(new SelectStarParameterStatement(), returnType, true, null, null);
 
         public Statement Statement { get; }
         public Type ReturnType { get; }
@@ -241,8 +247,8 @@ namespace ArgoStore
         public bool FromSubQuery { get; set; }
         public string BindsToSubQueryAlias { get; set; }
         public bool SelectsJson { get; }
-        public string BindingProperty { get; }
-        public string PropertyName { get; }
+        public string InputProperty { get; }
+        public string OutputProperty { get; }
 
         public override Statement Negate()
         {

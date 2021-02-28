@@ -12,17 +12,19 @@ namespace ArgoStore
         private readonly Configuration _config;
         private readonly EntityTableHelper _entityTableHelper;
         private readonly IDbAccess _dbAccess;
+        private readonly Func<IStatementToSqlTranslator> _statementToSqlTranslatorFactory;
 
         public ArgoStoreQueryProvider(Configuration config)
-            : this (config, new DbAccess(config?.ConnectionString))
+            : this (config, new DbAccess(config?.ConnectionString), () => new StatementToSqlTranslator(config.Serializer))
         {
         }
 
-        public ArgoStoreQueryProvider(Configuration config, IDbAccess dbAccess)
+        public ArgoStoreQueryProvider(Configuration config, IDbAccess dbAccess, Func<IStatementToSqlTranslator> statementToSqlTranslatorFactory)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _entityTableHelper = new EntityTableHelper(config);
             _dbAccess = dbAccess ?? throw new ArgumentNullException(nameof(dbAccess));
+            _statementToSqlTranslatorFactory = statementToSqlTranslatorFactory ?? throw new ArgumentNullException(nameof(statementToSqlTranslatorFactory));
         }
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
@@ -76,9 +78,7 @@ namespace ArgoStore
 
             TopStatement ts = TopStatement.Create(statement);
 
-            StatementToSqlTranslator translator = new StatementToSqlTranslator(_config.Serializer);
-
-            string sql = translator.ToSql(ts);
+            string sql = _statementToSqlTranslatorFactory().ToSql(ts);
 
             _entityTableHelper.EnsureEntityTableExists(ts.TypeFrom);
 
@@ -137,7 +137,7 @@ namespace ArgoStore
 
             for (int i = 0; i < selectStatement.SelectElements.Count; i++)
             {
-                selectStatement.TypeTo.GetProperty(selectStatement.SelectElements[i].BindingProperty).SetValue(result, row[i]);
+                selectStatement.TypeTo.GetProperty(selectStatement.SelectElements[i].InputProperty).SetValue(result, row[i]);
             }
 
             return result;
