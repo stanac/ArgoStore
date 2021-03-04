@@ -1,10 +1,7 @@
 ﻿using ArgoStore.IntegrationTests.Entities;
 using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace ArgoStore.IntegrationTests
@@ -22,7 +19,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void SelectSinglePropertyFromSubQuery()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -39,7 +36,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        //[Fact]
+        //[SkippableFact]
         //public void Fact2()
         //{
         //    using (IDocumentSession s = GetNewDocumentSession())
