@@ -73,16 +73,20 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
                 List<SelectStatementElement> selectElements = new List<SelectStatementElement>();
 
-                foreach (var b in mi.Bindings)
+                for (int i = 0; i < mi.Bindings.Count; i++)
                 {
-                    if (b is MemberAssignment ma)
+                    if (mi.Bindings[i] is MemberAssignment ma)
                     {
                         Statement s = ExpressionToStatementTranslatorStrategy.Translate(ma.Expression);
-                        selectElements.Add(new SelectStatementElement(s, TypeHelpers.GetMemberType(ma.Member), false, ma.Member.Name, ma.Member.Name));
+                        string outputProp = ma.Member.Name;
+                        var input = ExpressionToStatementTranslatorStrategy.Translate(ma.Expression);
+                        string intputProp = (input as PropertyAccessStatement).Name;
+
+                        selectElements.Add(new SelectStatementElement(s, TypeHelpers.GetMemberType(ma.Member), false, intputProp, outputProp));
                     }
                     else
                     {
-                        throw new NotSupportedException($"Cannot use {b.GetType().FullName} in {lambda.Body} for Select translation");
+                        throw new NotSupportedException($"Cannot use {mi.Bindings[i].GetType().FullName} in {lambda.Body} for Select translation");
                     }
                 }
 

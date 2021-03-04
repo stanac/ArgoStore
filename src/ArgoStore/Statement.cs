@@ -171,46 +171,11 @@ namespace ArgoStore
                 SubQueryStatement.SetSubQueryAliases(this);
             }
 
-            PropertyAccessStatement FindPropertyAccessStatement(Statement s)
-            {
-                if (s is SelectStatementElement sse1)
-                {
-                    return FindPropertyAccessStatement(sse1.Statement);
-                }
-
-                if (s is MethodCallStatement m)
-                {
-                    foreach (var a in m.Arguments)
-                    {
-                        var t = FindPropertyAccessStatement(a);
-                        if (t != null) return t;
-                    }
-                }
-
-                if (s is PropertyAccessStatement pa) return pa;
-
-                return null;
-            }
-
             if (parent != null)
             {
                 foreach (SelectStatementElement e in parent.SelectElements)
                 {
-                    var parentProp = FindPropertyAccessStatement(e);
-                    if (parentProp == null)
-                    {
-                        throw new InvalidOperationException($"Failed to find parent prop");
-                    }
-                    
-                    foreach (var te in SelectElements)
-                    {
-                        var prop = FindPropertyAccessStatement(te.Statement);
-
-                        if (prop != null && prop.Name == parentProp.Name)
-                        {
-                            e.BindsToSubQueryAlias = prop.SubQueryAlias;
-                        }
-                    }
+                    e.BindsToSubQueryAlias = SubQueryStatement.SelectElements.First(x => x.OutputProperty == e.InputProperty).Alias;
                 }
             }
         }

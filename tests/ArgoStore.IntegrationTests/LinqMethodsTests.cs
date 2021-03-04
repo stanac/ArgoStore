@@ -20,7 +20,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void WhereOnlyTest()
         {
             using (IDocumentSession session = GetNewDocumentSession())
@@ -36,7 +36,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void ToListOnlyTest()
         {
             using (IDocumentSession session = GetNewDocumentSession())
@@ -51,7 +51,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void SelectWholeObjectTest()
         {
             using (IDocumentSession session = GetNewDocumentSession())
@@ -65,7 +65,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void SelectOnlySinglePropertyTest()
         {
             using (IDocumentSession session = GetNewDocumentSession())
@@ -79,7 +79,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void SelectOnWhereOnArgoQueryable()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -96,7 +96,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void FirstOrDefaultOnWhere()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -110,7 +110,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void NonExistingFirstOrDefaultOnWhere()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -123,7 +123,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void NonExistingFirstOnWhere_ThrowsException()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -139,7 +139,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void FirstOrDefaultOnQueryable()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -152,7 +152,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void FirstOrDefaultWithLambdaOnQueryable()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -165,7 +165,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void FirstOrDefaultWithLambdaOnWhere()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -185,7 +185,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void SelectOnQueryableNewAnonymousObject()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -199,7 +199,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void SelectOnWhereNewAnonymousObject()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -214,7 +214,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void SelectOnQueryableNewObject()
         {
             using (IDocumentSession s = GetNewDocumentSession())
@@ -228,7 +228,7 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
+        [SkippableFact]
         public void SelectOnQueryableNewObjectReBindDifferentProperties()
         {
             using (IDocumentSession s = GetNewDocumentSession())

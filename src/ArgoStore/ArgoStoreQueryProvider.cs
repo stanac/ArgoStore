@@ -137,7 +137,7 @@ namespace ArgoStore
 
             for (int i = 0; i < selectStatement.SelectElements.Count; i++)
             {
-                selectStatement.TypeTo.GetProperty(selectStatement.SelectElements[i].InputProperty).SetValue(result, row[i]);
+                selectStatement.TypeTo.GetProperty(selectStatement.SelectElements[i].OutputProperty).SetValue(result, row[i]);
             }
 
             return result;
