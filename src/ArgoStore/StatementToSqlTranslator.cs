@@ -24,16 +24,22 @@ namespace ArgoStore
             return sql;
         }
 
+        // todo: optimize sql generation, use string builder
+
         private string ToSqlInternal(SelectStatement select)
         {
             string sql = SelectElementsToSql(select);
 
-            string from = $@"
-FROM {EntityTableHelper.GetTableName(select.TypeFrom)} {select.Alias}";
+            string from;
 
             if (select.SubQueryStatement != null)
             {
                 from = "\nFROM (" + ToSqlInternal(select.SubQueryStatement) + ") " + select.Alias;
+            }
+            else
+            {
+                from = $@"
+FROM {EntityTableHelper.GetTableName(select.TypeFrom)} {select.Alias}";
             }
 
             sql += from;
@@ -110,13 +116,15 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
 
                 for (int i = 0; i < statement.SelectElements.Count; i++)
                 {
+                    sql += $"{statement.Alias}.{statement.SelectElements[i].BindsToSubQueryAlias}";
+
                     if (i != statement.SelectElements.Count - 1)
                     {
                         sql += ", ";
                     }
                 }
 
-                throw new NotImplementedException();
+                return sql;
             }
             else
             {

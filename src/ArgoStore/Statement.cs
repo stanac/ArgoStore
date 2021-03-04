@@ -175,7 +175,7 @@ namespace ArgoStore
             {
                 foreach (SelectStatementElement e in parent.SelectElements)
                 {
-                    e.BindsToSubQueryAlias = SubQueryStatement.SelectElements.First(x => x.OutputProperty == e.InputProperty).Alias;
+                    e.BindsToSubQueryAlias = SelectElements.First(x => x.OutputProperty == e.InputProperty).Alias;
                 }
             }
         }

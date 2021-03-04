@@ -22,21 +22,22 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        //[Fact]
-        //public void Fact1()
-        //{
-        //    using (IDocumentSession s = GetNewDocumentSession())
-        //    {
-        //        List<string> p = s.Query<Person>()
-        //            .Where(x => x.Name != "a")
-        //            .Select(x => new { x.Name, x.EmailAddress, x.EmailConfirmed })
-        //            .Select(x => x.Name)
-        //            .ToList();
+        [Fact]
+        public void SelectSinglePropertyFromSubQuery()
+        {
+            using (IDocumentSession s = GetNewDocumentSession())
+            {
+                List<string> p = s.Query<Person>()
+                    .Where(x => x.Name != "a")
+                    .Select(x => new { x.EmailAddress, x.Name, x.EmailConfirmed })
+                    .Select(x => x.Name)
+                    .ToList();
 
-        //        p.Count.Should().BeGreaterThan(2);
-        //        p.All(x => !string.IsNullOrWhiteSpace(x)).Should().BeTrue();
-        //    }
-        //}
+                p.Count.Should().BeGreaterThan(2);
+                p.All(x => !string.IsNullOrWhiteSpace(x)).Should().BeTrue();
+                p.Count(x => x == TestNameImogenCampbell).Should().Be(1);
+            }
+        }
 
         //[Fact]
         //public void Fact2()
