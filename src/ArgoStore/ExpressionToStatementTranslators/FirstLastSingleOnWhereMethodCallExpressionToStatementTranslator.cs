@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArgoStore.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -47,15 +48,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             if (e is MethodCallExpression me && me.Method.Name == "Where")
             {
-                if (me.Arguments[0] is ConstantExpression ce)
-                {
-                    if (ce.Type.IsGenericType)
-                    {
-                        var genTypeDef = ce.Type.GetGenericTypeDefinition();
-
-                        return genTypeDef == typeof(ArgoStoreQueryable<>) || typeof(IQueryable<>).IsAssignableFrom(genTypeDef);
-                    }
-                }
+                return TypeHelpers.ImeplementsIQueryableGenericInteface(e.Type);
             }
             return false;
         }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArgoStore.Helpers;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -10,7 +11,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             if (expression is MethodCallExpression m)
             {
-                return m.Method.Name == "Select" && !(m.Arguments[0] is MethodCallExpression) && ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
+                return m.Method.Name == "Select" && !(m.Arguments[0] is MethodCallExpression) && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
             }
 
             return false;
@@ -31,7 +32,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             if (expression is ConstantExpression ce)
             {
-                if (ce.Type.IsGenericType && ImeplementsIQueryableGenericInteface(ce.Type))
+                if (ce.Type.IsGenericType && TypeHelpers.ImeplementsIQueryableGenericInteface(ce.Type))
                 {
                     return ce.Type.GetGenericArguments()[0];
                 }
@@ -39,7 +40,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (expression is ParameterExpression pe)
             {
-                if (pe.Type.IsGenericType && ImeplementsIQueryableGenericInteface(pe.Type))
+                if (pe.Type.IsGenericType && TypeHelpers.ImeplementsIQueryableGenericInteface(pe.Type))
                 {
                     return pe.Type.GetGenericArguments()[0];
                 }
@@ -63,13 +64,6 @@ namespace ArgoStore.ExpressionToStatementTranslators
             }
 
             throw new InvalidOperationException($"Expected lambda in Select \"{ex.NodeType}\", \"{ex.Type.FullName}\", \"{ex}\"");
-        }
-
-        private bool ImeplementsIQueryableGenericInteface(Type t)
-        {
-            return (t.IsGenericType && t.IsClass && t.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IQueryable<>)))
-                || (t.IsInterface && t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IQueryable<>))
-                ;
         }
     }
 }

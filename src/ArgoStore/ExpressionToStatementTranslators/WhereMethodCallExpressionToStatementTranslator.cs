@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArgoStore.Helpers;
+using System;
 using System.Linq.Expressions;
 
 namespace ArgoStore.ExpressionToStatementTranslators
@@ -27,12 +28,9 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         private Type GetTargetType(Expression expression)
         {
-            if (expression is ConstantExpression ce)
+            if (TypeHelpers.ImeplementsIQueryableGenericInteface(expression.Type))
             {
-                if (ce.Type.IsGenericType && ce.Type.GetGenericTypeDefinition() == typeof(ArgoStoreQueryable<>))
-                {
-                    return ce.Type.GenericTypeArguments[0];
-                }
+                return expression.Type.GetGenericArguments()[0];
             }
 
             throw new NotSupportedException($"Cannot get Where target type from \"{expression.NodeType}\", \"{expression.Type.Name}\", \"{expression}\"");

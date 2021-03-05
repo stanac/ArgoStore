@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArgoStore.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -13,7 +14,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             if (expression is MethodCallExpression m)
             {
-                return SupportedMethodNames.Contains(m.Method.Name) && m.Arguments[0].Type.IsGenericType && m.Arguments[0].Type.GetGenericTypeDefinition() == typeof(ArgoStoreQueryable<>);
+                return SupportedMethodNames.Contains(m.Method.Name) && !(m.Arguments[0] is MethodCallExpression) && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
             }
 
             return false;
@@ -50,12 +51,9 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         private Type GetTargetType(Expression expression)
         {
-            if (expression is ConstantExpression ce)
+            if (TypeHelpers.ImeplementsIQueryableGenericInteface(expression.Type))
             {
-                if (ce.Type.IsGenericType && ce.Type.GetGenericTypeDefinition() == typeof(ArgoStoreQueryable<>))
-                {
-                    return ce.Type.GetGenericArguments()[0];
-                }
+                return expression.Type.GetGenericArguments()[0];
             }
 
             throw new ArgumentException($"Cannot get target type for select from \"{expression.NodeType}\", \"{expression.Type.FullName}\", \"{expression}\"");

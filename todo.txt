@@ -11,3 +11,5 @@ count,
 call AsEnumerable to enumerate
 
 FirstAsync, FirstOrDefaultAsync, LastAsync, LastOrDefaultAsync, SingleAsync, SingleOrDefaultAsync, CountAsync, CountLongAsync, ToListAsync
+
+compiled queries

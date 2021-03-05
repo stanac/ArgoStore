@@ -29,6 +29,13 @@ namespace ArgoStore.Helpers
             throw new ArgumentException($"Type {nameof(collectionType)} is not a generic collection type or typed array");
         }
 
+        public static bool ImeplementsIQueryableGenericInteface(Type t)
+        {
+            return (t.IsGenericType && t.IsClass && t.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IQueryable<>)))
+                || (t.IsInterface && t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IQueryable<>))
+                ;
+        }
+
         public static Type CreateIEnumerableOfType(Type elementType)
         {
             if (elementType == null) throw new ArgumentNullException(nameof(elementType));
