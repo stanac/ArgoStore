@@ -7,12 +7,12 @@ using Xunit;
 
 namespace ArgoStore.UnitTests.StatementsTests
 {
-    public class FirstAndFirstOrDefaultTests
+    public class LastAndLastOrDefaultTests
     {
         [Fact]
-        public void FirstOrDefaultOnQueryable_CreatesCorrectStatementAndSetsTop1()
+        public void LastOrDefaultOnQueryable_CreatesCorrectStatementAndSetsTop1()
         {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.FirstOrDefault();
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.LastOrDefault();
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
@@ -27,12 +27,14 @@ namespace ArgoStore.UnitTests.StatementsTests
             s.Top.Value.Should().Be(1);
 
             s.WhereStatement.Should().BeNull();
+
+            s.CalledByMethod.Should().Be(SelectStatement.CalledByMethods.LastOrDefault);
         }
 
         [Fact]
-        public void FirstOrDefaultOnQueryableWithFilter_SetsWhere()
+        public void LastOrDefaultOnQueryableWithFilter_SetsWhere()
         {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.FirstOrDefault(x => x.Key == "a");
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.LastOrDefault(x => x.Key == "a");
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
@@ -52,9 +54,9 @@ namespace ArgoStore.UnitTests.StatementsTests
         }
 
         [Fact]
-        public void FirstOrDefaultOnWhereWithFilter_SetsWhereStatementsInConjuction()
+        public void LastOrDefaultOnWhereWithFilter_SetsWhereStatementsInConjuction()
         {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Key == "b").FirstOrDefault(x => x.Key == "a");
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Key == "b").LastOrDefault(x => x.Key == "a");
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
@@ -74,9 +76,9 @@ namespace ArgoStore.UnitTests.StatementsTests
         }
 
         [Fact]
-        public void FirstOnQueryable_CreatesCorrectStatementAndSetsTop1()
+        public void LastOnQueryable_CreatesCorrectStatementAndSetsTop1()
         {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.First();
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Last();
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
@@ -91,13 +93,12 @@ namespace ArgoStore.UnitTests.StatementsTests
             s.Top.Value.Should().Be(1);
 
             s.WhereStatement.Should().BeNull();
-            s.CalledByMethod.Should().Be(SelectStatement.CalledByMethods.First);
         }
 
         [Fact]
-        public void FirstOnQueryableWithFilter_SetsWhere()
+        public void LastOnQueryableWithFilter_SetsWhere()
         {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.First(x => x.Key == "a");
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Last(x => x.Key == "a");
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
@@ -117,9 +118,9 @@ namespace ArgoStore.UnitTests.StatementsTests
         }
 
         [Fact]
-        public void FirstOnWhereWithFilter_SetsWhereStatementsInConjuction()
+        public void LastOnWhereWithFilter_SetsWhereStatementsInConjuction()
         {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Key == "b").First(x => x.Key == "a");
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Key == "b").Last(x => x.Key == "a");
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
