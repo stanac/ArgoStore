@@ -7,11 +7,13 @@ namespace ArgoStore.ExpressionToStatementTranslators
 {
     internal class OrderByTranslator : IExpressionToStatementTranslator
     {
+        private static readonly string[] _supportedMethodNames = new[] { "OrderBy", "ThenBy", "OrderByDescending", "ThenByDescending" };
+
         public bool CanTranslate(Expression expression)
         {
             if (expression is MethodCallExpression mc)
             {
-                return mc.Method.Name == "OrderBy" && mc.Method.DeclaringType == typeof(Queryable);
+                return _supportedMethodNames.Contains(mc.Method.Name) && mc.Method.DeclaringType == typeof(Queryable);
             }
 
             return false;
@@ -21,11 +23,36 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             var mc = expression as MethodCallExpression;
 
-            var lambda = ExpressionHelpers.RemoveQuotes(mc.Arguments[1]);
+            Statement calledOn = null;
+
+            if (mc.Arguments[0].NodeType != ExpressionType.Parameter)
+            {
+                calledOn = ExpressionToStatementTranslatorStrategy.Translate(mc.Arguments[0]);
+            }
+
+            bool isAsc = !mc.Method.Name.Contains("Descending");
 
             var statement = ExpressionToStatementTranslatorStrategy.Translate(mc.Arguments[1]);
 
-            throw new NotImplementedException();
+            if (statement is PropertyAccessStatement pas)
+            {
+                var orderByStatement = OrderByStatement.Create(pas, isAsc);
+
+                if (calledOn == null)
+                {
+                    return orderByStatement;
+                }
+
+                if (calledOn is OrderByStatement obs)
+                {
+                    return obs.Join(orderByStatement);
+                }
+
+                throw new NotImplementedException($"Not implemented merge of {mc.Method.Name} and {calledOn}");
+
+            }
+
+            throw new NotSupportedException($"Cannot create order by statement from {statement}");
         }
     }
 }

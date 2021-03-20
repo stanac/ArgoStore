@@ -20,6 +20,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgoStore.UnitTests", "test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgoStore.IntegrationTests", "tests\ArgoStore.IntegrationTests\ArgoStore.IntegrationTests.csproj", "{E7C2B7FA-0F62-404A-9136-CE1E7271CEFC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgoStore.TestsCommon", "tests\ArgoStore.TestsCommon\ArgoStore.TestsCommon.csproj", "{E5F31C13-D4A7-49ED-A7D7-A050DD959680}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +40,10 @@ Global
 		{E7C2B7FA-0F62-404A-9136-CE1E7271CEFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7C2B7FA-0F62-404A-9136-CE1E7271CEFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7C2B7FA-0F62-404A-9136-CE1E7271CEFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E5F31C13-D4A7-49ED-A7D7-A050DD959680}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5F31C13-D4A7-49ED-A7D7-A050DD959680}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5F31C13-D4A7-49ED-A7D7-A050DD959680}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5F31C13-D4A7-49ED-A7D7-A050DD959680}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,6 +52,7 @@ Global
 		{D0DEED21-A28B-443D-85E6-C4AABD919C84} = {1E4076D7-627C-4E3C-8ECD-80877D9217D5}
 		{B0E08222-CB14-4CD6-90B8-F36FD305EEE9} = {84AEA3DF-0744-463C-BA13-5BB94A5C22BD}
 		{E7C2B7FA-0F62-404A-9136-CE1E7271CEFC} = {84AEA3DF-0744-463C-BA13-5BB94A5C22BD}
+		{E5F31C13-D4A7-49ED-A7D7-A050DD959680} = {84AEA3DF-0744-463C-BA13-5BB94A5C22BD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BBE19798-8214-4067-BA29-EA080D04E657}

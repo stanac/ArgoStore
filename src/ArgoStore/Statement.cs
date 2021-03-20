@@ -278,16 +278,26 @@ namespace ArgoStore
             if (Elements.Count == 0) throw new ArgumentException("Collection cannot be empty", nameof(elements));
         }
 
+        public static OrderByStatement Create(PropertyAccessStatement pas, bool asc)
+        {
+            return new OrderByStatement(new List<OrderByElement> { new OrderByElement(pas.Name, asc) });
+        }
+
         public IReadOnlyList<OrderByElement> Elements { get; }
 
-        public override Statement Negate()
-        {
-            throw new NotSupportedException();
-        }
+        public override Statement Negate() => throw new NotSupportedException();
 
         public override Statement ReduceIfPossible() => this;
 
         public override string ToDebugString() => $"OrderBy ";
+
+        internal OrderByStatement Join(OrderByStatement orderByStatement)
+        {
+            var elements = Elements.ToList();
+            elements.AddRange(orderByStatement.Elements);
+
+            return new OrderByStatement(elements);
+        }
     }
 
     internal class OrderByElement
@@ -297,11 +307,11 @@ namespace ArgoStore
             if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentException($"'{nameof(propertyName)}' cannot be null or whitespace", nameof(propertyName));
 
             PropertyName = propertyName;
-            Asc = asc;
+            Ascending = asc;
         }
 
         public string PropertyName { get; }
-        public bool Asc { get; }
+        public bool Ascending { get; }
     }
 
     internal abstract class BinaryStatement : Statement
