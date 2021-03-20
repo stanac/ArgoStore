@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using ArgoStore.Helpers;
+using System.Linq.Expressions;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {
@@ -16,12 +17,8 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         public Statement Translate(Expression expression)
         {
-            while (expression.NodeType == ExpressionType.Quote)
-            {
-                expression = (expression as UnaryExpression).Operand;
-            }
-
-            return ExpressionToStatementTranslatorStrategy.Translate(expression);
+            var ex = ExpressionHelpers.RemoveQuotes(expression);
+            return ExpressionToStatementTranslatorStrategy.Translate(ex);
         }
     }
 }

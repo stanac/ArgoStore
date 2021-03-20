@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArgoStore.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -30,21 +31,12 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (subQuery == null) throw new NotSupportedException($"Expected subquery on Select in {nameof(SelectOnSelectMethodCallExpressionToStatementTranslator)}");
 
-            LambdaExpression l = RemoveQuotes(mc.Arguments[1]) as LambdaExpression;
+            LambdaExpression l = ExpressionHelpers.RemoveQuotes(mc.Arguments[1]) as LambdaExpression;
 
             if (l == null) throw new NotSupportedException($"Expected lambda in Select in {nameof(SelectOnSelectMethodCallExpressionToStatementTranslator)}");
 
             return SelectLambdaTranslator.Translate(l, l.ReturnType, subQuery, SelectStatement.CalledByMethods.Select);
         }
 
-        private static Expression RemoveQuotes(Expression e)
-        {
-            while (e.NodeType == ExpressionType.Quote)
-            {
-                e = (e as UnaryExpression).Operand;
-            }
-
-            return e;
-        }
     }
 }

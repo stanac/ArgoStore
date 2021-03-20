@@ -186,7 +186,7 @@ namespace ArgoStore
         }
     }
 
-    internal class SelectStatementElement : Statement
+    internal class SelectStatementElement
     {
         public SelectStatementElement(Statement statement, Type returnType, bool selectsJson, string inputProperty, string outputProperty)
         {
@@ -215,18 +215,7 @@ namespace ArgoStore
         public string InputProperty { get; }
         public string OutputProperty { get; }
 
-        public override Statement Negate()
-        {
-            throw new NotSupportedException();
-        }
-
-        public override Statement ReduceIfPossible()
-        {
-            return this;
-        }
-
-        public override string ToDebugString() => $"{Statement?.ToDebugString()}";
-
+        public string ToDebugString() => $"{Statement?.ToDebugString()}";
     }
 
     internal class SelectStarParameterStatement : Statement
@@ -278,6 +267,41 @@ namespace ArgoStore
         {
             Alias = $"\"..t{level}\"";
         }
+    }
+
+    internal class OrderByStatement : Statement
+    {
+        public OrderByStatement(IReadOnlyList<OrderByElement> elements)
+        {
+            Elements = elements ?? throw new ArgumentNullException(nameof(elements));
+
+            if (Elements.Count == 0) throw new ArgumentException("Collection cannot be empty", nameof(elements));
+        }
+
+        public IReadOnlyList<OrderByElement> Elements { get; }
+
+        public override Statement Negate()
+        {
+            throw new NotSupportedException();
+        }
+
+        public override Statement ReduceIfPossible() => this;
+
+        public override string ToDebugString() => $"OrderBy ";
+    }
+
+    internal class OrderByElement
+    {
+        public OrderByElement(string propertyName, bool asc)
+        {
+            if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentException($"'{nameof(propertyName)}' cannot be null or whitespace", nameof(propertyName));
+
+            PropertyName = propertyName;
+            Asc = asc;
+        }
+
+        public string PropertyName { get; }
+        public bool Asc { get; }
     }
 
     internal abstract class BinaryStatement : Statement
