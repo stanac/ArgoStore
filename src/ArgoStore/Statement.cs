@@ -73,6 +73,7 @@ namespace ArgoStore
     {
         public WhereStatement WhereStatement { get; private set; }
         public SelectStatement SubQueryStatement { get; private set; }
+        public OrderByStatement OrderByStatement { get; private set; }
         public Type TypeFrom { get; }
         public Type TypeTo { get; }
         public IReadOnlyList<SelectStatementElement> SelectElements { get; } = new List<SelectStatementElement>();
@@ -178,6 +179,12 @@ namespace ArgoStore
                     e.BindsToSubQueryAlias = SelectElements.First(x => x.OutputProperty == e.InputProperty).Alias;
                 }
             }
+        }
+
+        internal SelectStatement SetOrderBy(OrderByStatement orderByStatement)
+        {
+            OrderByStatement = orderByStatement ?? throw new ArgumentNullException(nameof(orderByStatement));
+            return this;
         }
 
         public enum CalledByMethods

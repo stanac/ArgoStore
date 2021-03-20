@@ -48,6 +48,11 @@ namespace ArgoStore.ExpressionToStatementTranslators
                     return obs.Join(orderByStatement);
                 }
 
+                if (calledOn is SelectStatement select)
+                {
+                    return select.SetOrderBy(orderByStatement);
+                }
+
                 throw new NotImplementedException($"Not implemented merge of {mc.Method.Name} and {calledOn}");
 
             }

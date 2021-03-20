@@ -1,5 +1,6 @@
 ﻿using ArgoStore;
 using FluentAssertions.Execution;
+using FluentAssertions.Primitives;
 using System.Linq;
 
 namespace FluentAssertions
@@ -12,7 +13,7 @@ namespace FluentAssertions
         }
     }
 
-    internal class OrderByStatementAssertions
+    internal class OrderByStatementAssertions : ReferenceTypeAssertions<OrderByStatement, OrderByStatementAssertions>
     {
         private OrderByStatement _statement;
 
@@ -21,6 +22,19 @@ namespace FluentAssertions
             _statement = statement;
         }
 
+        protected override string Identifier => "object";// typeof(OrderByStatement).FullName;
+
+        //public AndConstraint<OrderByStatementAssertions> NotBeNull(string because = "", params string[] becauseArgs)
+        //{
+        //    Execute.Assertion
+        //        .ForCondition(_statement != null)
+        //        .BecauseOf(because, becauseArgs)
+        //        .FailWith($"Expected {{context:element}} to not be null");
+
+        //    return new AndConstraint<OrderByStatementAssertions>(this);
+        //}
+        
+        [CustomAssertion]
         public AndConstraint<OrderByStatementAssertions> ContainOrderByElement(string propertyName, bool ascending, string because = "", params string[] becauseArgs)
         {
             Execute.Assertion
@@ -31,6 +45,7 @@ namespace FluentAssertions
             return new AndConstraint<OrderByStatementAssertions>(this);
         }
 
+        [CustomAssertion]
         public AndConstraint<OrderByStatementAssertions> ContainOrderByElement(string propertyName, bool ascending, int index, string because = "", params string[] becauseArgs)
         {
             Execute.Assertion

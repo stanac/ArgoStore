@@ -36,8 +36,10 @@ namespace ArgoStore.UnitTests.StatementsTests
                     - then by 3x desc on subquery
          */
 
+        #region on queryable
+
         [Fact]
-        public void OrderBy_SetsCorrectOrderInStatement()
+        public void OrderByOnQueryable_SetsCorrectOrderInStatement()
         {
             Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name);
 
@@ -49,7 +51,7 @@ namespace ArgoStore.UnitTests.StatementsTests
         }
 
         [Fact]
-        public void OrderByDescending_SetsCorrectOrderInStatement()
+        public void OrderByDescendingOnQueryable_SetsCorrectOrderInStatement()
         {
             Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderByDescending(x => x.Name);
 
@@ -61,7 +63,7 @@ namespace ArgoStore.UnitTests.StatementsTests
         }
 
         [Fact]
-        public void OrderByThenBy_SetsCorrectOrderInStatement()
+        public void OrderByThenByOnQueryable_SetsCorrectOrderInStatement()
         {
             Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).ThenBy(x => x.EmailAddress);
 
@@ -75,7 +77,7 @@ namespace ArgoStore.UnitTests.StatementsTests
 
 
         [Fact]
-        public void OrderByMultipleThenBy_SetsCorrectOrderInStatement()
+        public void OrderByMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
         {
             Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .OrderBy(x => x.Name)
@@ -97,7 +99,7 @@ namespace ArgoStore.UnitTests.StatementsTests
         }
 
         [Fact]
-        public void OrderByDescMultipleThenBy_SetsCorrectOrderInStatement()
+        public void OrderByDescMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
         {
             Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .OrderByDescending(x => x.Name)
@@ -119,7 +121,7 @@ namespace ArgoStore.UnitTests.StatementsTests
         }
 
         [Fact]
-        public void OrderByAscDescMultipleThenBy_SetsCorrectOrderInStatement()
+        public void OrderByAscDescMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
         {
             Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .OrderByDescending(x => x.Name)
@@ -139,5 +141,25 @@ namespace ArgoStore.UnitTests.StatementsTests
             obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
             obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
         }
+
+        #endregion on queryable
+
+        #region on select
+
+        [Fact]
+        public void OrderByOnSelect_SetsCorrectOrderInStatement()
+        {
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Select(x => x).OrderBy(x => x.Name);
+
+            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+
+            st.Should().BeOfType(typeof(SelectStatement));
+
+            var select = st as SelectStatement;
+
+            select.OrderByStatement.Should().NotBeNull();
+        }
+
+        #endregion on select
     }
 }
