@@ -183,7 +183,14 @@ namespace ArgoStore
 
         internal SelectStatement SetOrderBy(OrderByStatement orderByStatement)
         {
-            OrderByStatement = orderByStatement ?? throw new ArgumentNullException(nameof(orderByStatement));
+            if (OrderByStatement == null)
+            {
+                OrderByStatement = orderByStatement ?? throw new ArgumentNullException(nameof(orderByStatement));
+            }
+            else
+            {
+                OrderByStatement = OrderByStatement.Join(orderByStatement);
+            }
             return this;
         }
 

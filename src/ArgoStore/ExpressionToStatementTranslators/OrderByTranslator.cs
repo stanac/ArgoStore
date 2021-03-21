@@ -53,6 +53,12 @@ namespace ArgoStore.ExpressionToStatementTranslators
                     return select.SetOrderBy(orderByStatement);
                 }
 
+                if (calledOn is WhereStatement where)
+                {
+                    var top = new TopStatement(where, SelectStatement.CalledByMethods.Select);
+                    return top.SelectStatement.SetOrderBy(orderByStatement);
+                }
+
                 throw new NotImplementedException($"Not implemented merge of {mc.Method.Name} and {calledOn}");
 
             }
