@@ -15,30 +15,18 @@ namespace FluentAssertions
 
     internal class OrderByStatementAssertions : ReferenceTypeAssertions<OrderByStatement, OrderByStatementAssertions>
     {
-        private OrderByStatement _statement;
-
         public OrderByStatementAssertions(OrderByStatement statement)
+            : base (statement)
         {
-            _statement = statement;
         }
 
         protected override string Identifier => "object";// typeof(OrderByStatement).FullName;
 
-        //public AndConstraint<OrderByStatementAssertions> NotBeNull(string because = "", params string[] becauseArgs)
-        //{
-        //    Execute.Assertion
-        //        .ForCondition(_statement != null)
-        //        .BecauseOf(because, becauseArgs)
-        //        .FailWith($"Expected {{context:element}} to not be null");
-
-        //    return new AndConstraint<OrderByStatementAssertions>(this);
-        //}
-        
         [CustomAssertion]
         public AndConstraint<OrderByStatementAssertions> ContainOrderByElement(string propertyName, bool ascending, string because = "", params string[] becauseArgs)
         {
             Execute.Assertion
-                .ForCondition(_statement.Elements.Any(x => x.PropertyName == propertyName && x.Ascending == ascending))
+                .ForCondition(Subject.Elements.Any(x => x.PropertyName == propertyName && x.Ascending == ascending))
                 .BecauseOf(because, becauseArgs)
                 .FailWith($"Expected {{context:element}} to be found with \"{propertyName}\" {(ascending ? "ASC" : "DESC")}");
 
@@ -49,7 +37,7 @@ namespace FluentAssertions
         public AndConstraint<OrderByStatementAssertions> ContainOrderByElement(string propertyName, bool ascending, int index, string because = "", params string[] becauseArgs)
         {
             Execute.Assertion
-                .ForCondition(_statement.Elements.Count > index && _statement.Elements[index].PropertyName == propertyName && _statement.Elements[index].Ascending == ascending)
+                .ForCondition(Subject.Elements.Count > index && Subject.Elements[index].PropertyName == propertyName && Subject.Elements[index].Ascending == ascending)
                 .BecauseOf(because, becauseArgs)
                 .FailWith($"Expected {{context:element}} to be found with \"{propertyName}\" {(ascending ? "ASC" : "DESC")}");
 
