@@ -23,7 +23,25 @@ namespace ArgoStore.ExpressionToStatementTranslators
             Statement statement = ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[1]);
             Type targetType = GetTargetType(e.Arguments[0]);
 
-            return new WhereStatement(statement, targetType);
+            var where = new WhereStatement(statement, targetType);
+
+            if (e.Arguments[0].NodeType == ExpressionType.Call)
+            {
+                Statement targetStatement = ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0]);
+
+                if (targetStatement is OrderByStatement os)
+                {
+                    var top = new TopStatement(where, SelectStatement.CalledByMethods.Select);
+                    return top.SelectStatement.SetOrderBy(os);
+                }
+
+                // TODO: add test for q => q.Select().Where()
+                // TODO: add test for q => q.Where().Where()
+
+                throw new NotImplementedException($"Not implemented where on target {targetStatement.GetType().Name}");
+            }
+
+            return where;
         }
 
         private Type GetTargetType(Expression expression)

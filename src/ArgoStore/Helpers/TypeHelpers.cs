@@ -33,6 +33,7 @@ namespace ArgoStore.Helpers
         {
             return (t.IsGenericType && t.IsClass && t.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IQueryable<>)))
                 || (t.IsInterface && t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IQueryable<>))
+                || (t.IsInterface && t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IOrderedQueryable<>))
                 ;
         }
 

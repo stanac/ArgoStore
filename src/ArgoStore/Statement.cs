@@ -152,19 +152,6 @@ namespace ArgoStore
             }
         }
 
-        internal void SetFromSubQueryProperties()
-        {
-            foreach (var s in SelectElements)
-            {
-                s.FromSubQuery = SubQueryStatement != null;
-            }
-
-            if (SubQueryStatement != null)
-            {
-                SubQueryStatement.SetFromSubQueryProperties();
-            }
-        }
-
         internal void SetSubQueryAliases(SelectStatement parent)
         {
             if (SubQueryStatement != null)
