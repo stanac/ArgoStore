@@ -44,11 +44,10 @@ namespace ArgoStore.UnitTests.StatementsTests
              - ✅ order, where, select, 3x then by desc
              - ✅ order, where, select, 3x then by asc, desc
         
-             - order by on subquery
-             - order by desc on subquery
-             - then by on subquery
-             - then by 3x on subquery
-             - then by 3x desc on subquery
+             - ✅ order by on subquery
+             - ✅ order by desc on subquery
+             - ✅ then by on subquery
+             - ✅ then desc by on subquery
          */
 
         #region on queryable
@@ -730,6 +729,7 @@ namespace ArgoStore.UnitTests.StatementsTests
                 .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
                 .Where(x => x.Active)
                 .Select(x => new { x.EmailAddress, x.BirthYear })
+                .OrderBy(x => x.BirthYear)
             ;
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -746,6 +746,81 @@ namespace ArgoStore.UnitTests.StatementsTests
             select.SubQueryStatement.Should().NotBeNull();
         }
 
+        [Fact]
+        public void OrderByDescOnSubQuery_SetsCorrectOrderInStatement()
+        {
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+                .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
+                .Where(x => x.Active)
+                .Select(x => new { x.EmailAddress, x.BirthYear })
+                .OrderByDescending(x => x.BirthYear)
+            ;
+
+            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+
+            st.Should().BeOfType(typeof(SelectStatement));
+
+            var select = st as SelectStatement;
+
+            select.OrderByStatement.Should().NotBeNull();
+
+            select.OrderByStatement.Elements.Should().ContainSingle();
+            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
+
+            select.SubQueryStatement.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void OrderByThenByOnSubQuery_SetsCorrectOrderInStatement()
+        {
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+                .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
+                .Where(x => x.Active)
+                .Select(x => new { x.EmailAddress, x.BirthYear })
+                .OrderBy(x => x.BirthYear)
+                .ThenBy(x => x.EmailAddress)
+            ;
+
+            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+
+            st.Should().BeOfType(typeof(SelectStatement));
+
+            var select = st as SelectStatement;
+
+            select.OrderByStatement.Should().NotBeNull();
+
+            select.OrderByStatement.Elements.Should().HaveCount(2);
+            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
+            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+
+            select.SubQueryStatement.Should().NotBeNull();
+        }
+
+        [Fact]
+        public void OrderByThenByDescOnSubQuery_SetsCorrectOrderInStatement()
+        {
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+                .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
+                .Where(x => x.Active)
+                .Select(x => new { x.EmailAddress, x.BirthYear })
+                .OrderBy(x => x.BirthYear)
+                .ThenByDescending(x => x.EmailAddress)
+            ;
+
+            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+
+            st.Should().BeOfType(typeof(SelectStatement));
+
+            var select = st as SelectStatement;
+
+            select.OrderByStatement.Should().NotBeNull();
+
+            select.OrderByStatement.Elements.Should().HaveCount(2);
+            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
+            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false);
+
+            select.SubQueryStatement.Should().NotBeNull();
+        }
 
         #endregion order by on subquery
     }
