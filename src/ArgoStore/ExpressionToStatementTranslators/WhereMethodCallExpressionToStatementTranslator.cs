@@ -35,6 +35,11 @@ namespace ArgoStore.ExpressionToStatementTranslators
                     return top.SelectStatement.SetOrderBy(os);
                 }
 
+                if (targetStatement is SelectStatement ss)
+                {
+                    return ss.AddWhereCondition(where);
+                }
+
                 // TODO: add test for q => q.Select().Where()
                 // TODO: add test for q => q.Where().Where()
 

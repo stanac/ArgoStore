@@ -730,7 +730,7 @@ namespace ArgoStore.UnitTests.StatementsTests
                 .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
                 .Where(x => x.Active)
                 .Select(x => new { x.EmailAddress, x.BirthYear })
-                .OrderBy(x => x.BirthYear);
+            ;
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 

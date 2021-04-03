@@ -181,6 +181,22 @@ namespace ArgoStore
             return this;
         }
 
+        internal SelectStatement AddWhereCondition(WhereStatement where)
+        {
+            if (where is null) throw new ArgumentNullException(nameof(where));
+
+            if (WhereStatement == null)
+            {
+                WhereStatement = where;
+            }
+            else
+            {
+                WhereStatement.AddConjunctedCondition(where.Statement);
+            }
+
+            return this;
+        }
+
         public enum CalledByMethods
         {
             Select, First, FirstOrDefault, Last, LastOrDefault, Single, SingleOrDefault, Count
@@ -334,6 +350,11 @@ namespace ArgoStore
         public BinaryLogicalStatement(Statement left, Statement right, bool isOr)
             : base (left, right)
         {
+            if (left is WhereStatement || right is WhereStatement)
+            {
+                throw new ArgumentException();
+            }
+
             IsOr = isOr;
         }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ArgoStore.Helpers;
+using System;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -21,12 +22,21 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             var me = expression as MethodCallExpression;
 
-            WhereStatement where = ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[0]) as WhereStatement;
+            var calledOn = ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[0]);
+
             LambdaExpression lambda = GetSelectLambda(me.Arguments[1]);
 
-            SelectStatement select = SelectLambdaTranslator.Translate(lambda, where.TargetType, where, SelectStatement.CalledByMethods.Select);
+            if (calledOn is WhereStatement where)
+            {
+                return SelectLambdaTranslator.Translate(lambda, where.TargetType, where, SelectStatement.CalledByMethods.Select);
+            }
 
-            return select;
+            if (calledOn is SelectStatement parentSelect)
+            {
+                return SelectLambdaTranslator.Translate(lambda, parentSelect.TypeTo, parentSelect, SelectStatement.CalledByMethods.Select);
+            }
+
+            throw new NotSupportedException($"Cannot add select to statement of type {calledOn.GetType().Name}");
         }
 
         private static bool IsWhereCall(Expression e)
@@ -42,7 +52,12 @@ namespace ArgoStore.ExpressionToStatementTranslators
                         return genTypeDef == typeof(ArgoStoreQueryable<>) || typeof(IQueryable<>).IsAssignableFrom(genTypeDef);
                     }
                 }
+                else if (me.Arguments[0] is MethodCallExpression mc)
+                {
+                    return TypeHelpers.ImeplementsIQueryableGenericInteface(mc.Type);
+                }
             }
+
             return false;
         }
 
