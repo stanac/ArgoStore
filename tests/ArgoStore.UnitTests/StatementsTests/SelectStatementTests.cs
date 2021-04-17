@@ -114,5 +114,19 @@ namespace ArgoStore.UnitTests.StatementsTests
             s2.SelectElements[2].InputProperty.Should().Be(nameof(TestEntityPerson.Active));
             s2.SelectElements[2].OutputProperty.Should().Be(nameof(TestEntityPerson.Active));
         }
+        
+        [Fact]
+        public void SelectOnOrderBy_Translate_ReturnsCorrectStatement()
+        {
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+                .OrderBy(x => x.EmailAddress)
+                .Select(x => new { EmailAddress = x.Name, Key = x.BirthYear, x.Active })
+                ;
+            
+            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+
+            st.Should().BeOfType(typeof(SelectStatement));
+
+        }
     }
 }
