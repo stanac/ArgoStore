@@ -824,7 +824,7 @@ namespace ArgoStore.UnitTests.StatementsTests
         }
 
         [Fact]
-        public void OrderByWhereOnSubQueryOrderBy_SetsCorrectOrderInStatement()
+        public void OrderByWhereOnSubQueryOrderBy_SetsCorrectOrderByInStatement()
         {
             Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .OrderBy(x => x.Active)
@@ -842,12 +842,42 @@ namespace ArgoStore.UnitTests.StatementsTests
 
             select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(2);
+            select.OrderByStatement.Elements.Should().ContainSingle();
             select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false);
+            
+            select.SubQueryStatement.Should().NotBeNull();
+            select.SubQueryStatement.OrderByStatement.Should().NotBeNull();
+            select.SubQueryStatement.OrderByStatement.Elements.Should().ContainSingle();
+            select.SubQueryStatement.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true);
+        }
+        [Fact]
+        public void OrderByDescWhereOnSubQueryOrderByDesc_SetsCorrectOrderByInStatement()
+        {
+            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+                .OrderByDescending(x => x.Active)
+                .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
+                .Where(x => x.Active)
+                .Select(x => new { x.EmailAddress, x.BirthYear })
+                .OrderByDescending(x => x.BirthYear)
+            ;
+
+            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+
+            st.Should().BeOfType(typeof(SelectStatement));
+
+            var select = st as SelectStatement;
+
+            select.OrderByStatement.Should().NotBeNull();
+
+            select.OrderByStatement.Elements.Should().ContainSingle();
+            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
 
             select.SubQueryStatement.Should().NotBeNull();
+            select.SubQueryStatement.OrderByStatement.Should().NotBeNull();
+            select.SubQueryStatement.OrderByStatement.Elements.Should().ContainSingle();
+            select.SubQueryStatement.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false);
         }
+
 
         #endregion order by on subquery
     }

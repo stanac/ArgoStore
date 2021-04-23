@@ -34,7 +34,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (ex is MethodCallExpression m)
             {
-                return m.Method.Name == "OrderBy";
+                return m.Method.Name == "OrderBy" || m.Method.Name == "OrderByDescending";
             }
 
             return false;
