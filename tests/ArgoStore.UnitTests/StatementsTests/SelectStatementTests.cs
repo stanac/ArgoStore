@@ -126,7 +126,16 @@ namespace ArgoStore.UnitTests.StatementsTests
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
             st.Should().BeOfType(typeof(SelectStatement));
+            SelectStatement s = st as SelectStatement;
 
+            s.OrderByStatement.Should().NotBeNull();
+            s.OrderByStatement.Elements.Should().ContainSingle();
+            s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+
+            s.SelectElements.Should().HaveCount(3);
+            s.Should().ContainElement(nameof(TestEntityPerson.Active));
+            s.Should().ContainElement(inputProperty: nameof(TestEntityPerson.Name), outputProperty: nameof(TestEntityPerson.EmailAddress));
+            s.Should().ContainElement(inputProperty: nameof(TestEntityPerson.BirthYear), outputProperty: nameof(TestEntityPerson.Key));
         }
     }
 }

@@ -95,6 +95,13 @@ namespace ArgoStore
             SubQueryStatement = subQueryStatement ?? throw new ArgumentNullException(nameof(subQueryStatement));
         }
 
+        public SelectStatement(OrderByStatement orderByStatement, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
+            int? top, CalledByMethods calledByMethod)
+            : this(typeFrom, typeTo, selectElements, top, calledByMethod)
+        {
+            OrderByStatement = orderByStatement ?? throw new ArgumentNullException(nameof(orderByStatement));
+        }
+
         public SelectStatement(Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
             int? top, CalledByMethods calledByMethod)
         {
@@ -115,6 +122,8 @@ namespace ArgoStore
             if (from is WhereStatement w) return new SelectStatement(w, typeFrom, typeTo, selectElements, top, calledByMethod);
 
             if (from is SelectStatement s) return new SelectStatement(s, typeFrom, typeTo, selectElements, top, calledByMethod);
+
+            if (from is OrderByStatement o) return new SelectStatement(o, typeFrom, typeTo, selectElements, top, calledByMethod);
 
             throw new ArgumentException($"{from} statement of type {from.GetType().FullName} not supported in SelectStatement.Create", nameof(from));
         }

@@ -20,7 +20,7 @@ namespace FluentAssertions
         {
         }
 
-        protected override string Identifier => typeof(OrderByStatement).FullName;
+        protected override string Identifier => typeof(OrderByStatementAssertions).FullName;
 
         [CustomAssertion]
         public AndConstraint<OrderByStatementAssertions> ContainOrderByElement(string propertyName, bool ascending, string because = "", params string[] becauseArgs)
