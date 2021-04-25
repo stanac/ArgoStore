@@ -1,17 +1,14 @@
 ﻿using ArgoStore.IntegrationTests.Entities;
 using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace ArgoStore.IntegrationTests
 {
-    public class OrderByTests : IntegrationTestsBase
+    public class WhereTests : IntegrationTestsBase
     {
-        public OrderByTests()
+        public WhereTests()
         {
             using (IDocumentSession session = GetNewDocumentSession())
             {
@@ -20,21 +17,19 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        [Fact]
-        public void Test()
+        [SkippableFact]
+        public void WhereWithNotEqualNull_ReturnsCorrectEntities()
         {
             using (IDocumentSession session = GetNewDocumentSession())
             {
                 List<Person> persons = session.Query<Person>()
-                    .OrderByDescending(x => x.Name)
-                    .Where(x => x.EmailAddress != null)
+                    .Where(x => x.Name != null)
                     .ToList();
 
                 int count = persons.Count;
-                count.Should().Be(1);
-
-                persons.First().Name.Should().Be("1");
+                count.Should().BeGreaterThan(1);
             }
+
         }
     }
 }
