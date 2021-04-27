@@ -32,14 +32,14 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         {
             Expression<Func<TestEntityPerson, bool>> ex = x => x.Active || x.Name == "Marcus";
 
-            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
+            Statement where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
             where.Should().BeOfType(typeof(BinaryLogicalStatement));
 
-            var b = where as BinaryLogicalStatement;
+            BinaryLogicalStatement b = where as BinaryLogicalStatement;
 
             b.Left.Should().BeOfType(typeof(PropertyAccessStatement));
-            (b.Left as PropertyAccessStatement).Name.Should().Be("Active");
+            (b.Left as PropertyAccessStatement).Name.Should().Be(nameof(TestEntityPerson.Active));
 
             b.Right.Should().BeOfType(typeof(BinaryComparisonStatement));
 
@@ -48,6 +48,26 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
 
             (b.Right as BinaryComparisonStatement).Right.Should().BeOfType(typeof(ConstantStatement));
             ((b.Right as BinaryComparisonStatement).Right as ConstantStatement).Value.Should().Be("Marcus");
+        }
+
+        [Fact]
+        public void Translate_CompareEqualsNull_TranslatesToExpectedExpression()
+        {
+            Expression<Func<TestEntityPerson, bool>> ex = x => x.Key != null;
+
+            Statement where = ExpressionToStatementTranslatorStrategy.Translate(ex);
+
+            where.Should().BeOfType(typeof(BinaryComparisonStatement));
+
+            var c = where as BinaryComparisonStatement;
+
+            c.Left.Should().BeOfType<PropertyAccessStatement>();
+            c.Left.As<PropertyAccessStatement>().Name.Should().Be(nameof(TestEntityPerson.Key));
+
+            c.Operator.Should().Be(BinaryComparisonStatement.Operators.NotEqual);
+
+            c.Right.Should().BeOfType<ConstantStatement>();
+            c.Right.As<ConstantStatement>().IsNull.Should().BeTrue();
         }
     }
 }

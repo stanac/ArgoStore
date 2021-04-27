@@ -518,6 +518,8 @@ namespace ArgoStore
         public string Value { get; }
         public List<string> Values { get; }
 
+        public bool IsNull => Value == null && !IsCollection;
+
         public static ConstantStatement CreateBoolean(bool value) => new ConstantStatement(false, true, value.ToString());
 
         public override Statement Negate()
@@ -540,6 +542,8 @@ namespace ArgoStore
             {
                 return $"[{string.Join(", ", Values)}]";
             }
+
+            if (IsNull) return "NULL";
 
             return Value ?? "UnknownConstant";
         }

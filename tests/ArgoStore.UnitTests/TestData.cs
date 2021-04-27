@@ -5,7 +5,7 @@ namespace ArgoStore.UnitTests
     public class TestData
     {
 
-        private static readonly string _personsJson = @"[{
+        private const string _personsJson = @"[{
   ""id"": ""784bcc08-ce14-4854-9c04-ab6a57a62100"",
   ""name"": ""Imogen Campbell"",
   ""emailAddress"": ""imogell@a.example.com"",

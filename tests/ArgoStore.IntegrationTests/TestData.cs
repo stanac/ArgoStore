@@ -247,6 +247,8 @@ namespace ArgoStore.IntegrationTests
   ""cackeDay"": ""2020-09-01""
 }]";
 
+        public IReadOnlyList<Person> Persons { get; }
+
         public TestData(string connectionString)
         {
             if (string.IsNullOrWhiteSpace(connectionString))
@@ -255,6 +257,9 @@ namespace ArgoStore.IntegrationTests
             }
 
             _connectionString = connectionString;
+
+            ArgoStoreSerializer s = new ArgoStoreSerializer();
+            Persons = s.Deserialize<List<Person>>(_personsJson);
 
             var th = new EntityTableHelper(new Configuration
             {
@@ -277,14 +282,12 @@ namespace ArgoStore.IntegrationTests
             dbTableHelper.EnsureEntityTableExists<Person>();
             dbTableHelper.EnsureEntityTableExists<Person>();
 
-            ArgoStoreSerializer s = new ArgoStoreSerializer();
-            var persons = s.Deserialize<List<Person>>(_personsJson);
-
             using (var c = new SqliteConnection(_connectionString))
             {
                 c.Open();
+                ArgoStoreSerializer s = new ArgoStoreSerializer();
 
-                foreach (var p in persons)
+                foreach (var p in Persons)
                 {
                     string json = s.Serialize(p);
 

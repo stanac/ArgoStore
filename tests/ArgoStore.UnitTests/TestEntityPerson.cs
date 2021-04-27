@@ -7,5 +7,6 @@
         public string EmailAddress { get; set; }
         public int BirthYear { get; set; }
         public bool Active { get; set; }
+        public int? ActiveDuration { get; set; }
     }
 }

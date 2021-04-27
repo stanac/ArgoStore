@@ -51,6 +51,13 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
 ";
             }
 
+            if (select.OrderByStatement != null && select.OrderByStatement.Elements.Any())
+            {
+                sql += $@"
+{ToSqlInternal(select.OrderByStatement, select.Alias)}
+";
+            }
+
             return sql;
         }
 
@@ -64,6 +71,7 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
                 case PropertyAccessStatement s3: return ToSqlInternal(s3, alias);
                 case ConstantStatement s4: return ToSqlInternal(s4, alias);
                 case MethodCallStatement s5: return ToSqlInternal(s5, alias);
+                case OrderByStatement s6: return ToSqlInternal(s6, alias);
             }
 
             throw new ArgumentOutOfRangeException($"Missing implementation for \"{statement.GetType().FullName}\"");
@@ -72,6 +80,14 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
         private string ToSqlInternal(BinaryStatement statement, string alias)
         {
             string left = ToSqlInternal(statement.Left, alias);
+
+            string op = statement.OperatorString;
+            
+            if (statement is BinaryComparisonStatement bcs && (statement.Left is ConstantStatement c1 && c1.IsNull || statement.Right is ConstantStatement c2 && c2.IsNull))
+            {
+                if (bcs.Operator == BinaryComparisonStatement.Operators.Equal) op = "IS";
+                else if (bcs.Operator == BinaryComparisonStatement.Operators.NotEqual) op = "IS NOT";
+            }
 
             if (statement.Left is BinaryStatement)
             {
@@ -85,7 +101,7 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
                 right = "(" + right + " )";
             }
 
-            return $"{left} {statement.OperatorString} {right}";
+            return $"{left} {op} {right}";
         }
 
         private string ToSqlInternal(PropertyAccessStatement statement, string alias)
@@ -95,6 +111,10 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
 
         private string ToSqlInternal(ConstantStatement statement, string alias)
         {
+            if (statement.IsNull)
+            {
+                return "NULL";
+            }
             if (statement.IsString)
             {
                 return "'" + statement.Value.Replace("'", "''") + "'";
@@ -106,6 +126,23 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
         private string ToSqlInternal(MethodCallStatement statement, string alias)
         {
             throw new NotImplementedException();
+        }
+        
+        private string ToSqlInternal(OrderByStatement statement, string alias)
+        {
+            string sql = $"ORDER BY ";
+
+            for (int i = 0; i < statement.Elements.Count; i++)
+            {
+                sql += $"json_extract({alias}.json_data, '$.{_serialzier.ConvertPropertyNameToCorrectCase(statement.Elements[i].PropertyName)}') {(statement.Elements[i].Ascending ? "ASC" : "DESC")}";
+
+                if (i < statement.Elements.Count - 1)
+                {
+                    sql += ", ";
+                }
+            }
+
+            return sql;
         }
 
         private string SelectElementsToSql(SelectStatement statement)
