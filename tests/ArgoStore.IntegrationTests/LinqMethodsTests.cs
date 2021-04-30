@@ -4,7 +4,6 @@ using System.Linq;
 using Xunit;
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.IntegrationTests
 {
