@@ -4,6 +4,7 @@ using System.Linq;
 using Xunit;
 using System;
 using System.Collections.Generic;
+using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -243,5 +244,26 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
+        [SkippableFact]
+        public void Last_ThrowsNotSupportedException()
+        {
+            using (IDocumentSession s = GetNewDocumentSession())
+            {
+                Action a = () => s.Query<Person>().Last();
+
+                a.Should().Throw<NotSupportedException>();
+            }
+        }
+
+        [SkippableFact]
+        public void LastOrDefault_ThrowsNotSupportedException()
+        {
+            using (IDocumentSession s = GetNewDocumentSession())
+            {
+                Action a = () => s.Query<Person>().LastOrDefault();
+
+                a.Should().Throw<NotSupportedException>();
+            }
+        }
     }
 }

@@ -28,6 +28,11 @@ namespace ArgoStore
 
         private string ToSqlInternal(SelectStatement select)
         {
+            if (select.CalledByMethod == SelectStatement.CalledByMethods.Last || select.CalledByMethod == SelectStatement.CalledByMethods.LastOrDefault)
+            {
+                throw new NotSupportedException($"Method {select.CalledByMethod} is not supported use OrderBy/OrderByDescending and First/FirstOrDefault");
+            }
+
             string sql = SelectElementsToSql(select);
 
             string from;
