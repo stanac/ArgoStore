@@ -69,6 +69,70 @@ namespace ArgoStore
         }
     }
 
+    internal class SelectCountStatement : Statement
+    {
+        public SelectCountStatement(Type fromType, bool longCount)
+        {
+            FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
+            LongCount = longCount;
+        }
+
+        public SelectCountStatement(Type fromType, WhereStatement where, bool longCount)
+        {
+            FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
+            Where = where ?? throw new ArgumentNullException(nameof(where));
+            LongCount = longCount;
+        }
+
+        public SelectCountStatement(Type fromType, SelectStatement subQuery, bool longCount)
+        {
+            FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
+            SubQuery = subQuery ?? throw new ArgumentNullException(nameof(subQuery));
+            LongCount = longCount;
+        }
+
+        public Type FromType { get; }
+        public WhereStatement Where { get; }
+        public SelectStatement SubQuery { get; }
+        public bool LongCount { get; }
+
+        public override Statement Negate() => throw new NotSupportedException();
+
+        public override Statement ReduceIfPossible() => this;
+
+        public override string ToDebugString() => "SELECT COUNT()";
+    }
+
+    internal class SelectExistsStatement : Statement
+    {
+        public SelectExistsStatement(Type fromType)
+        {
+            FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
+        }
+
+        public SelectExistsStatement(Type fromType, WhereStatement where, bool longCount)
+        {
+            FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
+            Where = where ?? throw new ArgumentNullException(nameof(where));
+        }
+
+        public SelectExistsStatement(Type fromType, SelectStatement subQuery, bool longCount)
+        {
+            FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
+            SubQuery = subQuery ?? throw new ArgumentNullException(nameof(subQuery));
+        }
+
+        public Type FromType { get; }
+        public WhereStatement Where { get; }
+        public SelectStatement SubQuery { get; }
+
+        public override Statement Negate() => throw new NotSupportedException();
+
+        public override Statement ReduceIfPossible() => this;
+
+        public override string ToDebugString() => "SELECT EXISTS()";
+    }
+
     internal class SelectStatement : Statement
     {
         public WhereStatement WhereStatement { get; private set; }
@@ -208,7 +272,7 @@ namespace ArgoStore
 
         public enum CalledByMethods
         {
-            Select, First, FirstOrDefault, Last, LastOrDefault, Single, SingleOrDefault, Count
+            Select, First, FirstOrDefault, Last, LastOrDefault, Single, SingleOrDefault
         }
     }
 

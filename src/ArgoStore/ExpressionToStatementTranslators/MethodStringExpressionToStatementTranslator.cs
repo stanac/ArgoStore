@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {
-    internal partial class MethodStringStaticExpressionToStatementTranslator : IExpressionToStatementTranslator
+    internal class MethodStringExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
         private readonly string[] _supportedMethodNames = new[]
         {

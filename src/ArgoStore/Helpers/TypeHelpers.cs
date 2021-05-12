@@ -37,6 +37,18 @@ namespace ArgoStore.Helpers
                 ;
         }
 
+        public static bool IsQueryable(Type t)
+        {
+            if (t.IsGenericType)
+            {
+                Type genericTypeDefinition = t.GetGenericTypeDefinition();
+
+                return typeof(IQueryable).IsAssignableFrom(genericTypeDefinition);
+            }
+
+            return false;
+        }
+
         public static Type CreateIEnumerableOfType(Type elementType)
         {
             if (elementType == null) throw new ArgumentNullException(nameof(elementType));

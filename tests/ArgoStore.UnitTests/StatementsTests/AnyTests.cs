@@ -3,11 +3,11 @@ using FluentAssertions;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xunit;
 
 namespace ArgoStore.UnitTests.StatementsTests
 {
-
     public class AnyTests
     {
         [Fact]
@@ -17,7 +17,8 @@ namespace ArgoStore.UnitTests.StatementsTests
 
             Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+            st.Should().BeOfType(typeof(SelectExistsStatement));
+            st.As<SelectExistsStatement>().FromType.Should().Be(typeof(TestEntityPerson));
         }
     }
 }
