@@ -45,6 +45,6 @@ namespace ArgoStore.IntegrationTests
 
             bool exists = session.Query<Person>().Any(x => x.Name == TestNameNonExisting);
             exists.Should().BeFalse();
-        
+        }
     }
 }
