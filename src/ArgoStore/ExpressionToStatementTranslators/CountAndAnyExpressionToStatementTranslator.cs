@@ -12,6 +12,11 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         public bool CanTranslate(Expression expression)
         {
+            if (expression is MethodCallExpression mc1)
+            {
+                return _supportedMethodNames.Contains(mc1.Method.Name);
+            }
+
             if (expression is UnaryExpression ue && ue.NodeType == ExpressionType.Convert && ue.Operand is MethodCallExpression mc)
             {
                 return _supportedMethodNames.Contains(mc.Method.Name);
@@ -22,24 +27,19 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         public Statement Translate(Expression expression)
         {
-            UnaryExpression ue = expression as UnaryExpression;
-            MethodCallExpression methodCall = ue.Operand as MethodCallExpression;
-
-            if (methodCall == null)
-                throw new InvalidOperationException("Provided expression in not method call expression");
+            MethodCallExpression methodCall = GetMethodCallFromExpression(expression);
 
             bool isAny = methodCall.Method.Name == "Any";
             bool isCount = methodCall.Method.Name == "Count" || methodCall.Method.Name == "LongCount";
-
             bool isLongCount = methodCall.Method.Name == "LongCount";
 
-            if (!isAny && !isCount) throw new NotSupportedException($"{nameof(CountAndAnyExpressionToStatementTranslator)} doesn't support operand {ue.Operand}");
+            if (!isAny && !isCount) throw new NotSupportedException($"{nameof(CountAndAnyExpressionToStatementTranslator)} doesn't support method {methodCall.Method.Name}");
             
             WhereStatement where = null;
 
             Type type = GetEntityType(methodCall);
 
-            if (methodCall.Arguments.Count == 2)
+            if (methodCall.Arguments.Count == 2) // second argument if present is lambda
             {
                  Statement condition = ExpressionToStatementTranslatorStrategy.Translate(methodCall.Arguments[1]);
                  where = new WhereStatement(condition, type);
@@ -53,6 +53,24 @@ namespace ArgoStore.ExpressionToStatementTranslators
             {
                 return CreateSelectCountStatement(@where, type, isLongCount);
             }
+        }
+
+        private static MethodCallExpression GetMethodCallFromExpression(Expression expression)
+        {
+            MethodCallExpression methodCall;
+            
+            if (expression is UnaryExpression ue)
+            {
+                methodCall = ue.Operand as MethodCallExpression;
+            }
+            else
+            {
+                methodCall = expression as MethodCallExpression;
+            }
+
+            if (methodCall == null)  throw new InvalidOperationException("Provided expression in not method call expression");
+
+            return methodCall;
         }
 
         private static Type GetEntityType(MethodCallExpression methodCall)
