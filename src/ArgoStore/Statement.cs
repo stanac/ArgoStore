@@ -110,13 +110,13 @@ namespace ArgoStore
             FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
         }
 
-        public SelectExistsStatement(Type fromType, WhereStatement where, bool longCount)
+        public SelectExistsStatement(Type fromType, WhereStatement where)
         {
             FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
             Where = where ?? throw new ArgumentNullException(nameof(where));
         }
 
-        public SelectExistsStatement(Type fromType, SelectStatement subQuery, bool longCount)
+        public SelectExistsStatement(Type fromType, SelectStatement subQuery)
         {
             FromType = fromType ?? throw new ArgumentNullException(nameof(fromType));
             SubQuery = subQuery ?? throw new ArgumentNullException(nameof(subQuery));
