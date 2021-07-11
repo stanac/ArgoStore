@@ -41,7 +41,10 @@ namespace ArgoStore
             }
 
             // else select statement is not null
-            throw new NotImplementedException();
+
+            string innerSql = ToSqlInternal(statement.SelectStatement);
+
+            return $"SELECT COUNT (*) FROM ({innerSql})";
         }
 
         private string ToSqlInternal(SelectStatement select)
