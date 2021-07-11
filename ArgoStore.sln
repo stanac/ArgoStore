@@ -20,7 +20,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgoStore.UnitTests", "test
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgoStore.IntegrationTests", "tests\ArgoStore.IntegrationTests\ArgoStore.IntegrationTests.csproj", "{E7C2B7FA-0F62-404A-9136-CE1E7271CEFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgoStore.TestsCommon", "tests\ArgoStore.TestsCommon\ArgoStore.TestsCommon.csproj", "{E5F31C13-D4A7-49ED-A7D7-A050DD959680}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgoStore.TestsCommon", "tests\ArgoStore.TestsCommon\ArgoStore.TestsCommon.csproj", "{E5F31C13-D4A7-49ED-A7D7-A050DD959680}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{2F22E48E-EA07-4EA8-9583-4BBC0E83D17D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgoStore.Example.Console", "examples\ArgoStore.Example.Console\ArgoStore.Example.Console.csproj", "{8D258FF0-1D16-46E6-A069-8D705B44FF41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,6 +48,10 @@ Global
 		{E5F31C13-D4A7-49ED-A7D7-A050DD959680}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E5F31C13-D4A7-49ED-A7D7-A050DD959680}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E5F31C13-D4A7-49ED-A7D7-A050DD959680}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8D258FF0-1D16-46E6-A069-8D705B44FF41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8D258FF0-1D16-46E6-A069-8D705B44FF41}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8D258FF0-1D16-46E6-A069-8D705B44FF41}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8D258FF0-1D16-46E6-A069-8D705B44FF41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,6 +61,7 @@ Global
 		{B0E08222-CB14-4CD6-90B8-F36FD305EEE9} = {84AEA3DF-0744-463C-BA13-5BB94A5C22BD}
 		{E7C2B7FA-0F62-404A-9136-CE1E7271CEFC} = {84AEA3DF-0744-463C-BA13-5BB94A5C22BD}
 		{E5F31C13-D4A7-49ED-A7D7-A050DD959680} = {84AEA3DF-0744-463C-BA13-5BB94A5C22BD}
+		{8D258FF0-1D16-46E6-A069-8D705B44FF41} = {2F22E48E-EA07-4EA8-9583-4BBC0E83D17D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BBE19798-8214-4067-BA29-EA080D04E657}

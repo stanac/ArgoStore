@@ -7,7 +7,7 @@ namespace ArgoStore.IntegrationTests
 {
     public abstract class IntegrationTestsBase : IDisposable
     {
-        private static IntegrationTestsConfiguration _config = new IntegrationTestsConfiguration();
+        private static readonly IntegrationTestsConfiguration _config = new IntegrationTestsConfiguration();
         
         protected string TestDbFilePath { get; }
         protected string TestDbConnectionString { get; }

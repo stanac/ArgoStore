@@ -26,5 +26,9 @@ namespace ArgoStore
             return new ArgoStoreQueryable<T>(new ArgoStoreQueryProvider(_config));
         }
 
+        public void Insert<T>(T entity)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
