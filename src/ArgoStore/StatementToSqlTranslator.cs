@@ -19,12 +19,30 @@ namespace ArgoStore
 
             statement.SetAliases();
 
+            if (statement.IsCountQuery)
+            {
+                string countSql = ToCountSql(statement);
+
+                return countSql;
+            }
+
             string sql = ToSqlInternal(statement.SelectStatement);
 
             return sql;
         }
 
         // todo: optimize sql generation, use string builder
+
+        private string ToCountSql(TopStatement statement)
+        {
+            if (statement.SelectStatement == null)
+            {
+                return $"SELECT COUNT(*) FROM {EntityTableHelper.GetTableName(statement.TypeFrom)}";
+            }
+
+            // else select statement is not null
+            throw new NotImplementedException();
+        }
 
         private string ToSqlInternal(SelectStatement select)
         {

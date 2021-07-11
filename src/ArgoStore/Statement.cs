@@ -22,6 +22,8 @@ namespace ArgoStore
         public Type TypeFrom { get; }
         public Type TypeTo { get; }
         public SelectStatement SelectStatement { get; }
+        public bool IsAnyQuery { get; private set; }
+        public bool IsCountQuery { get; private set; }
 
         public TopStatement(WhereStatement where, SelectStatement.CalledByMethods method)
         {
@@ -42,6 +44,12 @@ namespace ArgoStore
             TypeTo = select.TypeTo ?? throw new ArgumentException("TypeTo not set", nameof(select));
         }
 
+        public TopStatement(Type entityType)
+        {
+            TypeFrom = entityType;
+            TypeTo = entityType;
+        }
+
         public static TopStatement Create(Statement statement)
         {
             if (statement is null) throw new ArgumentNullException(nameof(statement));
@@ -54,6 +62,38 @@ namespace ArgoStore
             if (statement is WhereStatement ws)
             {
                 return new TopStatement(ws, SelectStatement.CalledByMethods.Select); // todo: check CalledByMethods.Select in other methods
+            }
+
+            if (statement is SelectCountStatement cq)
+            {
+                if (cq.Where != null)
+                {
+                    return new TopStatement(cq.Where, SelectStatement.CalledByMethods.Count)
+                    {
+                        IsCountQuery = true
+                    };
+                }
+                
+                if (cq.SubQuery != null)
+                {
+                    return new TopStatement(cq.SubQuery)
+                    {
+                        IsCountQuery = true
+                    };
+                }
+
+                if (cq.FromType != null)
+                {
+                    return new TopStatement(cq.FromType)
+                    {
+                        IsCountQuery = true
+                    };
+                }
+            }
+
+            if (statement is SelectExistsStatement eq)
+            {
+                throw new NotImplementedException();
             }
 
             throw new ArgumentException($"Cannot create {nameof(TopStatement)} from {statement.GetType().FullName}", nameof(statement));
@@ -272,7 +312,7 @@ namespace ArgoStore
 
         public enum CalledByMethods
         {
-            Select, First, FirstOrDefault, Last, LastOrDefault, Single, SingleOrDefault
+            Select, First, FirstOrDefault, Last, LastOrDefault, Single, SingleOrDefault, Count, Any
         }
     }
 

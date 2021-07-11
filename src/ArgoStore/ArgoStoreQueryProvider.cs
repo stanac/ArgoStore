@@ -40,6 +40,7 @@ namespace ArgoStore
 
             Type queryType = typeof(ArgoStoreQueryable<>).MakeGenericType(resultType);
 
+            // ReSharper disable once AssignNullToNotNullAttribute
             return Activator.CreateInstance(queryType, this, expression) as IQueryable<TElement>;
         }
 
@@ -48,6 +49,21 @@ namespace ArgoStore
             object result = Execute(expression);
 
             Type resultType = result.GetType();
+
+            if (resultType == typeof(long))
+            {
+                if (expression.Type == typeof(long))
+                {
+                    return (TResult)result;
+                }
+
+                if (expression.Type == typeof(int))
+                {
+                    int intResult = (int) (long)result;
+
+                    return (TResult) (object)intResult;
+                }
+            }
 
             if (TypeHelpers.IsCollectionType(resultType))
             {
@@ -81,6 +97,11 @@ namespace ArgoStore
             string sql = _statementToSqlTranslatorFactory().ToSql(ts);
 
             _entityTableHelper.EnsureEntityTableExists(ts.TypeFrom);
+
+            if (ts.IsCountQuery)
+            {
+                return _dbAccess.QueryField(sql).ToList().Single();
+            }
 
             if (ts.SelectStatement.SelectElements.Count == 1)
             {
