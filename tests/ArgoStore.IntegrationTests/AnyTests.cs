@@ -20,31 +20,41 @@ namespace ArgoStore.IntegrationTests
             _td.InsertTestPersons();
         }
 
-        //[Fact]
-        //public void Any_ReturnsExpectedResult()
-        //{
-        //    using IDocumentSession session = GetNewDocumentSession();
+        [Fact]
+        public void Any_ReturnsExpectedResult()
+        {
+            using IDocumentSession session = GetNewDocumentSession();
 
-        //    bool exists = session.Query<Person>().Any();
-        //    exists.Should().BeTrue();
-        //}
-        
-        //[Fact]
-        //public void AnyWithCondition_ReturnsExpectedResult()
-        //{
-        //    using IDocumentSession session = GetNewDocumentSession();
+            bool exists = session.Query<Person>().Any();
+            exists.Should().BeTrue();
+        }
 
-        //    bool exists = session.Query<Person>().Any(x => x.Name == TestNameImogenCampbell);
-        //    exists.Should().BeTrue();
-        //}
+        [Fact]
+        public void Any_EmptyTable_ReturnsExpectedResult()
+        {
+            using IDocumentSession session = GetNewDocumentSession();
+            _td.DeleteTestPersons();
 
-        //[Fact]
-        //public void AnyWithCondition_NonExistingPerson_ReturnsExpectedResult()
-        //{
-        //    using IDocumentSession session = GetNewDocumentSession();
+            bool exists = session.Query<Person>().Any();
+            exists.Should().BeFalse();
+        }
 
-        //    bool exists = session.Query<Person>().Any(x => x.Name == TestNameNonExisting);
-        //    exists.Should().BeFalse();
-        //}
+        [Fact]
+        public void AnyWithCondition_ReturnsExpectedResult()
+        {
+            using IDocumentSession session = GetNewDocumentSession();
+
+            bool exists = session.Query<Person>().Any(x => x.Name == TestNameImogenCampbell);
+            exists.Should().BeTrue();
+        }
+
+        [Fact]
+        public void AnyWithCondition_NonExistingPerson_ReturnsExpectedResult()
+        {
+            using IDocumentSession session = GetNewDocumentSession();
+
+            bool exists = session.Query<Person>().Any(x => x.Name == TestNameNonExisting);
+            exists.Should().BeFalse();
+        }
     }
 }

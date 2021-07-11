@@ -6,11 +6,11 @@ namespace ArgoStore
 {
     internal class StatementToSqlTranslator : IStatementToSqlTranslator
     {
-        private readonly IArgoStoreSerializer _serialzier;
+        private readonly IArgoStoreSerializer _serializer;
 
-        public StatementToSqlTranslator(IArgoStoreSerializer serialzier)
+        public StatementToSqlTranslator(IArgoStoreSerializer serializer)
         {
-            _serialzier = serialzier ?? throw new ArgumentNullException(nameof(serialzier));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         public string ToSql(TopStatement statement)
@@ -26,6 +26,13 @@ namespace ArgoStore
                 return countSql;
             }
 
+            if (statement.IsAnyQuery)
+            {
+                string anySql = ToAnySql(statement);
+
+                return anySql;
+            }
+
             string sql = ToSqlInternal(statement.SelectStatement);
 
             return sql;
@@ -33,15 +40,28 @@ namespace ArgoStore
 
         // todo: optimize sql generation, use string builder
 
+        private string ToAnySql(TopStatement statement)
+        {
+            // any statement only returns one row or zero rows
+            // if one row is returned result is True, otherwise is False
+
+            if (statement.SelectStatement == null)
+            {
+                return $"SELECT 1 FROM {EntityTableHelper.GetTableName(statement.TypeFrom)} LIMIT 1";
+            }
+
+            string innerSql = ToSqlInternal(statement.SelectStatement);
+
+            return $"SELECT 1 FROM ({innerSql}) LIMIT 1";
+        }
+
         private string ToCountSql(TopStatement statement)
         {
             if (statement.SelectStatement == null)
             {
                 return $"SELECT COUNT(*) FROM {EntityTableHelper.GetTableName(statement.TypeFrom)}";
             }
-
-            // else select statement is not null
-
+            
             string innerSql = ToSqlInternal(statement.SelectStatement);
 
             return $"SELECT COUNT (*) FROM ({innerSql})";
@@ -51,7 +71,7 @@ namespace ArgoStore
         {
             if (select.CalledByMethod == SelectStatement.CalledByMethods.Last || select.CalledByMethod == SelectStatement.CalledByMethods.LastOrDefault)
             {
-                throw new NotSupportedException($"Method {select.CalledByMethod} is not supported use OrderBy/OrderByDescending and First/FirstOrDefault");
+                throw new NotSupportedException($"Method {select.CalledByMethod} is not supported. Use OrderBy/OrderByDescending and First/FirstOrDefault");
             }
 
             string sql = SelectElementsToSql(select);
@@ -132,7 +152,7 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
 
         private string ToSqlInternal(PropertyAccessStatement statement, string alias)
         {
-            return $"json_extract({alias}.json_data, '$.{_serialzier.ConvertPropertyNameToCorrectCase(statement.Name)}')";
+            return $"json_extract({alias}.json_data, '$.{_serializer.ConvertPropertyNameToCorrectCase(statement.Name)}')";
         }
 
         private string ToSqlInternal(ConstantStatement statement, string alias)
@@ -160,7 +180,7 @@ WHERE {ToSqlInternal(select.WhereStatement.Statement, select.Alias)}
 
             for (int i = 0; i < statement.Elements.Count; i++)
             {
-                sql += $"json_extract({alias}.json_data, '$.{_serialzier.ConvertPropertyNameToCorrectCase(statement.Elements[i].PropertyName)}') {(statement.Elements[i].Ascending ? "ASC" : "DESC")}";
+                sql += $"json_extract({alias}.json_data, '$.{_serializer.ConvertPropertyNameToCorrectCase(statement.Elements[i].PropertyName)}') {(statement.Elements[i].Ascending ? "ASC" : "DESC")}";
 
                 if (i < statement.Elements.Count - 1)
                 {

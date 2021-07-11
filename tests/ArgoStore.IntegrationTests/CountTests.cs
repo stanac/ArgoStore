@@ -30,6 +30,17 @@ namespace ArgoStore.IntegrationTests
         }
 
         [Fact]
+        public void Count_EmptyTable_ReturnsExpectedCount()
+        {
+            using IDocumentSession session = GetNewDocumentSession();
+
+            _td.DeleteTestPersons();
+
+            int count = session.Query<Person>().Count();
+            count.Should().Be(0);
+        }
+
+        [Fact]
         public void LongCount_ReturnsExpectedCount()
         {
             using IDocumentSession session = GetNewDocumentSession();

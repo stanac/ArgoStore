@@ -50,7 +50,7 @@ namespace ArgoStore
 
             Type resultType = result.GetType();
 
-            if (resultType == typeof(long))
+            if (resultType == typeof(long) && IsCountExpression(expression))
             {
                 if (expression.Type == typeof(long))
                 {
@@ -65,6 +65,11 @@ namespace ArgoStore
                 }
             }
 
+            if (resultType == typeof(bool) && IsAnyExpression(expression))
+            {
+                return (TResult)result;
+            }
+            
             if (TypeHelpers.IsCollectionType(resultType))
             {
                 IEnumerable resultCollection = result as IEnumerable;
@@ -101,6 +106,13 @@ namespace ArgoStore
             if (ts.IsCountQuery)
             {
                 return _dbAccess.QueryField(sql).ToList().Single();
+            }
+
+            if (ts.IsAnyQuery)
+            {
+                List<object> rows = _dbAccess.QueryField(sql).ToList();
+
+                return rows.Any();
             }
 
             if (ts.SelectStatement.SelectElements.Count == 1)
@@ -171,6 +183,28 @@ namespace ArgoStore
 
             // todo: optimize if possible
             return Activator.CreateInstance(selectStatement.TypeTo, row);
+        }
+
+        private static bool IsCountExpression(Expression e)
+        {
+            if (e is MethodCallExpression mce)
+            {
+                return mce.Method.DeclaringType == typeof(Queryable) 
+                       && (mce.Method.Name == "Count" || mce.Method.Name == "LongCount");
+            }
+
+            return false;
+        }
+
+        private static bool IsAnyExpression(Expression e)
+        {
+            if (e is MethodCallExpression mce)
+            {
+                return mce.Method.DeclaringType == typeof(Queryable)
+                       && mce.Method.Name == "Any";
+            }
+
+            return false;
         }
     }
 }

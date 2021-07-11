@@ -93,7 +93,29 @@ namespace ArgoStore
 
             if (statement is SelectExistsStatement eq)
             {
-                throw new NotImplementedException();
+                if (eq.Where != null)
+                {
+                    return new TopStatement(eq.Where, SelectStatement.CalledByMethods.Count)
+                    {
+                        IsAnyQuery = true
+                    };
+                }
+
+                if (eq.SubQuery != null)
+                {
+                    return new TopStatement(eq.SubQuery)
+                    {
+                        IsAnyQuery = true
+                    };
+                }
+
+                if (eq.FromType != null)
+                {
+                    return new TopStatement(eq.FromType)
+                    {
+                        IsAnyQuery = true
+                    };
+                }
             }
 
             throw new ArgumentException($"Cannot create {nameof(TopStatement)} from {statement.GetType().FullName}", nameof(statement));

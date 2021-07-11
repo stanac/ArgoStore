@@ -282,29 +282,42 @@ namespace ArgoStore.IntegrationTests
             dbTableHelper.EnsureEntityTableExists<Person>();
             dbTableHelper.EnsureEntityTableExists<Person>();
 
-            using (var c = new SqliteConnection(_connectionString))
+            using var c = new SqliteConnection(_connectionString);
+
+            c.Open();
+            ArgoStoreSerializer s = new ArgoStoreSerializer();
+
+            foreach (var p in Persons)
             {
-                c.Open();
-                ArgoStoreSerializer s = new ArgoStoreSerializer();
+                string json = s.Serialize(p);
 
-                foreach (var p in Persons)
-                {
-                    string json = s.Serialize(p);
-
-                    string sql = $@"
+                string sql = $@"
                         INSERT INTO {EntityTableHelper.GetTableName<Person>()} (string_id, json_data, created_at)
                         VALUES (@id, json(@jsonData), @createdTime)
                     ";
 
-                    var cmd = c.CreateCommand();
-                    cmd.CommandText = sql;
-                    cmd.Parameters.AddWithValue("@id", p.Id.ToString("N"));
-                    cmd.Parameters.AddWithValue("@jsonData", json);
-                    cmd.Parameters.AddWithValue("@createdTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+                SqliteCommand cmd = c.CreateCommand();
+                cmd.CommandText = sql;
+                cmd.Parameters.AddWithValue("@id", p.Id.ToString("N"));
+                cmd.Parameters.AddWithValue("@jsonData", json);
+                cmd.Parameters.AddWithValue("@createdTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
 
-                    cmd.ExecuteNonQuery();
-                }
+                cmd.ExecuteNonQuery();
             }
+        }
+
+        public void DeleteTestPersons()
+        {
+            string sql = $"DELETE FROM {EntityTableHelper.GetTableName<Person>()}";
+
+            using var c = new SqliteConnection(_connectionString);
+
+            c.Open();
+
+            SqliteCommand cmd = c.CreateCommand();
+            cmd.CommandText = sql;
+
+            cmd.ExecuteNonQuery();
         }
     }
 }
