@@ -8,9 +8,8 @@ namespace ArgoStore.Helpers
     internal class EntityTableHelper
     {
         private readonly Configuration _config;
-        private readonly CacheHashSet<Type> _createdTables = new CacheHashSet<Type>();
-        private readonly IDictionary<Type, IReadOnlyList<string>> _entityColumnsNames = new ConcurrentDictionary<Type, IReadOnlyList<string>>();
-
+        private readonly CacheHashSet<Type> _createdTables = new();
+        
         public EntityTableHelper(Configuration config)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
@@ -51,7 +50,7 @@ namespace ArgoStore.Helpers
 
         private bool TableExists(string tableName)
         {
-            string sql = $"SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=@tableName";
+            string sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=@tableName";
 
             using (var c = new SqliteConnection(_config.ConnectionString))
             {

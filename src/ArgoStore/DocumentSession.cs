@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ArgoStore.Helpers;
 
 namespace ArgoStore
 {
     internal class DocumentSession : IDocumentSession
     {
-        private static readonly HashSet<Type> _createdEntities = new HashSet<Type>();
-
         private readonly Configuration _config;
+        private readonly EntityTableHelper _entityTableHelper;
 
         public DocumentSession(Configuration config)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _config.EnsureValid();
+            _entityTableHelper = new EntityTableHelper(config);
         }
 
         public void Dispose()
@@ -28,7 +29,20 @@ namespace ArgoStore
 
         public void Insert<T>(T entity)
         {
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+
+            Type entityType = typeof(T);
+
+            _entityTableHelper.EnsureEntityTableExists(entityType);
+
+            SetKey(entityType, entity);
+
             throw new NotImplementedException();
+        }
+
+        private void SetKey(Type entityType, object entity)
+        {
+
         }
     }
 }

@@ -10,10 +10,8 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             var e = expression as UnaryExpression;
 
-            return new NotStatement
-            {
-                InnerStatement = ExpressionToStatementTranslatorStrategy.Translate(e.Operand)
-            };
+            Statement innerStatement = ExpressionToStatementTranslatorStrategy.Translate(e.Operand);
+            return new NotStatement(innerStatement);
         }
     }
 }

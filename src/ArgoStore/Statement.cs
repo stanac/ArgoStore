@@ -577,7 +577,12 @@ namespace ArgoStore
 
     internal class NotStatement : Statement
     {
-        public Statement InnerStatement { get; set; }
+        public Statement InnerStatement { get; }
+
+        public NotStatement(Statement innerStatement)
+        {
+            InnerStatement = innerStatement ?? throw new ArgumentNullException(nameof(innerStatement));
+        }
 
         public override Statement Negate()
         {
@@ -652,7 +657,7 @@ namespace ArgoStore
         {
             if (IsBoolean)
             {
-                Statement right = ConstantStatement.CreateBoolean(false);
+                Statement right = CreateBoolean(false);
 
                 return new BinaryComparisonStatement(this, right, BinaryComparisonStatement.Operators.Equal);
             }
@@ -686,7 +691,7 @@ namespace ArgoStore
            SupportedMethodNames.StringEndsWith, SupportedMethodNames.StringEndsWithIgnoreCase
         };
 
-        public Statement[] Arguments { get; set; }
+        public Statement[] Arguments { get; }
         public SupportedMethodNames MethodName { get; set; }
         public bool Negated { get; }
 
@@ -716,7 +721,7 @@ namespace ArgoStore
 
         public override Statement ReduceIfPossible() => this;
 
-        public override string ToDebugString() => $"{MethodName}({string.Join(", ", Arguments?.Select(x => x.ToDebugString()))})";
+        public override string ToDebugString() => $"{MethodName}({string.Join(", ", Arguments.Select(x => x.ToDebugString()))})";
 
         public enum SupportedMethodNames
         {

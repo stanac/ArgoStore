@@ -8,7 +8,10 @@ namespace ArgoStore.Helpers
         {
             while (e.NodeType == ExpressionType.Quote)
             {
-                e = (e as UnaryExpression).Operand;
+                if (e is UnaryExpression ue)
+                {
+                    e = ue.Operand;
+                }
             }
 
             return e;

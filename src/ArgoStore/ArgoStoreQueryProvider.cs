@@ -78,7 +78,7 @@ namespace ArgoStore
 
                 if (list.Any()) return (TResult)list.First();
 
-                GuardEmptyCallectionLinqCall(expression);
+                GuardEmptyCollectionLinqCall(expression);
 
                 return default(TResult);
             }
@@ -137,7 +137,7 @@ namespace ArgoStore
             }
         }
 
-        private static void GuardEmptyCallectionLinqCall(Expression e)
+        private static void GuardEmptyCollectionLinqCall(Expression e)
         {
             if (e is MethodCallExpression me && (me.Method.Name == "First" || me.Method.Name == "Single" || me.Method.Name == "Last"))
             {
