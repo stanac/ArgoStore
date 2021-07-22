@@ -28,6 +28,36 @@ namespace ArgoStore.Helpers
             }
         }
 
+        public static bool DoesPrimaryKeyHaveDefaultValue(EntityMetadata entityMeta, object entity)
+        {
+            if (entityMeta == null) throw new ArgumentNullException(nameof(entityMeta));
+            if (entity == null) throw new ArgumentNullException(nameof(entity));
+
+            object pkValue = entityMeta.PrimaryKeyProperty.GetValue(entity);
+
+            if (pkValue == null)
+            {
+                return true;
+            }
+
+            if (entityMeta.PrimaryKeyProperty.PropertyType == typeof(Guid))
+            {
+                return (Guid) pkValue == Guid.Empty;
+            }
+
+            if (entityMeta.PrimaryKeyProperty.PropertyType == typeof(int))
+            {
+                return (int) pkValue == 0;
+            }
+
+            if (entityMeta.PrimaryKeyProperty.PropertyType == typeof(long))
+            {
+                return (long)pkValue == 0L;
+            }
+
+            throw new InvalidOperationException($"PK type {entityMeta.PrimaryKeyProperty.PropertyType} not supported");
+        }
+
         public static void EnsurePrimaryKeyAutoIncIsNotSet(EntityMetadata entityMeta, object entity)
         {
             if (entityMeta == null) throw new ArgumentNullException(nameof(entityMeta));

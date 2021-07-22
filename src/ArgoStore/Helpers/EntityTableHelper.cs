@@ -1,7 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 
 namespace ArgoStore.Helpers
 {
@@ -37,15 +35,23 @@ namespace ArgoStore.Helpers
 
             string tableName = GetTableName(t);
 
-            if (!_config.CreateEntitiesOnTheFly && !TableExists(tableName))
+            bool tableExists = TableExists(tableName);
+
+            if (!tableExists)
             {
-                throw new InvalidOperationException($"Table for entity {t.FullName} doesn't exist and configuration " +
-                    $"{nameof(Configuration.CreateEntitiesOnTheFly)} is set to False");
+                if (_config.CreateEntitiesOnTheFly)
+                {
+                    CreateTableIfNotExists(tableName);
+
+                    _createdTables.Add(t);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        $"Table for entity {t.FullName} doesn't exist and configuration " +
+                        $"{nameof(Configuration.CreateEntitiesOnTheFly)} is set to False");
+                }
             }
-
-            CreateTableIfNotExists(tableName);
-
-            _createdTables.Add(t);
         }
 
         private bool TableExists(string tableName)
@@ -59,7 +65,7 @@ namespace ArgoStore.Helpers
                 var cmd = c.CreateCommand();
                 cmd.CommandText = sql;
                 cmd.Parameters.AddWithValue("tableName", tableName);
-                int count = (int)cmd.ExecuteScalar();
+                long count = (long)cmd.ExecuteScalar();
                 return count > 0;
             }
         }
