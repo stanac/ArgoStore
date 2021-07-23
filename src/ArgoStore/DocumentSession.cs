@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using ArgoStore.EntityCrudOperationConverters;
 using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;
 
@@ -14,7 +15,7 @@ namespace ArgoStore
         private readonly Configuration _config;
         private readonly EntityTableHelper _entityTableHelper;
         private readonly SqliteConnection _connection;
-        private readonly List<EntityCrudOperation> _operations = new List<EntityCrudOperation>();
+        private readonly Queue<IDbCommand> _commands = new Queue<IDbCommand>();
         private bool _disposed;
 
         public DocumentSession(Configuration config)
@@ -27,23 +28,26 @@ namespace ArgoStore
 
         public IQueryable<T> Query<T>() where T : class, new()
         {
+            EnsureNotDisposed();
             return new ArgoStoreQueryable<T>(new ArgoStoreQueryProvider(_config));
         }
 
         public void Insert<T>(params T[] entities)
         {
+            EnsureNotDisposed();
             EntityMetadata meta = ValidateEntityAndGetMeta(entities);
 
             foreach (T entity in entities)
             {
                 PrimaryKeySetter.SetPrimaryKey(meta, entity);
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert);
+                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
             }
-
-            _operations.AddRange(entities.Select(x => new EntityCrudOperation(x, CrudOperations.Insert)));
         }
 
         public void Update<T>(params T[] entities)
         {
+            EnsureNotDisposed();
             EntityMetadata meta = ValidateEntityAndGetMeta(entities);
 
             foreach (T entity in entities)
@@ -52,13 +56,15 @@ namespace ArgoStore
                 {
                     throw new InvalidOperationException("At least one of the entities doesn't have PK set.");
                 }
-            }
 
-            _operations.AddRange(entities.Select(x => new EntityCrudOperation(x, CrudOperations.Update)));
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update);
+                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
+            }
         }
 
         public void Delete<T>(params T[] entities)
         {
+            EnsureNotDisposed();
             EntityMetadata meta = ValidateEntityAndGetMeta(entities);
 
             foreach (T entity in entities)
@@ -67,38 +73,31 @@ namespace ArgoStore
                 {
                     throw new InvalidOperationException("At least one of the entities doesn't have PK set.");
                 }
-            }
 
-            _operations.AddRange(entities.Select(x => new EntityCrudOperation(x, CrudOperations.Delete)));
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Delete);
+                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
+            }
         }
 
         public void Store<T>(params T[] entities)
         {
-            EntityMetadata meta = ValidateEntityAndGetMeta(entities);
-            
-            _operations.AddRange(entities.Select(x => new EntityCrudOperation(x, CrudOperations.Upsert)));
+            EnsureNotDisposed();
+            ValidateEntityAndGetMeta(entities);
+
+            foreach (T entity in entities)
+            {
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Upsert);
+                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
+            }
         }
 
         public void DeleteWhere<T>(Expression<Func<T, bool>> predicate)
         {
+            EnsureNotDisposed();
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
-            _operations.Add(new EntityCrudOperation(predicate));
-        }
-
-        private EntityMetadata ValidateEntityAndGetMeta<T>(T[] entities)
-        {
-            if (entities == null) throw new ArgumentNullException(nameof(entities));
-            if (entities.Any(x => x == null))
-            {
-                throw new ArgumentException("Collection contains null", nameof(entities));
-            }
-
-            Type entityType = typeof(T);
-
-            _entityTableHelper.EnsureEntityTableExists(entityType);
-
-            return _config.GetOrCreateEntityMetadata(entityType);
+            EntityCrudOperation op = new EntityCrudOperation(predicate, CrudOperations.Upsert);
+            _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
         }
 
         public void Dispose()
@@ -114,14 +113,62 @@ namespace ArgoStore
             _disposed = true;
         }
 
-        public void SaveChanges()
+        public void SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
+        
+        public async Task SaveChangesAsync()
         {
-            throw new NotImplementedException();
+            EnsureNotDisposed();
+            await OpenConnectionAsync();
+
+            using SqliteTransaction tr = _connection.BeginTransaction();
+            
+            try
+            {
+                while (_commands.Any())
+                {
+                    IDbCommand cmd = _commands.Dequeue();
+                    cmd.ExecuteNonQuery();
+                }
+
+                tr.Commit();
+            }
+            catch (Exception e)
+            {
+                // todo: log
+                tr.Rollback();
+                Console.WriteLine(e);
+                throw;
+            }
+
+        }
+        
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+        private EntityMetadata ValidateEntityAndGetMeta<T>(T[] entities)
+        {
+            if (entities == null) throw new ArgumentNullException(nameof(entities));
+            if (entities.Any(x => x == null))
+            {
+                throw new ArgumentException("Collection contains null", nameof(entities));
+            }
+
+            Type entityType = typeof(T);
+
+            _entityTableHelper.EnsureEntityTableExists(entityType);
+
+            return _config.GetOrCreateEntityMetadata(entityType);
+        }
+        
+        private async Task OpenConnectionAsync()
+        {
+            if (_connection.State != ConnectionState.Open)
+            {
+                await _connection.OpenAsync();
+            }
         }
 
-        public Task SaveChangesAsync()
+        private void EnsureNotDisposed()
         {
-            throw new NotImplementedException();
+            if (_disposed) throw new ObjectDisposedException("Session disposed");
         }
     }
 }
