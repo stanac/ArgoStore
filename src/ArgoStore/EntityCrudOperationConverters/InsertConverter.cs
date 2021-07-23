@@ -1,16 +1,25 @@
-﻿using System.Data;
+﻿using System;
+using ArgoStore.Helpers;
+using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.EntityCrudOperationConverters
 {
-    public class InsertConverter : IEntityCrudOperationConverter
+    internal class InsertConverter : IEntityCrudOperationConverter
     {
         public bool CanConvert(EntityCrudOperation op) => op != null && op.CrudOperation == CrudOperations.Insert;
 
-        public IDbCommand ConvertToCommand(EntityCrudOperation op, IDbConnection connection)
+        public SqliteCommand ConvertToCommand(EntityCrudOperation op, SqliteConnection connection, IArgoStoreSerializer serializer)
         {
-            var c = connection.CreateCommand();
-            c.CommandText = "SELECT 1 WHERE 1 = 1";
-            return c;
+            SqliteCommand cmd = connection.CreateCommand();
+            string json = serializer.Serialize(op.Entity);
+            cmd.CommandText = $"INSERT INTO {EntityTableHelper.GetTableName(op.EntityMeta.EntityType)} " +
+                            "(string_id, json_data, created_at)\n" +
+                            "VALUES($id, json($jsonData), $createdTime)";
+            cmd.Parameters.AddWithValue("$id", op.StringId);
+            cmd.Parameters.AddWithValue("$jsonData", json);
+            cmd.Parameters.AddWithValue("$createdTime", DateTimeFormatter.ToUtcFormat(DateTime.UtcNow));
+
+            return cmd;
         }
     }
 }

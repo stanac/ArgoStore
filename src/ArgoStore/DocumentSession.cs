@@ -39,9 +39,9 @@ namespace ArgoStore
 
             foreach (T entity in entities)
             {
-                PrimaryKeySetter.SetPrimaryKey(meta, entity);
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert);
-                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
+                PrimaryKeySetter.SetPrimaryKey(meta, entity, out string stringId);
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert, meta, stringId);
+                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
 
@@ -57,8 +57,8 @@ namespace ArgoStore
                     throw new InvalidOperationException("At least one of the entities doesn't have PK set.");
                 }
 
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update);
-                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update, meta, null);
+                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
 
@@ -74,20 +74,20 @@ namespace ArgoStore
                     throw new InvalidOperationException("At least one of the entities doesn't have PK set.");
                 }
 
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Delete);
-                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Delete, meta, null);
+                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
 
         public void Store<T>(params T[] entities)
         {
             EnsureNotDisposed();
-            ValidateEntityAndGetMeta(entities);
+            EntityMetadata meta = ValidateEntityAndGetMeta(entities);
 
             foreach (T entity in entities)
             {
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Upsert);
-                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Upsert, meta, null);
+                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
 
@@ -96,8 +96,8 @@ namespace ArgoStore
             EnsureNotDisposed();
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
-            EntityCrudOperation op = new EntityCrudOperation(predicate, CrudOperations.Upsert);
-            _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection));
+            EntityCrudOperation op = new EntityCrudOperation(predicate);
+            _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
         }
 
         public void Dispose()

@@ -6,10 +6,11 @@ namespace ArgoStore.Helpers
     {
         // todo: replace reflection to improve performance
 
-        public static void SetPrimaryKey(EntityMetadata entityMeta, object entity)
+        public static void SetPrimaryKey(EntityMetadata entityMeta, object entity, out string stringId)
         {
             if (entityMeta == null) throw new ArgumentNullException(nameof(entityMeta));
             if (entity == null) throw new ArgumentNullException(nameof(entity));
+            stringId = Guid.NewGuid().ToString();
 
             object value = entityMeta.PrimaryKeyProperty.GetValue(entity);
 
@@ -17,8 +18,7 @@ namespace ArgoStore.Helpers
             {
                 if (entityMeta.PrimaryKeyProperty.PropertyType == typeof(string))
                 {
-                    object keyValue = Guid.NewGuid().ToString();
-                    entityMeta.PrimaryKeyProperty.SetValue(entity, keyValue);
+                    entityMeta.PrimaryKeyProperty.SetValue(entity, stringId);
                 }
                 else if (entityMeta.PrimaryKeyProperty.PropertyType == typeof(Guid))
                 {

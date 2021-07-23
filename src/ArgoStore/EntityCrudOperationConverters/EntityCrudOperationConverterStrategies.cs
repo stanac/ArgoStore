@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
+using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.EntityCrudOperationConverters
 {
-    public static class EntityCrudOperationConverterStrategies
+    internal static class EntityCrudOperationConverterStrategies
     {
         private static readonly IReadOnlyList<IEntityCrudOperationConverter> _converters =
             typeof(IEntityCrudOperationConverter)
@@ -16,7 +16,7 @@ namespace ArgoStore.EntityCrudOperationConverters
                 .Cast<IEntityCrudOperationConverter>()
                 .ToList();
 
-        public static IDbCommand Convert(EntityCrudOperation op, IDbConnection connection)
+        public static SqliteCommand Convert(EntityCrudOperation op, SqliteConnection connection, IArgoStoreSerializer serializer)
         {
             if (op == null) throw new ArgumentNullException(nameof(op));
 
@@ -27,7 +27,7 @@ namespace ArgoStore.EntityCrudOperationConverters
                 throw new NotSupportedException($"Cannot find converter for CRUD operation {op.CrudOperation}");
             }
 
-            return converter.ConvertToCommand(op, connection);
+            return converter.ConvertToCommand(op, connection, serializer);
         }
     }
 }
