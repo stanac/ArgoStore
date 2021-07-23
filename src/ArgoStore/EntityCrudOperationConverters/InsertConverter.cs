@@ -15,7 +15,7 @@ namespace ArgoStore.EntityCrudOperationConverters
             cmd.CommandText = $"INSERT INTO {EntityTableHelper.GetTableName(op.EntityMeta.EntityType)} " +
                             "(string_id, json_data, created_at)\n" +
                             "VALUES($id, json($jsonData), $createdTime)";
-            cmd.Parameters.AddWithValue("$id", op.StringId);
+            cmd.Parameters.AddWithValue("$id", op.Id);
             cmd.Parameters.AddWithValue("$jsonData", json);
             cmd.Parameters.AddWithValue("$createdTime", DateTimeFormatter.ToUtcFormat(DateTime.UtcNow));
 

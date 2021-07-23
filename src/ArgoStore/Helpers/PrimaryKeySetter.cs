@@ -22,9 +22,17 @@ namespace ArgoStore.Helpers
                 }
                 else if (entityMeta.PrimaryKeyProperty.PropertyType == typeof(Guid))
                 {
-                    object keyValue = Guid.NewGuid();
+                    object keyValue = Guid.Parse(stringId);
                     entityMeta.PrimaryKeyProperty.SetValue(entity, keyValue);
                 }
+                else
+                {
+                    stringId = value.ToString();
+                }
+            }
+            else
+            {
+                stringId = value.ToString();
             }
         }
 
@@ -42,7 +50,7 @@ namespace ArgoStore.Helpers
 
             if (entityMeta.PrimaryKeyProperty.PropertyType == typeof(Guid))
             {
-                return (Guid) pkValue == Guid.Empty;
+                return (Guid) pkValue != Guid.Empty;
             }
 
             if (entityMeta.PrimaryKeyProperty.PropertyType == typeof(int))
