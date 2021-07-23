@@ -16,7 +16,7 @@ namespace ArgoStore.UnitTests
         public void Ctor_PkId_CreateValidEntityMetadata(Type entityType)
         {
             EntityMetadata m = new EntityMetadata(entityType);
-            m.PrimaryKeyProperty.Name.Should().Be("Id");
+            m.PrimaryKeyProperty.Name.Should().Be("StringId");
         }
 
         [Theory]

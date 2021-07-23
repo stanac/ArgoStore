@@ -34,8 +34,12 @@ namespace ArgoStore.IntegrationTests
             s.SaveChanges();
 
             Person updated = s.Query<Person>().Single(x => x.Name == TestNameImogenCampbell);
-
+            
             updated.Should().BeEquivalentTo(person);
+
+            Person notUpdated = s.Query<Person>().FirstOrDefault(x => x.Name != TestNameImogenCampbell);
+            notUpdated.Should().NotBeNull();
+            notUpdated.Should().NotBeEquivalentTo(updated);
         }
     }
 }

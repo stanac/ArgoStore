@@ -39,8 +39,8 @@ namespace ArgoStore
 
             foreach (T entity in entities)
             {
-                PrimaryKeySetter.SetPrimaryKey(meta, entity, out string stringId);
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert, meta, stringId);
+                PrimaryKeyHelper.SetPrimaryKey(meta, entity, out string stringId, out long longId);
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert, meta, stringId, longId);
                 _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
@@ -52,12 +52,14 @@ namespace ArgoStore
 
             foreach (T entity in entities)
             {
-                if (!PrimaryKeySetter.DoesPrimaryKeyHaveDefaultValue(meta, entity))
+                if (!PrimaryKeyHelper.DoesPrimaryKeyHaveDefaultValue(meta, entity))
                 {
                     throw new InvalidOperationException("At least one of the entities doesn't have PK set.");
                 }
 
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update, meta, null);
+
+
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update, meta);
                 _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
@@ -69,12 +71,14 @@ namespace ArgoStore
 
             foreach (T entity in entities)
             {
-                if (!PrimaryKeySetter.DoesPrimaryKeyHaveDefaultValue(meta, entity))
+                PrimaryKeyValue pk = PrimaryKeyHelper.GetPrimaryKey(meta, entity);
+
+                if (!pk.HasDefaultValue())
                 {
                     throw new InvalidOperationException("At least one of the entities doesn't have PK set.");
                 }
-
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Delete, meta, null);
+                
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Delete, meta, pk);
                 _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
@@ -83,10 +87,12 @@ namespace ArgoStore
         {
             EnsureNotDisposed();
             EntityMetadata meta = ValidateEntityAndGetMeta(entities);
-
+            
             foreach (T entity in entities)
             {
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Upsert, meta, null);
+                PrimaryKeyValue pk = PrimaryKeyHelper.GetPrimaryKey(meta, entity);
+
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Upsert, meta, pk);
                 _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }

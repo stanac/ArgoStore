@@ -6,7 +6,7 @@ using Xunit;
 
 namespace ArgoStore.UnitTests.Helpers
 {
-    public class PrimaryKeySetterTests
+    public class PrimaryKeyHelperTests
     {
         [Fact]
         public void PrimaryKeyGuidNotSet_SetPrimaryKey_SetsPk()
@@ -15,10 +15,9 @@ namespace ArgoStore.UnitTests.Helpers
 
             TestEntityWithGuidPk entity = new TestEntityWithGuidPk();
 
-            PrimaryKeySetter.SetPrimaryKey(meta, entity, out string id);
+            PrimaryKeyHelper.SetPrimaryKey(meta, entity);
 
             entity.Id.Should().NotBeEmpty();
-            entity.Id.ToString().Should().Be(id);
         }
 
         [Fact]
@@ -28,10 +27,9 @@ namespace ArgoStore.UnitTests.Helpers
 
             TestEntityWithStringPk entity = new TestEntityWithStringPk();
 
-            PrimaryKeySetter.SetPrimaryKey(meta, entity, out string id);
+            PrimaryKeyHelper.SetPrimaryKey(meta, entity);
 
             entity.Id.Should().NotBeEmpty();
-            entity.Id.Should().Be(id);
         }
 
         [Fact]
@@ -46,10 +44,9 @@ namespace ArgoStore.UnitTests.Helpers
 
             Guid originalGuid = entity.Id;
 
-            PrimaryKeySetter.SetPrimaryKey(meta, entity, out string id);
+            PrimaryKeyHelper.SetPrimaryKey(meta, entity);
 
             entity.Id.Should().Be(originalGuid);
-            entity.Id.ToString().Should().Be(id);
         }
 
         [Fact]
@@ -64,7 +61,7 @@ namespace ArgoStore.UnitTests.Helpers
 
             string originalId = entity.Id;
 
-            PrimaryKeySetter.SetPrimaryKey(meta, entity, out string id);
+            PrimaryKeyHelper.SetPrimaryKey(meta, entity);
 
             entity.Id.Should().Be(originalId);
             id.Should().Be(originalId);
@@ -77,10 +74,9 @@ namespace ArgoStore.UnitTests.Helpers
 
             TestEntityWithIntPk entity = new TestEntityWithIntPk();
 
-            PrimaryKeySetter.SetPrimaryKey(meta, entity, out string id);
+            PrimaryKeyHelper.SetPrimaryKey(meta, entity);
 
             entity.Id.Should().Be(0);
-            entity.Id.ToString().Should().Be(id);
         }
 
         [Fact]
@@ -90,10 +86,9 @@ namespace ArgoStore.UnitTests.Helpers
 
             TestEntityWithLongPk entity = new TestEntityWithLongPk();
 
-            PrimaryKeySetter.SetPrimaryKey(meta, entity, out string id);
+            PrimaryKeyHelper.SetPrimaryKey(meta, entity);
 
             entity.Id.Should().Be(0);
-            entity.Id.ToString().Should().Be(id);
         }
         
         private class TestEntityWithGuidPk

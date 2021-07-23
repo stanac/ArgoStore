@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -15,7 +16,7 @@ namespace ArgoStore
         private readonly Func<IStatementToSqlTranslator> _statementToSqlTranslatorFactory;
 
         public ArgoStoreQueryProvider(Configuration config)
-            : this (config, new DbAccess(config?.ConnectionString), () => new StatementToSqlTranslator(config.Serializer))
+            : this (config, new DbAccess(config?.ConnectionString), () => new StatementToSqlTranslator(config?.Serializer))
         {
         }
 
@@ -73,6 +74,8 @@ namespace ArgoStore
             if (TypeHelpers.IsCollectionType(resultType))
             {
                 IEnumerable resultCollection = result as IEnumerable;
+
+                Debug.Assert(resultCollection != null, nameof(resultCollection) + " != null");
 
                 var list = resultCollection.Cast<object>().ToList();
 

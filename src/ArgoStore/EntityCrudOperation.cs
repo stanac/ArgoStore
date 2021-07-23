@@ -7,7 +7,7 @@ namespace ArgoStore
     {
         public object Entity { get; }
         public EntityMetadata EntityMeta { get; }
-        public string Id { get; }
+        public PrimaryKeyValue PkValue { get; }
         public CrudOperations CrudOperation { get; }
         public Expression DeleteWhere { get; }
         
@@ -17,12 +17,12 @@ namespace ArgoStore
             CrudOperation = CrudOperations.DeleteWhere;
         }
 
-        public EntityCrudOperation(object entity, CrudOperations crudOperation, EntityMetadata entityMeta, string id)
+        public EntityCrudOperation(object entity, CrudOperations crudOperation, EntityMetadata entityMeta, PrimaryKeyValue pkValue)
         {
             Entity = entity ?? throw new ArgumentNullException(nameof(entity));
             CrudOperation = crudOperation;
             EntityMeta = entityMeta;
-            Id = id;
+            PkValue = pkValue ?? throw new ArgumentNullException(nameof(pkValue));
         }
     }
 }

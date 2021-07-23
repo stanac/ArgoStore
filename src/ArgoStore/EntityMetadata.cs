@@ -39,9 +39,9 @@ namespace ArgoStore
 
             List<string> expectedKeyPropertyNames = new ()
             {
-                "Id",
+                "StringId",
                 "Key",
-                entityType.Name + "Id",
+                entityType.Name + "StringId",
                 entityType.Name + "Key"
             };
 

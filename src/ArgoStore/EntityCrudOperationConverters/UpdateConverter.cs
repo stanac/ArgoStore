@@ -12,14 +12,31 @@ namespace ArgoStore.EntityCrudOperationConverters
         {
             SqliteCommand cmd = connection.CreateCommand();
 
+            string whereCondition;
+            object id;
+
+            if (op.EntityMeta.PrimaryKeyProperty.PropertyType == typeof(Guid) ||
+                op.EntityMeta.PrimaryKeyProperty.PropertyType == typeof(string))
+            {
+                whereCondition = "string_id = $id";
+                id = op.StringId;
+            }
+            else
+            {
+                whereCondition = "id = $id";
+                id = op.LongId;
+            }
+
             cmd.CommandText = $"UPDATE {EntityTableHelper.GetTableName(op.EntityMeta.EntityType)}\n" +
                                "  SET json_data = json($json)," +
-                               "      updated_at = $updatedAt";
+                               "      updated_at = $updatedAt" +
+                              $"WHERE {whereCondition}";
 
             string json = serializer.Serialize(op.Entity);
 
             cmd.Parameters.AddWithValue("$json", json);
             cmd.Parameters.AddWithValue("$updatedAt", DateTimeFormatter.ToUtcFormat(DateTime.UtcNow));
+            cmd.Parameters.AddWithValue("$id", id);
 
             return cmd;
         }
