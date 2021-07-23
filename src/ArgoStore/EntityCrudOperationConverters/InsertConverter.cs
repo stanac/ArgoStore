@@ -8,7 +8,9 @@ namespace ArgoStore.EntityCrudOperationConverters
 
         public IDbCommand ConvertToCommand(EntityCrudOperation op, IDbConnection connection)
         {
-            throw new System.NotImplementedException();
+            var c = connection.CreateCommand();
+            c.CommandText = "SELECT 1 WHERE 1 = 1";
+            return c;
         }
     }
 }

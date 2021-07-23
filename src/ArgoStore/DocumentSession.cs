@@ -121,7 +121,12 @@ namespace ArgoStore
             await OpenConnectionAsync();
 
             using SqliteTransaction tr = _connection.BeginTransaction();
-            
+
+            foreach (IDbCommand cmd in _commands)
+            {
+                cmd.Transaction = tr;
+            }
+
             try
             {
                 while (_commands.Any())
