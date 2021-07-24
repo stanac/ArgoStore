@@ -7,6 +7,13 @@ namespace ArgoStore
 {
     internal class EntityMetadata
     {
+        private static readonly Type[] _supportedPkTypes =
+        {
+            typeof(int), typeof(long),
+            typeof(string), typeof(Guid)
+        };
+
+
         public Type EntityType { get; }
         public PropertyInfo PrimaryKeyProperty { get; }
         
@@ -39,9 +46,9 @@ namespace ArgoStore
 
             List<string> expectedKeyPropertyNames = new ()
             {
-                "StringId",
+                "Id",
                 "Key",
-                entityType.Name + "StringId",
+                entityType.Name + "Id",
                 entityType.Name + "Key"
             };
 
@@ -61,13 +68,7 @@ namespace ArgoStore
 
         private void EnsurePrimaryKeyTypeIsSupported()
         {
-            Type[] supportedTypes =
-            {
-                typeof(int), typeof(long),
-                typeof(string), typeof(Guid)
-            };
-
-            if (!supportedTypes.Contains(PrimaryKeyProperty.PropertyType))
+            if (!_supportedPkTypes.Contains(PrimaryKeyProperty.PropertyType))
             {
                 throw new InvalidOperationException($"Property of type {PrimaryKeyProperty.PropertyType.Name} cannot be used as primary key. " +
                                                     "Following types are supported: int, long, string, Guid");

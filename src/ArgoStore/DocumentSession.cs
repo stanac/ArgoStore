@@ -39,8 +39,25 @@ namespace ArgoStore
 
             foreach (T entity in entities)
             {
-                PrimaryKeyHelper.SetPrimaryKey(meta, entity, out string stringId, out long longId);
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert, meta, stringId, longId);
+                PrimaryKeyValue pk = PrimaryKeyValue.CreateFromEntity(meta, entity);
+
+                if (pk.IsStringKey)
+                {
+                    if (pk.HasDefaultValue())
+                    {
+                        pk.SetRandomStringKey();
+                        pk.SetInEntity(entity);
+                    }
+                }
+                else
+                {
+                    if (!pk.HasDefaultValue())
+                    {
+                        throw new InvalidOperationException("Cannot insert entity with integer/long PK set.");
+                    }
+                }
+
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert, meta, pk);
                 _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
@@ -52,14 +69,14 @@ namespace ArgoStore
 
             foreach (T entity in entities)
             {
-                if (!PrimaryKeyHelper.DoesPrimaryKeyHaveDefaultValue(meta, entity))
+                PrimaryKeyValue pkValue = PrimaryKeyValue.CreateFromEntity(meta, entity);
+
+                if (pkValue.HasDefaultValue())
                 {
-                    throw new InvalidOperationException("At least one of the entities doesn't have PK set.");
+                    throw new InvalidOperationException($"Cannot update entity `{typeof(T).Name}` which doesn't have PK set.");
                 }
 
-
-
-                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update, meta);
+                EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update, meta, pkValue);
                 _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
             }
         }
@@ -71,11 +88,11 @@ namespace ArgoStore
 
             foreach (T entity in entities)
             {
-                PrimaryKeyValue pk = PrimaryKeyHelper.GetPrimaryKey(meta, entity);
+                PrimaryKeyValue pk = PrimaryKeyValue.CreateFromEntity(meta, entity);
 
                 if (!pk.HasDefaultValue())
                 {
-                    throw new InvalidOperationException("At least one of the entities doesn't have PK set.");
+                    throw new InvalidOperationException($"Cannot delete entity `{typeof(T).Name}` which doesn't have PK set.");
                 }
                 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Delete, meta, pk);
@@ -90,7 +107,7 @@ namespace ArgoStore
             
             foreach (T entity in entities)
             {
-                PrimaryKeyValue pk = PrimaryKeyHelper.GetPrimaryKey(meta, entity);
+                PrimaryKeyValue pk = PrimaryKeyValue.CreateFromEntity(meta, entity);
 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Upsert, meta, pk);
                 _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));

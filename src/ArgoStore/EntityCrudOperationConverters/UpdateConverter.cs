@@ -19,17 +19,17 @@ namespace ArgoStore.EntityCrudOperationConverters
                 op.EntityMeta.PrimaryKeyProperty.PropertyType == typeof(string))
             {
                 whereCondition = "string_id = $id";
-                id = op.StringId;
+                id = op.PkValue.StringKey;
             }
             else
             {
                 whereCondition = "id = $id";
-                id = op.LongId;
+                id = op.PkValue.LongKey;
             }
 
             cmd.CommandText = $"UPDATE {EntityTableHelper.GetTableName(op.EntityMeta.EntityType)}\n" +
-                               "  SET json_data = json($json)," +
-                               "      updated_at = $updatedAt" +
+                               "  SET json_data = json($json),\n" +
+                               "      updated_at = $updatedAt\n" +
                               $"WHERE {whereCondition}";
 
             string json = serializer.Serialize(op.Entity);
