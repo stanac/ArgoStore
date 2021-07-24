@@ -11,7 +11,7 @@ namespace ArgoStore
         private static readonly Type[] _intTypes = new[] {typeof(int), typeof(long)};
 
         public string StringKey { get; private set; }
-        public long LongKey { get; }
+        public long LongKey { get; private set; }
         public bool IsStringKey { get; }
         public PropertyInfo PkProperty { get; }
         public bool IsLongKey => !IsStringKey;
@@ -96,6 +96,11 @@ namespace ArgoStore
             StringKey = Guid.NewGuid().ToString();
         }
 
+        public void SetLongKey(long key)
+        {
+            LongKey = key;
+        }
+
         public bool HasDefaultValue()
         {
             if (IsLongKey)
@@ -113,5 +118,6 @@ namespace ArgoStore
             object value = GetValue();
             PkProperty.SetValue(entity, value);
         }
+
     }
 }

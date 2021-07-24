@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Linq.Expressions;
 
 namespace ArgoStore
@@ -10,6 +11,7 @@ namespace ArgoStore
         public PrimaryKeyValue PkValue { get; }
         public CrudOperations CrudOperation { get; }
         public Expression DeleteWhere { get; }
+        public IDbCommand Command { get; set; }
         
         public EntityCrudOperation(Expression deleteWhere)
         {

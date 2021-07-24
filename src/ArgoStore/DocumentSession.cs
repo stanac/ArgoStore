@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Text.Json;
 using System.Threading.Tasks;
 using ArgoStore.EntityCrudOperationConverters;
 using ArgoStore.Helpers;
@@ -15,7 +16,7 @@ namespace ArgoStore
         private readonly Configuration _config;
         private readonly EntityTableHelper _entityTableHelper;
         private readonly SqliteConnection _connection;
-        private readonly Queue<IDbCommand> _commands = new Queue<IDbCommand>();
+        private readonly Queue<EntityCrudOperation> _commands = new Queue<EntityCrudOperation>();
         private bool _disposed;
 
         public DocumentSession(Configuration config)
@@ -58,7 +59,8 @@ namespace ArgoStore
                 }
 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert, meta, pk);
-                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
+                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+                _commands.Enqueue(op);
             }
         }
 
@@ -77,7 +79,8 @@ namespace ArgoStore
                 }
 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update, meta, pkValue);
-                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
+                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+                _commands.Enqueue(op);
             }
         }
 
@@ -96,7 +99,8 @@ namespace ArgoStore
                 }
                 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Delete, meta, pk);
-                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
+                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+                _commands.Enqueue(op);
             }
         }
 
@@ -110,7 +114,8 @@ namespace ArgoStore
                 PrimaryKeyValue pk = PrimaryKeyValue.CreateFromEntity(meta, entity);
 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Upsert, meta, pk);
-                _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
+                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+                _commands.Enqueue(op);
             }
         }
 
@@ -120,7 +125,8 @@ namespace ArgoStore
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
             EntityCrudOperation op = new EntityCrudOperation(predicate);
-            _commands.Enqueue(EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer));
+            op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+            _commands.Enqueue(op);
         }
 
         public void Dispose()
@@ -145,17 +151,26 @@ namespace ArgoStore
 
             using SqliteTransaction tr = _connection.BeginTransaction();
 
-            foreach (IDbCommand cmd in _commands)
+            foreach (EntityCrudOperation op in _commands)
             {
-                cmd.Transaction = tr;
+                op.Command.Transaction = tr;
             }
 
             try
             {
                 while (_commands.Any())
                 {
-                    IDbCommand cmd = _commands.Dequeue();
-                    cmd.ExecuteNonQuery();
+                    EntityCrudOperation operation = _commands.Dequeue();
+                    operation.Command.ExecuteNonQuery();
+
+                    if (operation.CrudOperation == CrudOperations.Insert && operation.PkValue.IsLongKey)
+                    {
+                        long id = await GetLastInsertedIdAsync();
+
+                        operation.PkValue.SetLongKey(id);
+                        operation.PkValue.SetInEntity(operation.Entity);
+                        UpdateIntegerIdInDocumentAfterInsert(operation, tr);
+                    }
                 }
 
                 tr.Commit();
@@ -167,9 +182,18 @@ namespace ArgoStore
                 Console.WriteLine(e);
                 throw;
             }
-
         }
-        
+
+        private void UpdateIntegerIdInDocumentAfterInsert(EntityCrudOperation insertOp, SqliteTransaction transaction)
+        {
+            EntityCrudOperation op = new EntityCrudOperation(insertOp.Entity, CrudOperations.Update,
+                insertOp.EntityMeta, insertOp.PkValue);
+
+            op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+            op.Command.Transaction = transaction;
+            op.Command.ExecuteNonQuery();
+        }
+
         // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private EntityMetadata ValidateEntityAndGetMeta<T>(T[] entities)
         {
@@ -197,6 +221,14 @@ namespace ArgoStore
         private void EnsureNotDisposed()
         {
             if (_disposed) throw new ObjectDisposedException("Session disposed");
+        }
+
+        private async Task<long> GetLastInsertedIdAsync()
+        {
+            var cmd = _connection.CreateCommand();
+            cmd.CommandText = "SELECT last_insert_rowid()";
+            object result = await cmd.ExecuteScalarAsync();
+            return (long) result;
         }
     }
 }

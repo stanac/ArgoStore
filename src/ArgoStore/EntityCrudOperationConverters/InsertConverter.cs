@@ -24,8 +24,9 @@ namespace ArgoStore.EntityCrudOperationConverters
             SqliteCommand cmd = connection.CreateCommand();
             string json = serializer.Serialize(op.Entity);
             cmd.CommandText = $"INSERT INTO {EntityTableHelper.GetTableName(op.EntityMeta.EntityType)} " +
-                            "(string_id, json_data, created_at)\n" +
-                            "VALUES($id, json($jsonData), $createdTime)";
+                              "(string_id, json_data, created_at)\n" +
+                              "VALUES($id, json($jsonData), $createdTime)";
+
             cmd.Parameters.AddWithValue("$id", stringId);
             cmd.Parameters.AddWithValue("$jsonData", json);
             cmd.Parameters.AddWithValue("$createdTime", DateTimeFormatter.ToUtcFormat(DateTime.UtcNow));
