@@ -93,7 +93,7 @@ namespace ArgoStore
             {
                 PrimaryKeyValue pk = PrimaryKeyValue.CreateFromEntity(meta, entity);
 
-                if (!pk.HasDefaultValue())
+                if (pk.HasDefaultValue())
                 {
                     throw new InvalidOperationException($"Cannot delete entity `{typeof(T).Name}` which doesn't have PK set.");
                 }
