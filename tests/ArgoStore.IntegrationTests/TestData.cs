@@ -298,7 +298,7 @@ namespace ArgoStore.IntegrationTests
 
                 SqliteCommand cmd = c.CreateCommand();
                 cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("@id", p.Id.ToString("N"));
+                cmd.Parameters.AddWithValue("@id", p.Id.ToString());
                 cmd.Parameters.AddWithValue("@jsonData", json);
                 cmd.Parameters.AddWithValue("@createdTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
 
