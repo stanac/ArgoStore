@@ -1,7 +1,9 @@
-﻿namespace ArgoStore
+﻿using Microsoft.Data.Sqlite;
+
+namespace ArgoStore
 {
     internal interface IStatementToSqlTranslator
     {
-        string ToSql(TopStatement statement);
+        void SetSqlCommand(TopStatement statement, SqliteCommand cmd);
     }
 }

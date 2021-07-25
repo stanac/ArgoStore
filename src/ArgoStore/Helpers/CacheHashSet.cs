@@ -4,8 +4,8 @@ namespace ArgoStore.Helpers
 {
     internal class CacheHashSet<T>
     {
-        private object _sync = new object();
-        private HashSet<T> _cache = new HashSet<T>();
+        private readonly object _sync = new object();
+        private readonly HashSet<T> _cache = new HashSet<T>();
 
         public void Add(T value)
         {

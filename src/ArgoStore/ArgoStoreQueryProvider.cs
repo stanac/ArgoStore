@@ -102,7 +102,7 @@ namespace ArgoStore
 
             TopStatement ts = TopStatement.Create(statement);
 
-            string sql = _statementToSqlTranslatorFactory().ToSql(ts);
+            string sql = _statementToSqlTranslatorFactory().SetSqlCommand(ts);
 
             _entityTableHelper.EnsureEntityTableExists(ts.TypeFrom);
 
