@@ -41,7 +41,7 @@ namespace ArgoStore
         {
             if (value == null) return null;
 
-            if (value.GetType() == typeof(string)) return value as string;
+            if (value is string s) return s;
 
             return value.ToString();
         }

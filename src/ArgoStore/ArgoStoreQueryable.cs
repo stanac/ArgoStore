@@ -37,12 +37,7 @@ namespace ArgoStore
             var res = (IEnumerable)Provider.Execute(Expression);
             return res.Cast<T>().GetEnumerator();
         }
-
-        public string ToSqlString()
-        {
-            throw new NotImplementedException();
-        }
-
+        
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

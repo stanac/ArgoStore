@@ -106,5 +106,41 @@ namespace ArgoStore.IntegrationTests
             retrievedPerson.Should().NotBeNull();
             retrievedPerson.Should().BeEquivalentTo(toInsert);
         }
+
+        [SkippableFact]
+        public void InsertEntityIntPk_PkSet_SaveChanges_GetEntity_ReturnsInsertedEntity()
+        {
+            IDocumentSession s = GetNewDocumentSession();
+
+            PersonIntPk toInsert = new PersonIntPk
+            {
+                EmailAddress = "asd123@example.com",
+                BirthYear = 1954,
+                Name = "Some Person",
+                Id = 34
+            };
+
+            Action a = () => s.Insert(toInsert);
+
+            a.Should().Throw<InvalidOperationException>();
+        }
+
+        [SkippableFact]
+        public void InsertEntityLongPk_PkSet_SaveChanges_GetEntity_ReturnsInsertedEntity()
+        {
+            IDocumentSession s = GetNewDocumentSession();
+
+            PersonLongPk toInsert = new PersonLongPk
+            {
+                EmailAddress = "asd123@example.com",
+                BirthYear = 1954,
+                Name = "Some Person",
+                Id = 34
+            };
+
+            Action a = () => s.Insert(toInsert);
+
+            a.Should().Throw<InvalidOperationException>();
+        }
     }
 }
