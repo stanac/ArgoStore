@@ -1,7 +1,6 @@
 ﻿using ArgoStore.Helpers;
 using System;
 using System.Linq;
-using Microsoft.Data.Sqlite;
 
 namespace ArgoStore
 {
@@ -14,7 +13,7 @@ namespace ArgoStore
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-        public void SetSqlCommand(TopStatement statement, SqliteCommand cmd)
+        public ArgoSqlCommand CreateCommand(TopStatement statement)
         {
             if (statement is null) throw new ArgumentNullException(nameof(statement));
 
@@ -22,62 +21,83 @@ namespace ArgoStore
 
             if (statement.IsCountQuery)
             {
-                SetCountSql(statement, cmd);
+                return CreateCountCommand(statement);
             }
 
             if (statement.IsAnyQuery)
             {
-                SetAnySql(statement, cmd);
-                return;
+                return CreateAnyCommand(statement);
             }
 
-            SetSql(statement.SelectStatement);
+            return CreateSelectCommand(statement.SelectStatement);
         }
 
         // todo: optimize sql generation, use string builder
 
-        private void SetAnySql(TopStatement statement, SqliteCommand cmd)
+        private ArgoSqlCommand CreateAnyCommand(TopStatement statement)
         {
             // any statement only returns one row or zero rows
             // if one row is returned result is True, otherwise is False
 
             if (statement.SelectStatement == null)
             {
-                cmd.CommandText = $"SELECT 1 FROM {EntityTableHelper.GetTableName(statement.TypeFrom)} LIMIT 1";
-                return;
+                return new ArgoSqlCommand
+                {
+                    CommandText = $"SELECT 1 FROM {EntityTableHelper.GetTableName(statement.TypeFrom)} LIMIT 1"
+                };
             }
 
-            string innerSql = SetSql(statement.SelectStatement);
-
-            return $"SELECT 1 FROM ({innerSql}) LIMIT 1";
+            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement);
+            selectCommand.CommandText = $"SELECT 1 FROM ({selectCommand.CommandText}) LIMIT 1";
+            return selectCommand;
         }
 
-        private void SetCountSql(TopStatement statement, SqliteCommand cmd)
+        private ArgoSqlCommand CreateCountCommand(TopStatement statement)
         {
             if (statement.SelectStatement == null)
             {
-                return $"SELECT COUNT(*) FROM {EntityTableHelper.GetTableName(statement.TypeFrom)}";
+                return new ArgoSqlCommand
+                {
+                    CommandText = $"SELECT COUNT(*) FROM {EntityTableHelper.GetTableName(statement.TypeFrom)}"
+                };
             }
             
-            string innerSql = SetSql(statement.SelectStatement);
+            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement);
 
-            return $"SELECT COUNT (*) FROM ({innerSql})";
+            selectCommand.CommandText = $"SELECT COUNT (*) FROM ({selectCommand.CommandText})";
+
+            return selectCommand;
         }
 
-        private string SetSql(SelectStatement select)
+        private ArgoSqlCommand CreateSelectCommand(SelectStatement select)
         {
             if (select.CalledByMethod == SelectStatement.CalledByMethods.Last || select.CalledByMethod == SelectStatement.CalledByMethods.LastOrDefault)
             {
                 throw new NotSupportedException($"Method {select.CalledByMethod} is not supported. Use OrderBy/OrderByDescending and First/FirstOrDefault");
             }
 
-            string sql = SelectElementsToSql(select);
+            ArgoSqlCommand cmd = new ArgoSqlCommand();
+
+            string sql = SelectElementsToSql(select, cmd);
 
             string from;
 
             if (select.SubQueryStatement != null)
             {
-                from = "\nFROM (" + SetSql(select.SubQueryStatement) + ") " + select.Alias;
+                ArgoSqlCommand subCommand = CreateSelectCommand(select.SubQueryStatement);
+
+                if (!subCommand.ArePrefixLocked())
+                {
+                    subCommand.SetRandomParametersPrefix();
+                    subCommand.LockPrefix();
+                }
+
+                foreach (ArgoSqlParameter p in subCommand.Parameters)
+                {
+                    cmd.Parameters.Add(p);
+                }
+                
+                from = "\nFROM (" + subCommand.CommandText + ") " + select.Alias;
             }
             else
             {
@@ -90,39 +110,40 @@ FROM {EntityTableHelper.GetTableName(select.TypeFrom)} {select.Alias}";
             if (select.WhereStatement != null)
             {
                 sql += $@"
-WHERE {SetSql(select.WhereStatement.Statement, select.Alias)}
+WHERE {GetSql(select.WhereStatement.Statement, select.Alias, cmd)}
 ";
             }
 
             if (select.OrderByStatement != null && select.OrderByStatement.Elements.Any())
             {
                 sql += $@"
-{SetSql(select.OrderByStatement, select.Alias)}
+{GetSql(select.OrderByStatement, select.Alias, cmd)}
 ";
             }
 
-            return sql;
+            cmd.CommandText = sql;
+            return cmd;
         }
 
-        private string SetSql(Statement statement, string alias)
+        private string GetSql(Statement statement, string alias, ArgoSqlCommand cmd)
         {
             if (statement is null) throw new ArgumentNullException(nameof(statement));
 
             switch (statement)
             {
-                case BinaryStatement s1: return SetSql(s1, alias);
-                case PropertyAccessStatement s3: return SetSql(s3, alias);
-                case ConstantStatement s4: return SetSql(s4, alias);
-                case MethodCallStatement s5: return SetSql(s5, alias);
-                case OrderByStatement s6: return SetSql(s6, alias);
+                case BinaryStatement s1: return GetBinaryStatementSql(s1, alias, cmd);
+                case PropertyAccessStatement s3: return GetPropertyAccessStatementSql(s3, alias);
+                case ConstantStatement s4: return GetConstantStatementSql(s4, alias, cmd);
+                case MethodCallStatement s5: return GetMethodCallStatementSql(s5, alias, cmd);
+                case OrderByStatement s6: return GetOrderByStatementSql(s6, alias);
             }
 
             throw new ArgumentOutOfRangeException($"Missing implementation for \"{statement.GetType().FullName}\"");
         }
 
-        private string SetSql(BinaryStatement statement, string alias)
+        private string GetBinaryStatementSql(BinaryStatement statement, string alias, ArgoSqlCommand cmd)
         {
-            string left = SetSql(statement.Left, alias);
+            string left = GetSql(statement.Left, alias, cmd);
 
             string op = statement.OperatorString;
             
@@ -137,7 +158,7 @@ WHERE {SetSql(select.WhereStatement.Statement, select.Alias)}
                 left = "(" + left + " )";
             }
 
-            string right = SetSql(statement.Right, alias);
+            string right = GetSql(statement.Right, alias, cmd);
 
             if (statement.Right is BinaryStatement)
             {
@@ -147,12 +168,12 @@ WHERE {SetSql(select.WhereStatement.Statement, select.Alias)}
             return $"{left} {op} {right}";
         }
 
-        private string SetSql(PropertyAccessStatement statement, string alias)
+        private string GetPropertyAccessStatementSql(PropertyAccessStatement statement, string alias)
         {
             return $"json_extract({alias}.json_data, '$.{_serializer.ConvertPropertyNameToCorrectCase(statement.Name)}')";
         }
 
-        private string SetSql(ConstantStatement statement, string alias)
+        private string GetConstantStatementSql(ConstantStatement statement, string alias, ArgoSqlCommand cmd)
         {
             if (statement.IsNull)
             {
@@ -160,20 +181,20 @@ WHERE {SetSql(select.WhereStatement.Statement, select.Alias)}
             }
             if (statement.IsString)
             {
-                return "'" + statement.Value.Replace("'", "''") + "'";
+                return cmd.AddParameterAndGetParameterName(statement.Value);
             }
 
             return statement.Value;
         }
 
-        private string SetSql(MethodCallStatement statement, string alias)
+        private string GetMethodCallStatementSql(MethodCallStatement statement, string alias, ArgoSqlCommand cmd)
         {
             throw new NotImplementedException();
         }
         
-        private string SetSql(OrderByStatement statement, string alias)
+        private string GetOrderByStatementSql(OrderByStatement statement, string alias)
         {
-            string sql = $"ORDER BY ";
+            string sql = "ORDER BY ";
 
             for (int i = 0; i < statement.Elements.Count; i++)
             {
@@ -188,7 +209,7 @@ WHERE {SetSql(select.WhereStatement.Statement, select.Alias)}
             return sql;
         }
 
-        private string SelectElementsToSql(SelectStatement statement)
+        private string SelectElementsToSql(SelectStatement statement, ArgoSqlCommand cmd)
         {
             if (statement.SubQueryStatement != null)
             {
@@ -213,7 +234,7 @@ WHERE {SetSql(select.WhereStatement.Statement, select.Alias)}
                     return "SELECT json_data";
                 }
 
-                return "SELECT " + string.Join(", ", statement.SelectElements.Select(x => SetSql(x.Statement, statement.Alias) + $" {x.Alias}"));
+                return "SELECT " + string.Join(", ", statement.SelectElements.Select(x => GetSql(x.Statement, statement.Alias, cmd) + $" {x.Alias}"));
             }
         }
     }

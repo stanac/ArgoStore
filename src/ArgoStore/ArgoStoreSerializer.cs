@@ -7,7 +7,7 @@ namespace ArgoStore
 {
     /// <summary>
     /// JSON serializer used by ArgoStore, properties are serialized as camel case, enums as strings as camel case,
-    /// using System.Text.JsonSerializer.
+    /// using System.CommandText.JsonSerializer.
     /// </summary>
     public class ArgoStoreSerializer : IArgoStoreSerializer
     {

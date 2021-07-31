@@ -20,16 +20,14 @@ namespace ArgoStore.IntegrationTests
         [SkippableFact]
         public void WhereWithNotEqualNull_ReturnsCorrectEntities()
         {
-            using (IDocumentSession session = GetNewDocumentSession())
-            {
-                List<Person> persons = session.Query<Person>()
-                    .Where(x => x.Name != null)
-                    .ToList();
+            using IDocumentSession session = GetNewDocumentSession();
 
-                int count = persons.Count;
-                count.Should().BeGreaterThan(1);
-            }
+            List<Person> persons = session.Query<Person>()
+                .Where(x => x.Name != null)
+                .ToList();
 
+            int count = persons.Count;
+            count.Should().BeGreaterThan(1);
         }
     }
 }

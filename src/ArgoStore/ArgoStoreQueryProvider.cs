@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.Data.Sqlite;
 
 namespace ArgoStore
 {
@@ -102,18 +103,19 @@ namespace ArgoStore
 
             TopStatement ts = TopStatement.Create(statement);
 
-            string sql = _statementToSqlTranslatorFactory().SetSqlCommand(ts);
+            ArgoSqlCommand argoCmd = _statementToSqlTranslatorFactory().CreateCommand(ts);
+            SqliteCommand cmd = argoCmd.CreateCommand();
 
             _entityTableHelper.EnsureEntityTableExists(ts.TypeFrom);
 
             if (ts.IsCountQuery)
             {
-                return _dbAccess.QueryField(sql).ToList().Single();
+                return _dbAccess.QueryField(cmd).ToList().Single();
             }
 
             if (ts.IsAnyQuery)
             {
-                List<object> rows = _dbAccess.QueryField(sql).ToList();
+                List<object> rows = _dbAccess.QueryField(cmd).ToList();
 
                 return rows.Any();
             }
@@ -122,19 +124,19 @@ namespace ArgoStore
             {
                 if (ts.SelectStatement.SelectElements[0].SelectsJson)
                 {
-                    IEnumerable<string> result = _dbAccess.QueryJsonField(sql);
+                    IEnumerable<string> result = _dbAccess.QueryJsonField(cmd);
 
                     return result.Select(x => _config.Serializer.Deserialize(x, ts.TypeFrom));
                 }
                 else
                 {
-                    return _dbAccess.QueryField(sql);
+                    return _dbAccess.QueryField(cmd);
                 }
             }
             else
             {
                 Type[] propTypes = ts.SelectStatement.SelectElements.Select(x => x.ReturnType).ToArray();
-                IEnumerable<object[]> rows = _dbAccess.QueryFields(sql, propTypes);
+                IEnumerable<object[]> rows = _dbAccess.QueryFields(cmd, propTypes);
 
                 return CreateResultObjects(rows, ts.SelectStatement);
             }

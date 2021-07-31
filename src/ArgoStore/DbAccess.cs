@@ -19,96 +19,86 @@ namespace ArgoStore
             _connectionString = connectionString;
         }
 
-        public IEnumerable<object[]> QueryFields(string sql, Type[] expectedResultTypes)
+        public IEnumerable<object[]> QueryFields(SqliteCommand cmd, Type[] expectedResultTypes)
         {
-            if (string.IsNullOrWhiteSpace(sql)) throw new ArgumentException($"'{nameof(sql)}' cannot be null or whitespace", nameof(sql));
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            if (expectedResultTypes == null) throw new ArgumentNullException(nameof(expectedResultTypes));
+            
+            using var con = new SqliteConnection(_connectionString);
 
-            List<string> result = new List<string>();
+            con.Open();
 
-            using (var con = new SqliteConnection(_connectionString))
+            cmd.Connection = con;
+                
+            var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
             {
-                con.Open();
+                object[] row = new object[reader.FieldCount];
 
-                var cmd = con.CreateCommand();
-                cmd.CommandText = sql;
-
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                for (int i = 0; i < row.Length; i++)
                 {
-                    object[] row = new object[reader.FieldCount];
-
-                    for (int i = 0; i < row.Length; i++)
+                    row[i] = reader[i];
+                    if (row[i] is DBNull)
                     {
-                        row[i] = reader[i];
-                        if (row[i] is DBNull)
-                        {
-                            row[i] = null;
-                        }
-
-                        row[i] = ArgoStoreConvert.To(expectedResultTypes[i], row[i]);
+                        row[i] = null;
                     }
 
-                    yield return row;
+                    row[i] = ArgoStoreConvert.To(expectedResultTypes[i], row[i]);
                 }
+
+                yield return row;
             }
         }
 
-        public IEnumerable<object> QueryField(string sql)
+        public IEnumerable<object> QueryField(SqliteCommand cmd)
         {
-            if (string.IsNullOrWhiteSpace(sql)) throw new ArgumentException($"'{nameof(sql)}' cannot be null or whitespace", nameof(sql));
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            
+            using var con = new SqliteConnection(_connectionString);
 
-            List<string> result = new List<string>();
+            con.Open();
 
-            using (var con = new SqliteConnection(_connectionString))
+            cmd.Connection = con;
+
+            var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
             {
-                con.Open();
-
-                var cmd = con.CreateCommand();
-                cmd.CommandText = sql;
-
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                if (reader.FieldCount != 1)
                 {
-                    if (reader.FieldCount != 1)
-                    {
-                        throw new InvalidOperationException("Reader returned more than 1 column for query:\n" + sql);
-                    }
-
-                    if (reader[0] is DBNull) yield return null;
-                    else yield return reader[0];
+                    throw new InvalidOperationException("Reader returned more than 1 column for query:\n" + cmd.CommandText);
                 }
-            }
-        }
-        public IEnumerable<string> QueryJsonField(string sql)
-        {
-            if (string.IsNullOrWhiteSpace(sql)) throw new ArgumentException($"'{nameof(sql)}' cannot be null or whitespace", nameof(sql));
 
-            List<string> result = new List<string>();
-
-            using (var con = new SqliteConnection(_connectionString))
-            {
-                con.Open();
-
-                var cmd = con.CreateCommand();
-                cmd.CommandText = sql;
-
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    if (reader.FieldCount != 1)
-                    {
-                        throw new InvalidOperationException("Reader returned more than 1 column for query:\n" + sql);
-                    }
-
-                    yield return (string)reader[0];
-                }
+                if (reader[0] is DBNull) yield return null;
+                else yield return reader[0];
             }
         }
 
-        public Task<IEnumerable<string>> QueryJsonFieldAsync(string sql)
+        public IEnumerable<string> QueryJsonField(SqliteCommand cmd)
+        {
+            if (cmd == null) throw new ArgumentNullException(nameof(cmd));
+            
+            using var con = new SqliteConnection(_connectionString);
+
+            con.Open();
+
+            cmd.Connection = con;
+
+            var reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                if (reader.FieldCount != 1)
+                {
+                    throw new InvalidOperationException("Reader returned more than 1 column for query:\n" + cmd.CommandText);
+                }
+
+                yield return (string)reader[0];
+            }
+        }
+
+        public Task<IEnumerable<string>> QueryJsonFieldAsync(SqliteCommand cmd)
         {
             throw new NotImplementedException();
         }
