@@ -2,6 +2,7 @@
 using ArgoStore.IntegrationTests.Entities;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -10,7 +11,7 @@ namespace ArgoStore.IntegrationTests
         private const string TestNameImogenCampbell = "Imogen Campbell";
         private readonly TestData _td;
 
-        public DeleteTests()
+        public DeleteTests(ITestOutputHelper output) : base(output)
         {
             _td = new TestData(TestDbConnectionString);
 

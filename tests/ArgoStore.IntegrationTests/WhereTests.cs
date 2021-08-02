@@ -3,18 +3,20 @@ using FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArgoStore.IntegrationTests
 {
     public class WhereTests : IntegrationTestsBase
     {
-        public WhereTests()
+        private readonly TestData _td;
+
+        public WhereTests(ITestOutputHelper output) : base(output)
         {
-            using (IDocumentSession session = GetNewDocumentSession())
-            {
-                TestData td = new TestData(TestDbConnectionString);
-                td.InsertTestPersons();
-            }
+            using IDocumentSession session = GetNewDocumentSession();
+
+            _td = new TestData(TestDbConnectionString);
+            _td.InsertTestPersons();
         }
 
         [SkippableFact]
@@ -28,6 +30,21 @@ namespace ArgoStore.IntegrationTests
 
             int count = persons.Count;
             count.Should().BeGreaterThan(1);
+        }
+
+        [SkippableFact]
+        public void WhereWithEqualFromEntityType_ReturnsCorrectEntities()
+        {
+            using IDocumentSession session = GetNewDocumentSession();
+
+            Person p = _td.Persons[0];
+
+            List<Person> persons = session.Query<Person>()
+                .Where(x => x.Name == p.Name)
+                .ToList();
+
+            int count = persons.Count;
+            count.Should().Be(1);
         }
     }
 }

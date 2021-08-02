@@ -2,6 +2,7 @@
 using ArgoStore.IntegrationTests.Entities;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -9,7 +10,7 @@ namespace ArgoStore.IntegrationTests
     {
         private readonly TestData _td;
 
-        public DocumentSessionTests()
+        public DocumentSessionTests(ITestOutputHelper output) : base(output)
         {
             _td = new TestData(TestDbConnectionString);
         }

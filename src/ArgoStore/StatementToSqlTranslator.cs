@@ -43,7 +43,7 @@ namespace ArgoStore
             {
                 return new ArgoSqlCommand
                 {
-                    CommandText = $"SELECT 1 FROM {EntityTableHelper.GetTableName(statement.TypeFrom)} LIMIT 1"
+                    CommandText = $"SELECT 1 FROM {EntityTableHelper.GetTableName(statement.TypeFrom)} WHERE tenant_id = $__tenant_id__ LIMIT 1"
                 };
             }
 

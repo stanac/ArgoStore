@@ -1,19 +1,29 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using Xunit;
+using Xunit.Abstractions;
+using Xunit.Sdk;
 
 namespace ArgoStore.IntegrationTests
 {
     public abstract class IntegrationTestsBase : IDisposable
     {
         private static readonly IntegrationTestsConfiguration _config = new IntegrationTestsConfiguration();
-        
+
+        private readonly XunitTest _test;
+        private readonly ITestOutputHelper _output;
         protected string TestDbFilePath { get; }
         protected string TestDbConnectionString { get; }
 
-        protected IntegrationTestsBase()
+        protected IntegrationTestsBase(ITestOutputHelper output)
         {
+            _output = output;
+            FieldInfo? field = output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic);
+            // ReSharper disable once PossibleNullReferenceException
+            _test = (XunitTest)field.GetValue(output);
+
             Skip.IfNot(_config.RunIntegrationTests,
                 "Integration tests not enabled, one of the following environment variables needs to point to a directory: \"ram_disk_db_test_dir\", \"db_tests_dir\". " +
                 "Tests will try to use \"ram_disk_db_test_dir\" and if that is not possible or variable isn't set tests will try to use \"db_tests_dir\""
@@ -37,7 +47,9 @@ namespace ArgoStore.IntegrationTests
             }
             catch
             {
-                Trace.TraceWarning($"Failed to delete test db \"{TestDbFilePath}\"");
+                string msg = $"Failed to delete test db \"{TestDbFilePath}\" while running text {_test.DisplayName}";
+                Trace.TraceWarning(msg);
+                _output.WriteLine(msg);
             }
         }
 

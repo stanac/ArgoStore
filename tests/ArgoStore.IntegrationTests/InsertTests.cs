@@ -4,15 +4,21 @@ using System.Linq;
 using ArgoStore.IntegrationTests.Entities;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArgoStore.IntegrationTests
 {
     public class InsertTests : IntegrationTestsBase
     {
+        public InsertTests(ITestOutputHelper output) : base(output)
+        {
+            
+        }
+
         [SkippableFact]
         public void InsertEntity_SaveChanges_GetEntity_ReturnsInsertedEntity()
         {
-            IDocumentSession s = GetNewDocumentSession();
+            using IDocumentSession s = GetNewDocumentSession();
 
             Person toInsert = new Person
             {
@@ -42,7 +48,7 @@ namespace ArgoStore.IntegrationTests
         [SkippableFact]
         public void InsertEntityStringPk__SaveChanges_GetEntity_ReturnsInsertedEntity()
         {
-            IDocumentSession s = GetNewDocumentSession();
+            using IDocumentSession s = GetNewDocumentSession();
 
             PersonStringPk toInsert = new PersonStringPk
             {
@@ -66,7 +72,7 @@ namespace ArgoStore.IntegrationTests
         [SkippableFact]
         public void InsertEntityIntPk__SaveChanges_GetEntity_ReturnsInsertedEntity()
         {
-            IDocumentSession s = GetNewDocumentSession();
+            using IDocumentSession s = GetNewDocumentSession();
 
             PersonIntPk toInsert = new PersonIntPk
             {
@@ -88,7 +94,7 @@ namespace ArgoStore.IntegrationTests
         [SkippableFact]
         public void InsertEntityLongPk__SaveChanges_GetEntity_ReturnsInsertedEntity()
         {
-            IDocumentSession s = GetNewDocumentSession();
+            using IDocumentSession s = GetNewDocumentSession();
 
             PersonLongPk toInsert = new PersonLongPk
             {
@@ -110,7 +116,7 @@ namespace ArgoStore.IntegrationTests
         [SkippableFact]
         public void InsertEntityIntPk_PkSet_SaveChanges_GetEntity_ReturnsInsertedEntity()
         {
-            IDocumentSession s = GetNewDocumentSession();
+            using IDocumentSession s = GetNewDocumentSession();
 
             PersonIntPk toInsert = new PersonIntPk
             {
@@ -128,7 +134,7 @@ namespace ArgoStore.IntegrationTests
         [SkippableFact]
         public void InsertEntityLongPk_PkSet_SaveChanges_GetEntity_ReturnsInsertedEntity()
         {
-            IDocumentSession s = GetNewDocumentSession();
+            using IDocumentSession s = GetNewDocumentSession();
 
             PersonLongPk toInsert = new PersonLongPk
             {

@@ -3,6 +3,7 @@ using FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -10,53 +11,51 @@ namespace ArgoStore.IntegrationTests
     {
         private readonly TestData _td;
 
-        public OrderByTests()
+        public OrderByTests(ITestOutputHelper output) : base(output)
         {
             _td = new TestData(TestDbConnectionString);
-            using (IDocumentSession session = GetNewDocumentSession())
-            {
-                _td.InsertTestPersons();
-            }
+            
+            using IDocumentSession session = GetNewDocumentSession();
+
+            _td.InsertTestPersons();
         }
 
         [Fact]
         public void OrderBy_ReturnsEntitiesInCorrectOrder()
         {
-            using (IDocumentSession session = GetNewDocumentSession())
-            {
-                List<Person> persons = session.Query<Person>()
-                    .OrderBy(x => x.Name)
-                    .Where(x => x.EmailAddress != null)
-                    .ToList();
+            using IDocumentSession session = GetNewDocumentSession();
 
-                int count = persons.Count;
-                count.Should().Be(_td.Persons.Count);
+            List<Person> persons = session.Query<Person>()
+                .OrderBy(x => x.Name)
+                .Where(x => x.EmailAddress != null)
+                .ToList();
 
-                List<Person> orderedPersons = _td.Persons.OrderBy(x => x.Name).ToList();
+            int count = persons.Count;
+            count.Should().Be(_td.Persons.Count);
 
-                persons.First().Should().BeEquivalentTo(orderedPersons.First());
-                persons.Last().Should().BeEquivalentTo(orderedPersons.Last());
-            }
+            List<Person> orderedPersons = _td.Persons.OrderBy(x => x.Name).ToList();
+
+            persons.First().Should().BeEquivalentTo(orderedPersons.First());
+            persons.Last().Should().BeEquivalentTo(orderedPersons.Last());
         }
 
         [Fact]
         public void OrderByDesc_ReturnsEntitiesInCorrectOrder()
         {
-            using (IDocumentSession session = GetNewDocumentSession())
-            {
-                List<Person> persons = session.Query<Person>()
-                    .OrderByDescending(x => x.Name)
-                    .Where(x => x.EmailAddress != null)
-                    .ToList();
+            using IDocumentSession session = GetNewDocumentSession();
 
-                int count = persons.Count;
-                count.Should().Be(_td.Persons.Count);
+            List<Person> persons = session.Query<Person>()
+                .OrderByDescending(x => x.Name)
+                .Where(x => x.EmailAddress != null)
+                .ToList();
 
-                List<Person> orderedPersons = _td.Persons.OrderByDescending(x => x.Name).ToList();
+            int count = persons.Count;
+            count.Should().Be(_td.Persons.Count);
 
-                persons.First().Should().BeEquivalentTo(orderedPersons.First());
-                persons.Last().Should().BeEquivalentTo(orderedPersons.Last());
-            }
+            List<Person> orderedPersons = _td.Persons.OrderByDescending(x => x.Name).ToList();
+
+            persons.First().Should().BeEquivalentTo(orderedPersons.First());
+            persons.Last().Should().BeEquivalentTo(orderedPersons.Last());
         }
     }
 }

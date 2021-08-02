@@ -3,6 +3,7 @@ using FluentAssertions;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -10,7 +11,7 @@ namespace ArgoStore.IntegrationTests
     {
         private const string TestNameImogenCampbell = "Imogen Campbell";
 
-        public SubQueryTests()
+        public SubQueryTests(ITestOutputHelper output) : base(output)
         {
             using var session = GetNewDocumentSession();
 

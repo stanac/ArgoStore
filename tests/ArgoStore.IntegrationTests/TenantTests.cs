@@ -2,15 +2,18 @@
 using ArgoStore.IntegrationTests.Entities;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArgoStore.IntegrationTests
 {
     public class TenantTests : IntegrationTestsBase
     {
+        private readonly ITestOutputHelper _output;
         private readonly TestData _td;
 
-        public TenantTests()
+        public TenantTests(ITestOutputHelper output) : base(output)
         {
+            _output = output;
             _td = new TestData(TestDbConnectionString);
         }
 
@@ -45,7 +48,7 @@ namespace ArgoStore.IntegrationTests
         public void InsertInTenant1_CountShouldBeValid()
         {
             Person p = _td.Persons[0];
-
+            
             using (IDocumentSession s1 = GetNewDocumentSession(tenantId: "t1"))
             {
                 s1.Insert(p);

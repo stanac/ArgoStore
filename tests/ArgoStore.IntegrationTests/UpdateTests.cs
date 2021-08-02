@@ -3,6 +3,7 @@ using System.Linq;
 using ArgoStore.IntegrationTests.Entities;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -11,7 +12,7 @@ namespace ArgoStore.IntegrationTests
         private const string TestNameImogenCampbell = "Imogen Campbell";
         private readonly TestData _td;
 
-        public UpdateTests()
+        public UpdateTests(ITestOutputHelper output) : base(output)
         {
             _td = new TestData(TestDbConnectionString);
 

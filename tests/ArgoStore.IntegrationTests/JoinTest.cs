@@ -4,12 +4,19 @@ using System.Linq;
 using ArgoStore.IntegrationTests.Entities;
 using FluentAssertions;
 using Xunit;
+using Xunit.Abstractions;
+
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace ArgoStore.IntegrationTests
 {
     public class JoinTest : IntegrationTestsBase
     {
+        public JoinTest(ITestOutputHelper output) : base(output)
+        {
+            
+        }
+
         [SkippableFact]
         public void Join_ThrowsException()
         {
