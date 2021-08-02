@@ -3,7 +3,7 @@ using ArgoStore.IntegrationTests.Entities;
 using Microsoft.Data.Sqlite;
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 
 namespace ArgoStore.IntegrationTests
 {
@@ -247,7 +247,11 @@ namespace ArgoStore.IntegrationTests
   ""cackeDay"": ""2020-09-01""
 }]";
 
+        private readonly IReadOnlyList<PersonIntPk> _intPersons;
+
         public IReadOnlyList<Person> Persons { get; }
+
+        public IReadOnlyList<PersonIntPk> PersonIntPkValues => _intPersons.Select(x => x.Copy()).ToList();
 
         public TestData(string connectionString)
         {
@@ -260,6 +264,20 @@ namespace ArgoStore.IntegrationTests
 
             ArgoStoreSerializer s = new ArgoStoreSerializer();
             Persons = s.Deserialize<List<Person>>(_personsJson);
+
+            List<PersonIntPk> intPersons = new List<PersonIntPk>();
+
+            for (int i = 0; i < 30; i++)
+            {
+                intPersons.Add(new PersonIntPk
+                {
+                    BirthYear = 1999 - i,
+                    EmailAddress = $"testintperson{i}@example.com",
+                    Name = $"Integer Person {i}"
+                });
+            }
+
+            _intPersons = intPersons;
 
             var th = new EntityTableHelper(new Configuration
             {

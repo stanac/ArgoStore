@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text.Json;
-using System.Threading.Tasks;
 using ArgoStore.EntityCrudOperationConverters;
 using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;
@@ -17,6 +15,8 @@ namespace ArgoStore
         private readonly EntityTableHelper _entityTableHelper;
         private readonly SqliteConnection _connection;
         private readonly Queue<EntityCrudOperation> _commands = new Queue<EntityCrudOperation>();
+        
+        private SqliteTransaction _transaction;
         private bool _disposed;
 
         public DocumentSession(Configuration config)
@@ -104,7 +104,7 @@ namespace ArgoStore
             }
         }
 
-        public void Store<T>(params T[] entities)
+        public void InsertOrUpdate<T>(params T[] entities)
         {
             EnsureNotDisposed();
             EntityMetadata meta = ValidateEntityAndGetMeta(entities);
@@ -129,31 +129,38 @@ namespace ArgoStore
             _commands.Enqueue(op);
         }
 
-        public void Dispose()
-        {
-            if (_disposed) throw new InvalidOperationException("Session already disposed");
-
-            if (_connection != null && _connection.State != ConnectionState.Closed)
-            {
-                _connection.Close();
-                _connection.Dispose();
-            }
-
-            _disposed = true;
-        }
-
-        public void SaveChanges() => SaveChangesAsync().GetAwaiter().GetResult();
-        
-        public async Task SaveChangesAsync()
+        public void SaveChanges()
         {
             EnsureNotDisposed();
-            await OpenConnectionAsync();
 
-            using SqliteTransaction tr = _connection.BeginTransaction();
+            Execute();
+
+            _transaction.Commit();
+            _transaction.Dispose();
+            _transaction = null;
+        }
+
+        public void DiscardChanges()
+        {
+            if (_commands.Any())
+            {
+                _commands.Clear();
+            }
+
+            if (_transaction != null)
+            {
+                _transaction.Dispose();
+                _transaction = null;
+            }
+        }
+
+        public void Execute()
+        {
+            OpenConnectionAndCreateTransaction();
 
             foreach (EntityCrudOperation op in _commands)
             {
-                op.Command.Transaction = tr;
+                op.Command.Transaction = _transaction;
             }
 
             try
@@ -165,20 +172,18 @@ namespace ArgoStore
 
                     if (operation.CrudOperation == CrudOperations.Insert && operation.PkValue.IsLongKey)
                     {
-                        long id = await GetLastInsertedIdAsync();
+                        long id = GetLastInsertedId();
 
                         operation.PkValue.SetLongKey(id);
                         operation.PkValue.SetInEntity(operation.Entity);
-                        UpdateIntegerIdInDocumentAfterInsert(operation, tr);
+                        UpdateIntegerIdInDocumentAfterInsert(operation, _transaction);
                     }
                 }
-
-                tr.Commit();
             }
             catch (Exception e)
             {
                 // todo: log
-                tr.Rollback();
+                _transaction.Rollback();
                 Console.WriteLine(e);
                 throw;
             }
@@ -210,11 +215,16 @@ namespace ArgoStore
             return _config.GetOrCreateEntityMetadata(entityType);
         }
         
-        private async Task OpenConnectionAsync()
+        private void OpenConnectionAndCreateTransaction()
         {
             if (_connection.State != ConnectionState.Open)
             {
-                await _connection.OpenAsync();
+                _connection.Open();
+            }
+
+            if (_transaction == null)
+            {
+                _transaction = _connection.BeginTransaction();
             }
         }
 
@@ -223,12 +233,32 @@ namespace ArgoStore
             if (_disposed) throw new ObjectDisposedException("Session disposed");
         }
 
-        private async Task<long> GetLastInsertedIdAsync()
+        private long GetLastInsertedId()
         {
             var cmd = _connection.CreateCommand();
             cmd.CommandText = "SELECT last_insert_rowid()";
-            object result = await cmd.ExecuteScalarAsync();
+            object result = cmd.ExecuteScalar();
             return (long) result;
         }
+
+        public void Dispose()
+        {
+            if (_disposed) throw new InvalidOperationException("Session already disposed");
+
+            if (_transaction != null)
+            {
+                _transaction.Dispose();
+                _transaction = null;
+            }
+
+            if (_connection != null && _connection.State != ConnectionState.Closed)
+            {
+                _connection.Close();
+                _connection.Dispose();
+            }
+
+            _disposed = true;
+        }
+
     }
 }
