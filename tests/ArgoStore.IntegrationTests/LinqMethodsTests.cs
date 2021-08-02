@@ -46,8 +46,6 @@ namespace ArgoStore.IntegrationTests
 
                 int count = persons.Count;
                 count.Should().BeGreaterThan(2);
-
-                persons.First().Name.Should().Be(TestNameImogenCampbell);
             }
         }
 
@@ -148,7 +146,6 @@ namespace ArgoStore.IntegrationTests
                     .FirstOrDefault();
 
                 person.Should().NotBeNull();
-                person.Name.Should().Be(TestNameImogenCampbell);
             }
         }
 

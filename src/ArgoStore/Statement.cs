@@ -143,14 +143,6 @@ namespace ArgoStore
                 SelectStatement.SetSubQueryAliases(null);
             }
         }
-
-        public void EnsureTenantIdIsSet()
-        {
-            if (string.IsNullOrWhiteSpace(TenantId))
-            {
-                throw new InvalidOperationException("TenantId not set");
-            }
-        }
     }
 
     internal class SelectCountStatement : Statement

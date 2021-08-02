@@ -16,8 +16,7 @@ namespace ArgoStore
         public ArgoSqlCommand CreateCommand(TopStatement statement)
         {
             if (statement is null) throw new ArgumentNullException(nameof(statement));
-
-            statement.EnsureTenantIdIsSet();
+            
             statement.SetAliases();
 
             if (statement.IsCountQuery)
@@ -30,7 +29,7 @@ namespace ArgoStore
                 return CreateAnyCommand(statement);
             }
 
-            return CreateSelectCommand(statement.SelectStatement);
+            return CreateSelectCommand(statement.SelectStatement, statement.TenantId);
         }
 
         // todo: optimize sql generation, use string builder
@@ -48,7 +47,7 @@ namespace ArgoStore
                 };
             }
 
-            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement);
+            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement, statement.TenantId);
             selectCommand.CommandText = $"SELECT 1 FROM ({selectCommand.CommandText}) LIMIT 1";
             return selectCommand;
         }
@@ -63,14 +62,14 @@ namespace ArgoStore
                 };
             }
             
-            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement);
+            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement, statement.TenantId);
 
             selectCommand.CommandText = $"SELECT COUNT (*) FROM ({selectCommand.CommandText})";
 
             return selectCommand;
         }
 
-        private ArgoSqlCommand CreateSelectCommand(SelectStatement select)
+        private ArgoSqlCommand CreateSelectCommand(SelectStatement select, string tenantId)
         {
             if (select.CalledByMethod == SelectStatement.CalledByMethods.Last || select.CalledByMethod == SelectStatement.CalledByMethods.LastOrDefault)
             {
@@ -85,7 +84,7 @@ namespace ArgoStore
 
             if (select.SubQueryStatement != null)
             {
-                ArgoSqlCommand subCommand = CreateSelectCommand(select.SubQueryStatement);
+                ArgoSqlCommand subCommand = CreateSelectCommand(select.SubQueryStatement, tenantId);
 
                 if (!subCommand.ArePrefixLocked())
                 {
@@ -111,7 +110,13 @@ FROM {EntityTableHelper.GetTableName(select.TypeFrom)} {select.Alias}";
             if (select.WhereStatement != null)
             {
                 sql += $@"
-WHERE {GetSql(select.WhereStatement.Statement, select.Alias, cmd)}
+WHERE tenant_id = $__tenant_id__ AND ({GetSql(select.WhereStatement.Statement, select.Alias, cmd)})
+";
+            }
+            else
+            {
+                sql += $@"
+WHERE tenant_id = $__tenant_id__
 ";
             }
 

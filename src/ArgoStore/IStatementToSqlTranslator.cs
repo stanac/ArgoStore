@@ -40,8 +40,10 @@ namespace ArgoStore
 
         public bool ArePrefixLocked() => Parameters.Count > 0 && Parameters.Any(x => x.PrefixLocked);
 
-        public SqliteCommand CreateCommand()
+        public SqliteCommand CreateCommand(string tenantId)
         {
+            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
             if (string.IsNullOrWhiteSpace(CommandText))
             {
                 throw new InvalidOperationException("CommandText property not set");
@@ -53,6 +55,8 @@ namespace ArgoStore
             {
                 cmd.Parameters.AddWithValue(p.Name, p.Value);
             }
+
+            cmd.Parameters.AddWithValue("$__tenant_id__", tenantId);
 
             return cmd;
         }

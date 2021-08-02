@@ -104,7 +104,7 @@ namespace ArgoStore
             TopStatement ts = TopStatement.Create(statement, _config.TenantId);
             
             ArgoSqlCommand argoCmd = _statementToSqlTranslatorFactory().CreateCommand(ts);
-            SqliteCommand cmd = argoCmd.CreateCommand();
+            SqliteCommand cmd = argoCmd.CreateCommand(_config.TenantId);
 
             _entityTableHelper.EnsureEntityTableExists(ts.TypeFrom);
 
