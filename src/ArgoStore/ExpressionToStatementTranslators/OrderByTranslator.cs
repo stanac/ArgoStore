@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -54,8 +55,14 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
                 if (calledOn is WhereStatement where)
                 {
-                    var top = new TopStatement(where, SelectStatement.CalledByMethods.Select);
-                    return top.SelectStatement.SetOrderBy(orderByStatement);
+                    List<SelectStatementElement> selectElements = new List<SelectStatementElement>
+                    {
+                        SelectStatementElement.CreateWithStar(where.TargetType)
+                    };
+
+                    SelectStatement ss = new SelectStatement(where, where.TargetType, where.TargetType, selectElements, null, SelectStatement.CalledByMethods.Select);
+                    ss.SetOrderBy(orderByStatement);
+                    return ss;
                 }
 
                 throw new NotImplementedException($"Not implemented merge of {mc.Method.Name} and {calledOn}");

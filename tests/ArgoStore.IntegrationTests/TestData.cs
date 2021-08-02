@@ -310,8 +310,8 @@ namespace ArgoStore.IntegrationTests
                 string json = s.Serialize(p);
 
                 string sql = $@"
-                        INSERT INTO {EntityTableHelper.GetTableName<Person>()} (string_id, json_data, created_at)
-                        VALUES (@id, json(@jsonData), @createdTime)
+                        INSERT INTO {EntityTableHelper.GetTableName<Person>()} (string_id, json_data, created_at, tenant_id)
+                        VALUES (@id, json(@jsonData), @createdTime, @tenantId)
                     ";
 
                 SqliteCommand cmd = c.CreateCommand();
@@ -319,6 +319,7 @@ namespace ArgoStore.IntegrationTests
                 cmd.Parameters.AddWithValue("@id", p.Id.ToString());
                 cmd.Parameters.AddWithValue("@jsonData", json);
                 cmd.Parameters.AddWithValue("@createdTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+                cmd.Parameters.AddWithValue("@tenantId", TenantIdDefault.DefaultValue);
 
                 cmd.ExecuteNonQuery();
             }

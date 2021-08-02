@@ -191,7 +191,7 @@ namespace ArgoStore.IntegrationTests
             using (IDocumentSession s = GetNewDocumentSession())
             {
                 var p = s.Query<Person>()
-                    .Select(x => new { x.Name, x.CackeDay })
+                    .Select(x => new { x.Name, CackeDay = x.CakeDay })
                     .ToList();
 
                 p.Count.Should().BeGreaterThan(2);
@@ -206,7 +206,7 @@ namespace ArgoStore.IntegrationTests
             {
                 var p = s.Query<Person>()
                     .Where(x => x.Name != "non existing")
-                    .Select(x => new { x.Name, x.CackeDay })
+                    .Select(x => new { x.Name, CackeDay = x.CakeDay })
                     .ToList();
 
                 p.Count.Should().BeGreaterThan(2);
@@ -220,7 +220,7 @@ namespace ArgoStore.IntegrationTests
             using (IDocumentSession s = GetNewDocumentSession())
             {
                 var p = s.Query<Person>()
-                    .Select(x => new Person { Name = x.Name, CackeDay = x.CackeDay })
+                    .Select(x => new Person { Name = x.Name, CakeDay = x.CakeDay })
                     .ToList();
 
                 p.Count.Should().BeGreaterThan(2);

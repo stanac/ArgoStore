@@ -26,7 +26,7 @@ namespace ArgoStore.IntegrationTests
 
             Person person = s.Query<Person>().Single(x => x.Name == TestNameImogenCampbell);
 
-            person.CackeDay = new DateTime(2020, 04, 03);
+            person.CakeDay = new DateTime(2020, 04, 03);
             person.EmailAddress = $"a{Guid.NewGuid().ToString("N").ToLower()}@example.com";
 
             s.Update(person);
@@ -40,6 +40,10 @@ namespace ArgoStore.IntegrationTests
             Person notUpdated = s.Query<Person>().FirstOrDefault(x => x.Name != TestNameImogenCampbell);
             notUpdated.Should().NotBeNull();
             notUpdated.Should().NotBeEquivalentTo(updated);
+
+            int notUpdatedCount = s.Query<Person>().Count(x => x.Name != TestNameImogenCampbell);
+
+            notUpdatedCount.Should().Be(_td.Persons.Count - 1);
         }
     }
 }

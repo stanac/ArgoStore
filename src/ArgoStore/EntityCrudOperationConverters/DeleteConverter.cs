@@ -8,8 +8,10 @@ namespace ArgoStore.EntityCrudOperationConverters
     {
         public bool CanConvert(EntityCrudOperation op) => op != null && op.CrudOperation == CrudOperations.Delete;
 
-        public SqliteCommand ConvertToCommand(EntityCrudOperation op, SqliteConnection connection, IArgoStoreSerializer serializer)
+        public SqliteCommand ConvertToCommand(EntityCrudOperation op, SqliteConnection connection, IArgoStoreSerializer serializer, string tenantId)
         {
+            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
             string condition = op.PkValue.IsLongKey ? "id = $id" : "string_id = $id";
 
             object key = op.PkValue.GetValue();
@@ -19,8 +21,9 @@ namespace ArgoStore.EntityCrudOperationConverters
             }
 
             SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = $"DELETE FROM {EntityTableHelper.GetTableName(op.EntityMeta.EntityType)} WHERE {condition}";
+            cmd.CommandText = $"DELETE FROM {EntityTableHelper.GetTableName(op.EntityMeta.EntityType)} WHERE tenant_id = $tenantId AND {condition}";
             cmd.Parameters.AddWithValue("$id", key);
+            cmd.Parameters.AddWithValue("$tenantId", tenantId);
             
             return cmd;
         }

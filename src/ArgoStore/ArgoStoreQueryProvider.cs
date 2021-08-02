@@ -101,8 +101,8 @@ namespace ArgoStore
 
             Statement statement = ExpressionToStatementTranslators.ExpressionToStatementTranslatorStrategy.Translate(expression);
 
-            TopStatement ts = TopStatement.Create(statement);
-
+            TopStatement ts = TopStatement.Create(statement, _config.TenantId);
+            
             ArgoSqlCommand argoCmd = _statementToSqlTranslatorFactory().CreateCommand(ts);
             SqliteCommand cmd = argoCmd.CreateCommand();
 

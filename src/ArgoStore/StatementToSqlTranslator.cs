@@ -17,6 +17,7 @@ namespace ArgoStore
         {
             if (statement is null) throw new ArgumentNullException(nameof(statement));
 
+            statement.EnsureTenantIdIsSet();
             statement.SetAliases();
 
             if (statement.IsCountQuery)
@@ -38,7 +39,7 @@ namespace ArgoStore
         {
             // any statement only returns one row or zero rows
             // if one row is returned result is True, otherwise is False
-
+            
             if (statement.SelectStatement == null)
             {
                 return new ArgoSqlCommand

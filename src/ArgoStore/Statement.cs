@@ -24,9 +24,14 @@ namespace ArgoStore
         public SelectStatement SelectStatement { get; }
         public bool IsAnyQuery { get; private set; }
         public bool IsCountQuery { get; private set; }
-
-        public TopStatement(WhereStatement where, SelectStatement.CalledByMethods method)
+        public string TenantId { get; }
+        
+        public TopStatement(WhereStatement where, SelectStatement.CalledByMethods method, string tenantId)
         {
+            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
+            TenantId = tenantId;
+
             var selectElements = new List<SelectStatementElement>
             {
                 SelectStatementElement.CreateWithStar(where.TargetType)
@@ -37,38 +42,47 @@ namespace ArgoStore
             TypeTo = where.TargetType;
         }
 
-        public TopStatement(SelectStatement select)
+        public TopStatement(SelectStatement select, string tenantId)
         {
+            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
+            TenantId = tenantId;
+
             SelectStatement = select ?? throw new ArgumentNullException(nameof(select));
             TypeFrom = select.TypeFrom ?? throw new ArgumentException("TypeFrom not set", nameof(select));
             TypeTo = select.TypeTo ?? throw new ArgumentException("TypeTo not set", nameof(select));
         }
 
-        public TopStatement(Type entityType)
+        public TopStatement(Type entityType, string tenantId)
         {
+            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
+            TenantId = tenantId;
+
             TypeFrom = entityType;
             TypeTo = entityType;
         }
 
-        public static TopStatement Create(Statement statement)
+        public static TopStatement Create(Statement statement, string tenantId)
         {
             if (statement is null) throw new ArgumentNullException(nameof(statement));
+            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
 
             if (statement is SelectStatement ss)
             {
-                return new TopStatement(ss);
+                return new TopStatement(ss, tenantId);
             }
             
             if (statement is WhereStatement ws)
             {
-                return new TopStatement(ws, SelectStatement.CalledByMethods.Select); // todo: check CalledByMethods.Select in other methods
+                return new TopStatement(ws, SelectStatement.CalledByMethods.Select, tenantId); // todo: check CalledByMethods.Select in other methods
             }
 
             if (statement is SelectCountStatement cq)
             {
                 if (cq.Where != null)
                 {
-                    return new TopStatement(cq.Where, SelectStatement.CalledByMethods.Count)
+                    return new TopStatement(cq.Where, SelectStatement.CalledByMethods.Count, tenantId)
                     {
                         IsCountQuery = true
                     };
@@ -76,7 +90,7 @@ namespace ArgoStore
                 
                 if (cq.SubQuery != null)
                 {
-                    return new TopStatement(cq.SubQuery)
+                    return new TopStatement(cq.SubQuery, tenantId)
                     {
                         IsCountQuery = true
                     };
@@ -84,7 +98,7 @@ namespace ArgoStore
 
                 if (cq.FromType != null)
                 {
-                    return new TopStatement(cq.FromType)
+                    return new TopStatement(cq.FromType, tenantId)
                     {
                         IsCountQuery = true
                     };
@@ -95,7 +109,7 @@ namespace ArgoStore
             {
                 if (eq.Where != null)
                 {
-                    return new TopStatement(eq.Where, SelectStatement.CalledByMethods.Count)
+                    return new TopStatement(eq.Where, SelectStatement.CalledByMethods.Count, tenantId)
                     {
                         IsAnyQuery = true
                     };
@@ -103,7 +117,7 @@ namespace ArgoStore
 
                 if (eq.SubQuery != null)
                 {
-                    return new TopStatement(eq.SubQuery)
+                    return new TopStatement(eq.SubQuery, tenantId)
                     {
                         IsAnyQuery = true
                     };
@@ -111,7 +125,7 @@ namespace ArgoStore
 
                 if (eq.FromType != null)
                 {
-                    return new TopStatement(eq.FromType)
+                    return new TopStatement(eq.FromType, tenantId)
                     {
                         IsAnyQuery = true
                     };
@@ -121,12 +135,20 @@ namespace ArgoStore
             throw new ArgumentException($"Cannot create {nameof(TopStatement)} from {statement.GetType().FullName}", nameof(statement));
         }
 
-        internal void SetAliases()
+        public void SetAliases()
         {
             if (SelectStatement != null)
             {
                 SelectStatement.SetAliases(0);
                 SelectStatement.SetSubQueryAliases(null);
+            }
+        }
+
+        public void EnsureTenantIdIsSet()
+        {
+            if (string.IsNullOrWhiteSpace(TenantId))
+            {
+                throw new InvalidOperationException("TenantId not set");
             }
         }
     }
@@ -202,7 +224,7 @@ namespace ArgoStore
         public OrderByStatement OrderByStatement { get; private set; }
         public Type TypeFrom { get; }
         public Type TypeTo { get; }
-        public IReadOnlyList<SelectStatementElement> SelectElements { get; } = new List<SelectStatementElement>();
+        public IReadOnlyList<SelectStatementElement> SelectElements { get; }
         public int? Top { get; }
         public CalledByMethods CalledByMethod { get; }
         public string Alias { get; private set; }
@@ -271,7 +293,7 @@ namespace ArgoStore
             return $"SELECT {string.Join(", ", SelectElements.Select(x => x.ToDebugString()))} {WhereStatement?.ToDebugString()}";
         }
 
-        internal void SetAliases(int level)
+        public void SetAliases(int level)
         {
             Alias = $"\"..t{level}\"";
 
@@ -287,7 +309,7 @@ namespace ArgoStore
             }
         }
 
-        internal void SetSubQueryAliases(SelectStatement parent)
+        public void SetSubQueryAliases(SelectStatement parent)
         {
             if (SubQueryStatement != null)
             {
@@ -303,7 +325,7 @@ namespace ArgoStore
             }
         }
 
-        internal SelectStatement SetOrderBy(OrderByStatement orderByStatement)
+        public SelectStatement SetOrderBy(OrderByStatement orderByStatement)
         {
             if (OrderByStatement == null)
             {
@@ -316,7 +338,7 @@ namespace ArgoStore
             return this;
         }
 
-        internal SelectStatement AddWhereCondition(WhereStatement where)
+        public SelectStatement AddWhereCondition(WhereStatement where)
         {
             if (where is null) throw new ArgumentNullException(nameof(where));
 
@@ -331,7 +353,7 @@ namespace ArgoStore
 
             return this;
         }
-
+        
         public enum CalledByMethods
         {
             Select, First, FirstOrDefault, Last, LastOrDefault, Single, SingleOrDefault, Count, Any

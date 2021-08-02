@@ -8,8 +8,10 @@ namespace ArgoStore.EntityCrudOperationConverters
     {
         public bool CanConvert(EntityCrudOperation op) => op != null && op.CrudOperation == CrudOperations.Update;
 
-        public SqliteCommand ConvertToCommand(EntityCrudOperation op, SqliteConnection connection, IArgoStoreSerializer serializer)
+        public SqliteCommand ConvertToCommand(EntityCrudOperation op, SqliteConnection connection, IArgoStoreSerializer serializer, string tenantId)
         {
+            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
             SqliteCommand cmd = connection.CreateCommand();
 
             string whereCondition;
@@ -18,12 +20,12 @@ namespace ArgoStore.EntityCrudOperationConverters
             if (op.EntityMeta.PrimaryKeyProperty.PropertyType == typeof(Guid) ||
                 op.EntityMeta.PrimaryKeyProperty.PropertyType == typeof(string))
             {
-                whereCondition = "string_id = $id";
+                whereCondition = "tenant_id = $tenantId AND string_id = $id";
                 id = op.PkValue.StringKey;
             }
             else
             {
-                whereCondition = "id = $id";
+                whereCondition = "tenant_id = $tenantId AND id = $id";
                 id = op.PkValue.LongKey;
             }
 
@@ -37,6 +39,7 @@ namespace ArgoStore.EntityCrudOperationConverters
             cmd.Parameters.AddWithValue("$json", json);
             cmd.Parameters.AddWithValue("$updatedAt", DateTimeFormatter.ToUtcFormat(DateTime.UtcNow));
             cmd.Parameters.AddWithValue("$id", id);
+            cmd.Parameters.AddWithValue("$tenantId", tenantId);
 
             return cmd;
         }

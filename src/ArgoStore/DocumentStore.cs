@@ -17,14 +17,33 @@ namespace ArgoStore
 
         public string ConnectionString { get; }
 
-        public IDocumentSession CreateSession()
+        public void CreateTableForEntityIfNotExists(Type entityType)
         {
-            return new DocumentSession(new Configuration
+            if (entityType == null) throw new ArgumentNullException(nameof(entityType));
+
+            Configuration config = GetConfiguration();
+            config.CreateEntitiesOnTheFly = true;
+
+            using DocumentSession session = new DocumentSession(config);
+            
+            session.CreateTableForEntityIfNotExists(entityType);
+        }
+
+        public IDocumentSession CreateSession() => CreateSession(TenantIdDefault.DefaultValue);
+        
+        public IDocumentSession CreateSession(string tenantId)
+        {
+            return new DocumentSession(GetConfiguration());
+        }
+
+        private Configuration GetConfiguration()
+        {
+            return new Configuration
             {
                 Serializer = new ArgoStoreSerializer(),
                 ConnectionString = ConnectionString,
                 CreateEntitiesOnTheFly = _createEntityTablesOnTheFly
-            });
+            };
         }
     }
 }

@@ -16,9 +16,10 @@ namespace ArgoStore.EntityCrudOperationConverters
                 .Cast<IEntityCrudOperationConverter>()
                 .ToList();
 
-        public static SqliteCommand Convert(EntityCrudOperation op, SqliteConnection connection, IArgoStoreSerializer serializer)
+        public static SqliteCommand Convert(EntityCrudOperation op, SqliteConnection connection, IArgoStoreSerializer serializer, string tenantId)
         {
             if (op == null) throw new ArgumentNullException(nameof(op));
+            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
 
             IEntityCrudOperationConverter converter = _converters.FirstOrDefault(x => x.CanConvert(op));
 
@@ -27,7 +28,7 @@ namespace ArgoStore.EntityCrudOperationConverters
                 throw new NotSupportedException($"Cannot find converter for CRUD operation {op.CrudOperation}");
             }
 
-            return converter.ConvertToCommand(op, connection, serializer);
+            return converter.ConvertToCommand(op, connection, serializer, tenantId);
         }
     }
 }

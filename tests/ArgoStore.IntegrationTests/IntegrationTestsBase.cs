@@ -41,12 +41,14 @@ namespace ArgoStore.IntegrationTests
             }
         }
 
-        protected IDocumentSession GetNewDocumentSession(bool createEntitiesOnTheFly = true)
+        protected IDocumentSession GetNewDocumentSession(bool createEntitiesOnTheFly = true, string tenantId = TenantIdDefault.DefaultValue)
         {
             return new DocumentSession(new Configuration
             {
                 ConnectionString = TestDbConnectionString,
-                CreateEntitiesOnTheFly = createEntitiesOnTheFly
+                CreateEntitiesOnTheFly = createEntitiesOnTheFly,
+                TenantId = tenantId,
+                Serializer = new ArgoStoreSerializer()
             });
         }
     }

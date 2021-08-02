@@ -1,5 +1,6 @@
 ﻿using ArgoStore.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace ArgoStore.ExpressionToStatementTranslators
@@ -31,8 +32,15 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
                 if (targetStatement is OrderByStatement os)
                 {
-                    var top = new TopStatement(where, SelectStatement.CalledByMethods.Select);
-                    return top.SelectStatement.SetOrderBy(os);
+
+                    var selectElements = new List<SelectStatementElement>
+                    {
+                        SelectStatementElement.CreateWithStar(where.TargetType)
+                    };
+
+                    SelectStatement s  = new SelectStatement(where, where.TargetType, where.TargetType, selectElements, null, SelectStatement.CalledByMethods.Select);
+                    return s.SetOrderBy(os);
+                    
                 }
 
                 if (targetStatement is SelectStatement ss)

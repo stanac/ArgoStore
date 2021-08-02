@@ -76,13 +76,16 @@ namespace ArgoStore.Helpers
 
             string sql = $@"
                 CREATE TABLE IF NOT EXISTS {tableName} (
+                    tenant_id TEXT NOT NULL,
                     id INTEGER NOT NULL PRIMARY KEY,
-                    string_id TEXT NOT NULL UNIQUE,
+                    string_id TEXT NOT NULL,
                     json_data JSON NOT NULL,
                     create_by TEXT NULL,
                     created_at TEXT NOT NULL,
                     updated_by TEXT NULL,
-                    updated_at TEXT NULL
+                    updated_at TEXT NULL,
+                    audit_id TEXT NULL,
+                    UNIQUE (tenant_id, string_id)
                 )
             ";
 

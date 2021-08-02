@@ -59,7 +59,7 @@ namespace ArgoStore
                 }
 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert, meta, pk);
-                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer, _config.TenantId);
                 _commands.Enqueue(op);
             }
         }
@@ -79,7 +79,7 @@ namespace ArgoStore
                 }
 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Update, meta, pkValue);
-                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer, _config.TenantId);
                 _commands.Enqueue(op);
             }
         }
@@ -99,7 +99,7 @@ namespace ArgoStore
                 }
                 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Delete, meta, pk);
-                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer, _config.TenantId);
                 _commands.Enqueue(op);
             }
         }
@@ -114,7 +114,7 @@ namespace ArgoStore
                 PrimaryKeyValue pk = PrimaryKeyValue.CreateFromEntity(meta, entity);
 
                 EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Upsert, meta, pk);
-                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+                op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer, _config.TenantId);
                 _commands.Enqueue(op);
             }
         }
@@ -125,7 +125,7 @@ namespace ArgoStore
             if (predicate == null) throw new ArgumentNullException(nameof(predicate));
 
             EntityCrudOperation op = new EntityCrudOperation(predicate);
-            op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+            op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer, _config.TenantId);
             _commands.Enqueue(op);
         }
 
@@ -194,7 +194,7 @@ namespace ArgoStore
             EntityCrudOperation op = new EntityCrudOperation(insertOp.Entity, CrudOperations.Update,
                 insertOp.EntityMeta, insertOp.PkValue);
 
-            op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer);
+            op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer, _config.TenantId);
             op.Command.Transaction = transaction;
             op.Command.ExecuteNonQuery();
         }
@@ -210,11 +210,18 @@ namespace ArgoStore
 
             Type entityType = typeof(T);
 
-            _entityTableHelper.EnsureEntityTableExists(entityType);
-
+            CreateTableForEntityIfNotExists(entityType);
+            
             return _config.GetOrCreateEntityMetadata(entityType);
         }
-        
+
+        public void CreateTableForEntityIfNotExists(Type entityType)
+        {
+            if (entityType == null) throw new ArgumentNullException(nameof(entityType));
+
+            _entityTableHelper.EnsureEntityTableExists(entityType);
+        }
+
         private void OpenConnectionAndCreateTransaction()
         {
             if (_connection.State != ConnectionState.Open)

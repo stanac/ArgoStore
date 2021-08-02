@@ -12,6 +12,6 @@ namespace ArgoStore.IntegrationTests.Entities
         public bool EmailConfirmed { get; set; }
         public List<string> Roles { get; set; }
         public DateTimeOffset RegistrationTime { get; set; }
-        public DateTime? CackeDay { get; set; }
+        public DateTime? CakeDay { get; set; }
     }
 }

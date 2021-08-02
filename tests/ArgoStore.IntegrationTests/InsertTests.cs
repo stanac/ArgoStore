@@ -18,7 +18,7 @@ namespace ArgoStore.IntegrationTests
             {
                 Name = "Person Name",
                 BirthYear = 1990,
-                CackeDay = DateTime.UtcNow,
+                CakeDay = DateTime.UtcNow,
                 EmailAddress = "person@example.com",
                 EmailConfirmed = true,
                 RegistrationTime = DateTimeOffset.UtcNow,

@@ -65,8 +65,7 @@ namespace ArgoStore.IntegrationTests
 
             exists.Should().BeFalse();
         }
-
-
+        
         [SkippableFact]
         public void Insert_Execute_DiscardChanges_SaveChanges_EntityNotIsInDb()
         {
