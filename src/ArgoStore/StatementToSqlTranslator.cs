@@ -64,7 +64,7 @@ namespace ArgoStore
             
             ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement, statement.TenantId, true);
 
-            selectCommand.CommandText = $"SELECT COUNT (*) FROM ({selectCommand.CommandText})";
+            selectCommand.CommandText = $"SELECT COUNT (*) FROM ({selectCommand.CommandText}) WHERE tenant_id = $__tenant_id__";
 
             return selectCommand;
         }
