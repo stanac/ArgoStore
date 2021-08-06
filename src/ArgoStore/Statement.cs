@@ -740,7 +740,7 @@ namespace ArgoStore
         public enum SupportedMethodNames
         {
             StringToUpper, StringToLower, StringTrim, StringTrimStart, StringTrimEnd, StringIsNullOrEmpty, StringIsNullOrWhiteSpace, StringEquals, StringEqualsIgnoreCase,
-            StringContains, StringStartsWith, StringEndsWith, StringContainsIgnoreCase, StringStartsWithIgnoreCase, StringEndsWithIgnoreCase,
+            StringContains, StringContainsIgnoreCase, StringStartsWith, StringStartsWithIgnoreCase, StringEndsWith, StringEndsWithIgnoreCase,
             EnumerableContains
         }
     }

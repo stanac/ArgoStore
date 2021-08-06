@@ -1,5 +1,6 @@
 ﻿using ArgoStore.Helpers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace ArgoStore
@@ -204,7 +205,60 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
 
         private string GetMethodCallStatementSql(MethodCallStatement statement, string alias, ArgoSqlCommand cmd)
         {
-            throw new NotImplementedException();
+            List<string> args = statement.Arguments.Select(x => GetSql(x, alias, cmd)).ToList();
+
+            switch (statement.MethodName)
+            {
+                case MethodCallStatement.SupportedMethodNames.StringToUpper:
+                    return $"upper({args[0]})";
+                    
+                case MethodCallStatement.SupportedMethodNames.StringToLower:
+                    return $"lower({args[0]})";
+
+                case MethodCallStatement.SupportedMethodNames.StringTrim:
+                    return $"trim({args[0]})";
+
+                case MethodCallStatement.SupportedMethodNames.StringTrimStart:
+                    return $"ltrim({args[0]})";
+
+                case MethodCallStatement.SupportedMethodNames.StringTrimEnd:
+                    return $"rtrim({args[0]})";
+
+                case MethodCallStatement.SupportedMethodNames.StringIsNullOrEmpty:
+                    return $"({args[0]} IS NULL OR {args[0]} = '')";
+
+                case MethodCallStatement.SupportedMethodNames.StringIsNullOrWhiteSpace:
+                    return $"({args[0]} IS NULL OR trim({args[0]}) = '')";
+
+                case MethodCallStatement.SupportedMethodNames.StringEquals:
+                    return $"{args[0]} == {args[1]}";
+
+                case MethodCallStatement.SupportedMethodNames.StringEqualsIgnoreCase:
+                    return $"upper({args[0]}) == upper({args[1]})";
+
+                case MethodCallStatement.SupportedMethodNames.StringContains:
+                    break;
+
+                case MethodCallStatement.SupportedMethodNames.StringContainsIgnoreCase:
+                    break;
+
+                case MethodCallStatement.SupportedMethodNames.StringStartsWith:
+                    break;
+
+                case MethodCallStatement.SupportedMethodNames.StringEndsWith:
+                    break;
+
+                case MethodCallStatement.SupportedMethodNames.StringStartsWithIgnoreCase:
+                    break;
+
+                case MethodCallStatement.SupportedMethodNames.StringEndsWithIgnoreCase:
+                    break;
+
+                case MethodCallStatement.SupportedMethodNames.EnumerableContains:
+                    break;
+            }
+            
+            throw new ArgumentOutOfRangeException(nameof(statement));
         }
         
         private string GetOrderByStatementSql(OrderByStatement statement, string alias)
