@@ -3,6 +3,7 @@ using ArgoStore.ExpressionToStatementTranslators;
 using System;
 using System.Linq.Expressions;
 using Xunit;
+// ReSharper disable PossibleNullReferenceException
 
 namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
 {
@@ -68,6 +69,23 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
 
             c.Right.Should().BeOfType<ConstantStatement>();
             c.Right.As<ConstantStatement>().IsNull.Should().BeTrue();
+        }
+
+        [Fact]
+        public void WhereWithEqualFromEntityType_Translate_CreatesValidStatement()
+        {
+            TestEntityPerson p = new TestEntityPerson
+            {
+                Name = "Kovalski"
+            };
+
+            Expression<Func<TestEntityPerson, bool>> e = x => x.Name == p.Name;
+
+            Statement where = ExpressionToStatementTranslatorStrategy.Translate(e);
+
+            where.Should().BeOfType<BinaryComparisonStatement>();
+            where.As<BinaryComparisonStatement>().Left.Should().BeOfType<PropertyAccessStatement>();
+            where.As<BinaryComparisonStatement>().Right.Should().BeOfType<ConstantStatement>();
         }
     }
 }

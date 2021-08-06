@@ -58,7 +58,7 @@ namespace ArgoStore
             {
                 return new ArgoSqlCommand
                 {
-                    CommandText = $"SELECT COUNT(*) FROM {EntityTableHelper.GetTableName(statement.TypeFrom)}"
+                    CommandText = $"SELECT COUNT(*) FROM {EntityTableHelper.GetTableName(statement.TypeFrom)} WHERE tenant_id = $__tenant_id__"
                 };
             }
             
