@@ -620,7 +620,6 @@ namespace ArgoStore
 
         public string Name { get; }
         public bool IsBoolean { get; }
-        public string SubQueryAlias { get; set; }
         
         public override Statement Negate()
         {
@@ -637,7 +636,6 @@ namespace ArgoStore
         public override Statement ReduceIfPossible() => this;
 
         public override string ToDebugString() => $"$.{Name}";
-
     }
 
     internal class ConstantStatement : Statement
@@ -646,15 +644,17 @@ namespace ArgoStore
         {
             IsString = isString;
             IsBoolean = isBoolean;
-            Value = value;
+            Value = isString ? EscapeString(value) : value;
         }
 
         public ConstantStatement(bool isString, bool isBoolean, List<string> values)
         {
+            if (values == null) throw new ArgumentNullException(nameof(values));
+
             IsString = isString;
             IsBoolean = isBoolean;
-            Values = values ?? throw new ArgumentNullException(nameof(values));
             IsCollection = true;
+            Values = isString ? values.Select(EscapeString).ToList() : values;
         }
 
         public bool IsString { get; }
@@ -691,6 +691,16 @@ namespace ArgoStore
             if (IsNull) return "NULL";
 
             return Value ?? "UnknownConstant";
+        }
+
+        private static string EscapeString(string s)
+        {
+            if (s == null) return null;
+
+            return s
+                .Replace("\\", "\\\\")
+                .Replace("%", "\\%")
+                .Replace("_", "\\_");
         }
     }
 

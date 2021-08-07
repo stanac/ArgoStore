@@ -60,10 +60,11 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         private Statement TranslateBoolMethod(MethodCallExpression e)
         {
-            List<Statement> arguments = new List<Statement>();
-
-            var arg1 = ExpressionToStatementTranslatorStrategy.Translate(e.Object);
-            var arg2 = ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0]);
+            List<Statement> arguments = new List<Statement>
+            {
+                ExpressionToStatementTranslatorStrategy.Translate(e.Object),
+                ExpressionToStatementTranslatorStrategy.Translate(e.Arguments[0])
+            };
 
             bool ignoreCase = false;
 

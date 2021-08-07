@@ -66,7 +66,7 @@ namespace ArgoStore
     {
         private string _namePrefix;
 
-        public object Value { get; }
+        public object Value { get; private set; }
         public int OrderNumber { get; }
         public string Name => $"$p{NamePrefix}___p___{OrderNumber}";
         public bool PrefixLocked { get; private set; }
@@ -90,6 +90,55 @@ namespace ArgoStore
         public void LockPrefix()
         {
             PrefixLocked = true;
+        }
+
+        public void AddWildcard(bool atTheBeginning, bool atTheEnd)
+        {
+            if (Value is string s)
+            {
+                if (atTheBeginning && atTheEnd)
+                {
+                    s = $"%{s}%";
+                }
+                else if (atTheBeginning)
+                {
+                    s = $"%{s}";
+                }
+                else if (atTheEnd)
+                {
+                    s = $"{s}%";
+                }
+
+                Value = s;
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot call AddWildcard to non string parameter");
+            }
+        }
+
+        public void ToUpper()
+        {
+            if (Value is string s)
+            {
+                Value = s.ToUpper();
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot call ToUpper to non string parameter");
+            }
+        }
+
+        public void ToLower()
+        {
+            if (Value is string s)
+            {
+                Value = s.ToLower();
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot call ToLower to non string parameter");
+            }
         }
     }
 
@@ -136,5 +185,50 @@ namespace ArgoStore
 
         public int Count => _items.Count;
         public bool IsReadOnly => false;
+
+        public void AddWildcard(string parameterName, bool atTheBeginning, bool atTheEnd)
+        {
+            ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
+
+            if (parameter == null)
+            {
+                throw new ArgumentException("No parameter found with given name", nameof(parameterName));
+            }
+
+            if (parameter.Value != null)
+            {
+                parameter.AddWildcard(atTheBeginning, atTheEnd);
+            }
+        }
+
+        public void ToUpper(string parameterName, bool atTheBeginning, bool atTheEnd)
+        {
+            ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
+
+            if (parameter == null)
+            {
+                throw new ArgumentException("No parameter found with given name", nameof(parameterName));
+            }
+
+            if (parameter.Value != null)
+            {
+                parameter.ToUpper();
+            }
+        }
+
+        public void ToLower(string parameterName, bool atTheBeginning, bool atTheEnd)
+        {
+            ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
+
+            if (parameter == null)
+            {
+                throw new ArgumentException("No parameter found with given name", nameof(parameterName));
+            }
+
+            if (parameter.Value != null)
+            {
+                parameter.ToLower();
+            }
+        }
     }
 }

@@ -237,16 +237,19 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
                     return $"upper({args[0]}) == upper({args[1]})";
 
                 case MethodCallStatement.SupportedMethodNames.StringContains:
-                    break;
-
+                    cmd.Parameters.AddWildcard(args[1], true, true);
+                    return $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
+                    
                 case MethodCallStatement.SupportedMethodNames.StringContainsIgnoreCase:
                     break;
 
                 case MethodCallStatement.SupportedMethodNames.StringStartsWith:
-                    break;
-
+                    cmd.Parameters.AddWildcard(args[1], false, true);
+                    return $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
+                    
                 case MethodCallStatement.SupportedMethodNames.StringEndsWith:
-                    break;
+                    cmd.Parameters.AddWildcard(args[1], true, false);
+                    return $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
 
                 case MethodCallStatement.SupportedMethodNames.StringStartsWithIgnoreCase:
                     break;

@@ -85,5 +85,22 @@ namespace ArgoStore.IntegrationTests
             List<Person> persons = s.Query<Person>().Where(x => !TestNameImogenCampbell.Equals(x.Name)).ToList();
             persons.Should().HaveCount(_td.Persons.Count - 1);
         }
+
+        [SkippableFact]
+        public void StringContainsUnderscoreMethod_GivesExpectedResult()
+        {
+            using IDocumentSession s = GetNewDocumentSession();
+
+            s.Insert(new Person
+            {
+                Name = "Some_One",
+                EmailAddress = "someone@example.com"
+            });
+
+            s.SaveChanges();
+
+            List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("_")).ToList();
+            persons.Should().ContainSingle();
+        }
     }
 }
