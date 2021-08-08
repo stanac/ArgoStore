@@ -28,6 +28,8 @@ namespace ArgoStore
 
             con.Open();
 
+            ExecutePragmaCaseSensitiveLike(con);
+
             cmd.Connection = con;
                 
             var reader = cmd.ExecuteReader();
@@ -59,6 +61,8 @@ namespace ArgoStore
 
             con.Open();
 
+            ExecutePragmaCaseSensitiveLike(con);
+
             cmd.Connection = con;
 
             var reader = cmd.ExecuteReader();
@@ -83,6 +87,8 @@ namespace ArgoStore
 
             con.Open();
 
+            ExecutePragmaCaseSensitiveLike(con);
+                
             cmd.Connection = con;
 
             var reader = cmd.ExecuteReader();
@@ -101,6 +107,15 @@ namespace ArgoStore
         public Task<IEnumerable<string>> QueryJsonFieldAsync(SqliteCommand cmd)
         {
             throw new NotImplementedException();
+        }
+
+        private void ExecutePragmaCaseSensitiveLike(SqliteConnection c)
+        {
+            SqliteCommand cmd = c.CreateCommand();
+
+            cmd.CommandText = "PRAGMA case_sensitive_like = true;";
+
+            cmd.ExecuteNonQuery();
         }
     }
 }

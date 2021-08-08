@@ -201,7 +201,7 @@ namespace ArgoStore
             }
         }
 
-        public void ToUpper(string parameterName, bool atTheBeginning, bool atTheEnd)
+        public void ToUpper(string parameterName)
         {
             ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
 
@@ -216,7 +216,7 @@ namespace ArgoStore
             }
         }
 
-        public void ToLower(string parameterName, bool atTheBeginning, bool atTheEnd)
+        public void ToLower(string parameterName)
         {
             ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
 

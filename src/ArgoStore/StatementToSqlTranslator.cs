@@ -30,7 +30,7 @@ namespace ArgoStore
                 return CreateAnyCommand(statement);
             }
 
-            return CreateSelectCommand(statement.SelectStatement, statement.TenantId, false);
+            return CreateSelectCommand(statement.SelectStatement, false);
         }
 
         // todo: optimize sql generation, use string builder
@@ -48,7 +48,7 @@ namespace ArgoStore
                 };
             }
 
-            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement, statement.TenantId, false);
+            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement, false);
             selectCommand.CommandText = $"SELECT 1 FROM ({selectCommand.CommandText}) LIMIT 1";
             return selectCommand;
         }
@@ -63,14 +63,14 @@ namespace ArgoStore
                 };
             }
             
-            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement, statement.TenantId, true);
+            ArgoSqlCommand selectCommand = CreateSelectCommand(statement.SelectStatement, true);
 
             selectCommand.CommandText = $"SELECT COUNT (*) FROM ({selectCommand.CommandText}) WHERE tenant_id = $__tenant_id__";
 
             return selectCommand;
         }
 
-        private ArgoSqlCommand CreateSelectCommand(SelectStatement select, string tenantId, bool isSubQuery)
+        private ArgoSqlCommand CreateSelectCommand(SelectStatement select, bool isSubQuery)
         {
             if (select.CalledByMethod == SelectStatement.CalledByMethods.Last || select.CalledByMethod == SelectStatement.CalledByMethods.LastOrDefault)
             {
@@ -90,7 +90,7 @@ namespace ArgoStore
 
             if (select.SubQueryStatement != null)
             {
-                ArgoSqlCommand subCommand = CreateSelectCommand(select.SubQueryStatement, tenantId, true);
+                ArgoSqlCommand subCommand = CreateSelectCommand(select.SubQueryStatement, true);
 
                 if (!subCommand.ArePrefixLocked())
                 {
@@ -149,7 +149,7 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
             {
                 case BinaryStatement s1: return GetBinaryStatementSql(s1, alias, cmd);
                 case PropertyAccessStatement s3: return GetPropertyAccessStatementSql(s3, alias);
-                case ConstantStatement s4: return GetConstantStatementSql(s4, alias, cmd);
+                case ConstantStatement s4: return GetConstantStatementSql(s4, cmd);
                 case MethodCallStatement s5: return GetMethodCallStatementSql(s5, alias, cmd);
                 case OrderByStatement s6: return GetOrderByStatementSql(s6, alias);
             }
@@ -189,7 +189,7 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
             return $"json_extract({alias}.json_data, '$.{_serializer.ConvertPropertyNameToCorrectCase(statement.Name)}')";
         }
 
-        private string GetConstantStatementSql(ConstantStatement statement, string alias, ArgoSqlCommand cmd)
+        private string GetConstantStatementSql(ConstantStatement statement, ArgoSqlCommand cmd)
         {
             if (statement.IsNull)
             {
@@ -207,61 +207,92 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
         {
             List<string> args = statement.Arguments.Select(x => GetSql(x, alias, cmd)).ToList();
 
+            string s = null;
+
             switch (statement.MethodName)
             {
                 case MethodCallStatement.SupportedMethodNames.StringToUpper:
-                    return $"upper({args[0]})";
+                    s = $"upper({args[0]})";
+                    break;
                     
                 case MethodCallStatement.SupportedMethodNames.StringToLower:
-                    return $"lower({args[0]})";
-
+                    s = $"lower({args[0]})";
+                    break;
+                    
                 case MethodCallStatement.SupportedMethodNames.StringTrim:
-                    return $"trim({args[0]})";
+                    s = $"trim({args[0]})";
+                    break;
 
                 case MethodCallStatement.SupportedMethodNames.StringTrimStart:
-                    return $"ltrim({args[0]})";
+                    s = $"ltrim({args[0]})";
+                    break;
 
                 case MethodCallStatement.SupportedMethodNames.StringTrimEnd:
-                    return $"rtrim({args[0]})";
+                    s = $"rtrim({args[0]})";
+                    break;
 
                 case MethodCallStatement.SupportedMethodNames.StringIsNullOrEmpty:
-                    return $"({args[0]} IS NULL OR {args[0]} = '')";
+                    s = $"({args[0]} IS NULL OR {args[0]} = '')";
+                    break;
 
                 case MethodCallStatement.SupportedMethodNames.StringIsNullOrWhiteSpace:
-                    return $"({args[0]} IS NULL OR trim({args[0]}) = '')";
+                    s = $"({args[0]} IS NULL OR trim({args[0]}) = '')";
+                    break;
 
                 case MethodCallStatement.SupportedMethodNames.StringEquals:
-                    return $"{args[0]} == {args[1]}";
+                    s = $"{args[0]} == {args[1]}";
+                    break;
 
                 case MethodCallStatement.SupportedMethodNames.StringEqualsIgnoreCase:
-                    return $"upper({args[0]}) == upper({args[1]})";
+                    s = $"upper({args[0]}) == upper({args[1]})";
+                    break;
 
                 case MethodCallStatement.SupportedMethodNames.StringContains:
                     cmd.Parameters.AddWildcard(args[1], true, true);
-                    return $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
+                    s = $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
+                    break;
                     
                 case MethodCallStatement.SupportedMethodNames.StringContainsIgnoreCase:
+                    cmd.Parameters.AddWildcard(args[1], true, true);
+                    cmd.Parameters.ToUpper(args[1]);
+                    s = $"upper({args[0]}) LIKE {args[1]} ESCAPE('\\')";
                     break;
-
+                    
                 case MethodCallStatement.SupportedMethodNames.StringStartsWith:
                     cmd.Parameters.AddWildcard(args[1], false, true);
-                    return $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
+                    s = $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
+                    break;
+
+                case MethodCallStatement.SupportedMethodNames.StringStartsWithIgnoreCase:
+                    cmd.Parameters.AddWildcard(args[1], false, true);
+                    cmd.Parameters.ToUpper(args[1]);
+                    s = $"upper({args[0]}) LIKE {args[1]} ESCAPE('\\')";
+                    break;
                     
                 case MethodCallStatement.SupportedMethodNames.StringEndsWith:
                     cmd.Parameters.AddWildcard(args[1], true, false);
-                    return $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
-
-                case MethodCallStatement.SupportedMethodNames.StringStartsWithIgnoreCase:
+                    s = $"{args[0]} LIKE {args[1]} ESCAPE('\\')";
                     break;
 
                 case MethodCallStatement.SupportedMethodNames.StringEndsWithIgnoreCase:
+                    cmd.Parameters.AddWildcard(args[1], true, false);
+                    cmd.Parameters.ToUpper(args[1]);
+                    s = $"upper({args[0]}) LIKE {args[1]} ESCAPE('\\')";
                     break;
-
+                    
                 case MethodCallStatement.SupportedMethodNames.EnumerableContains:
                     break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(statement));
             }
-            
-            throw new ArgumentOutOfRangeException(nameof(statement));
+
+            if (statement.Negated)
+            {
+                s = $"NOT ({s})";
+            }
+
+            return s;
         }
         
         private string GetOrderByStatementSql(OrderByStatement statement, string alias)
