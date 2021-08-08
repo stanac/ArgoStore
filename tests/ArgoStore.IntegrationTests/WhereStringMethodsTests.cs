@@ -480,6 +480,54 @@ namespace ArgoStore.IntegrationTests
             persons.Should().ContainSingle();
         }
 
+        [SkippableFact]
+        public void StringNull_GivesExpectedResult()
+        {
+            using IDocumentSession s = GetNewDocumentSession();
+            List<Person> p = s.Query<Person>().Where(x => x.NickName == null).ToList();
+            p.Should().ContainSingle();
+        }
+
+        [SkippableFact]
+        public void StringNullOrEmpty_GivesExpectedResult()
+        {
+            using IDocumentSession s = GetNewDocumentSession();
+            List<Person> p = s.Query<Person>().Where(x => string.IsNullOrEmpty(x.NickName)).ToList();
+            p.Should().HaveCount(2);
+        }
+
+        [SkippableFact]
+        public void StringNullOrWhiteSpace_GivesExpectedResult()
+        {
+            using IDocumentSession s = GetNewDocumentSession();
+            List<Person> p = s.Query<Person>().Where(x => string.IsNullOrWhiteSpace(x.NickName)).ToList();
+            p.Should().HaveCount(3);
+        }
+
+        [SkippableFact]
+        public void NegatedStringNull_GivesExpectedResult()
+        {
+            using IDocumentSession s = GetNewDocumentSession();
+            List<Person> p = s.Query<Person>().Where(x => x.NickName != null).ToList();
+            p.Should().HaveCount(_td.Persons.Count - 1);
+        }
+
+        [SkippableFact]
+        public void NegatedStringNullOrEmpty_GivesExpectedResult()
+        {
+            using IDocumentSession s = GetNewDocumentSession();
+            List<Person> p = s.Query<Person>().Where(x => !string.IsNullOrEmpty(x.NickName)).ToList();
+            p.Should().HaveCount(_td.Persons.Count - 2);
+        }
+
+        [SkippableFact]
+        public void NegatedStringNullOrWhiteSpace_GivesExpectedResult()
+        {
+            using IDocumentSession s = GetNewDocumentSession();
+            List<Person> p = s.Query<Person>().Where(x => !string.IsNullOrWhiteSpace(x.NickName)).ToList();
+            p.Should().HaveCount(_td.Persons.Count - 3);
+        }
+
         private void InsertWildcardPersons()
         {
             using IDocumentSession s = GetNewDocumentSession();

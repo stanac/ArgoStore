@@ -244,7 +244,8 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
                     break;
 
                 case MethodCallStatement.SupportedMethodNames.StringEqualsIgnoreCase:
-                    s = $"upper({args[0]}) == upper({args[1]})";
+                    cmd.Parameters.ToUpper(args[1]);
+                    s = $"upper({args[0]}) == {args[1]}";
                     break;
 
                 case MethodCallStatement.SupportedMethodNames.StringContains:

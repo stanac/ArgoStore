@@ -13,5 +13,6 @@ namespace ArgoStore.IntegrationTests.Entities
         public List<string> Roles { get; set; }
         public DateTimeOffset RegistrationTime { get; set; }
         public DateTime? CakeDay { get; set; }
+        public string NickName { get; set; }
     }
 }

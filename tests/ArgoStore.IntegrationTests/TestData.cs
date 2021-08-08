@@ -19,7 +19,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-20""
+  ""cakeDay"": ""2020-09-20"",
+  ""NickName"": ""Im""
 },{
   ""id"": ""1fcfe4b7-7d04-4fb7-b0e7-406f5c106811"",
   ""name"": ""Neil HughesBell"",
@@ -28,7 +29,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.111Z"",
-  ""cackeDay"": ""2020-09-19""
+  ""cakeDay"": ""2020-09-19"",
+  ""NickName"": null
 },{
   ""id"": ""cdb1ae3a-476e-496b-9c57-53136b853f40"",
   ""name"": ""Candice Ellis"",
@@ -37,7 +39,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.333Z"",
-  ""cackeDay"": ""2020-09-18""
+  ""cakeDay"": ""2020-09-18"",
+  ""NickName"": """"
 },{
   ""id"": ""ba194361-3496-489e-b9c7-5feb29acc4c8"",
   ""name"": ""Charlie Palmer"",
@@ -46,7 +49,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T11:23:29.321Z"",
-  ""cackeDay"": ""2020-09-17""
+  ""cakeDay"": ""2020-09-17"",
+  ""NickName"": ""  ""
 },{
   ""id"": ""eb88dadd-ce09-446e-86bf-135bf85f25e4"",
   ""name"": ""Jordan Simpson"",
@@ -55,7 +59,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T12:23:29.321Z"",
-  ""cackeDay"": ""2020-09-16""
+  ""cakeDay"": ""2020-09-16"",
+  ""NickName"": ""Sim""
 },{
   ""id"": ""1209ef1e-3a4c-43b2-b5d3-578a7ff17831"",
   ""name"": ""Justine Graham"",
@@ -64,7 +69,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T13:23:29.321Z"",
-  ""cackeDay"": ""2020-09-15""
+  ""cakeDay"": ""2020-09-15"",
+  ""NickName"": ""Gram""
 },{
   ""id"": ""ca1b10b6-8b1d-4c12-b8b7-76653ac3d95e"",
   ""name"": ""Alex Lewis"",
@@ -73,7 +79,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T14:23:29.321Z"",
-  ""cackeDay"": ""2020-09-14""
+  ""cakeDay"": ""2020-09-14"",
+  ""NickName"": ""Ali""
 },{
   ""id"": ""9c7dc4f7-4cfc-4159-8483-273d43cd034e"",
   ""name"": ""Elliot Thomas"",
@@ -82,7 +89,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T15:23:29.321Z"",
-  ""cackeDay"": ""2020-09-13""
+  ""cakeDay"": ""2020-09-13"",
+  ""NickName"": ""El""
 },{
   ""id"": ""ded6562f-62c7-4395-b197-600caeb3763f"",
   ""name"": ""Amber Khan"",
@@ -91,7 +99,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-12""
+  ""cakeDay"": ""2020-09-12"",
+  ""NickName"": ""Amy""
 },{
   ""id"": ""24950d28-6aae-4689-8e67-9bda4064043c"",
   ""name"": ""Dale Murphy"",
@@ -100,7 +109,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-11""
+  ""cakeDay"": ""2020-09-11"",
+  ""NickName"": ""Dally""
 },{
   ""id"": ""6cdadae1-51ee-4ac1-90a3-28b9ba10f5af"",
   ""name"": ""Tracy Wilson"",
@@ -109,7 +119,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-10""
+  ""cakeDay"": ""2020-09-10"",
+  ""NickName"": ""Tracy Will""
 },{
   ""id"": ""c96d2a56-a92e-4e03-93c5-9bcf5aae30b9"",
   ""name"": ""Jonathan Bennett"",
@@ -118,7 +129,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-09""
+  ""cakeDay"": ""2020-09-09"",
+  ""NickName"": ""Johny""
 },{
   ""id"": ""a9a745ed-b326-4c82-aa5d-00324884c1e5"",
   ""name"": ""Isabelle Martin"",
@@ -127,7 +139,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-08""
+  ""cakeDay"": ""2020-09-08"",
+  ""NickName"": ""Easy Bell""
 },{
   ""id"": ""ceea12cc-e4eb-4a0b-9f9d-a60ec9b8f3d7"",
   ""name"": ""Karlie Griffiths"",
@@ -136,7 +149,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-07""
+  ""cakeDay"": ""2020-09-07"",
+  ""NickName"": ""Karlito""
 },{
   ""id"": ""dfcfe066-981d-4fea-addb-de578bcd4365"",
   ""name"": ""Sebastian Ellis"",
@@ -145,7 +159,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-07""
+  ""cakeDay"": ""2020-09-07"",
+  ""NickName"": ""Seba""
 },{
   ""id"": ""0a6a86f5-5ae0-4357-8a17-2b90b45ac1df"",
   ""name"": ""Carmen Matthews"",
@@ -154,7 +169,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-07""
+  ""cakeDay"": ""2020-09-07"",
+  ""NickName"": ""Cat""
 },{
   ""id"": ""9f25788a-1da1-4692-a66d-527baedab864"",
   ""name"": ""Pauline Richardson"",
@@ -163,7 +179,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": null
+  ""cakeDay"": null,
+  ""NickName"": ""Pauly""
 },{
   ""id"": ""aca3588e-e63c-4950-ad20-ed3515bf244f"",
   ""name"": ""Eleanor Cooper"",
@@ -172,7 +189,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-07""
+  ""cakeDay"": ""2020-09-07"",
+  ""NickName"": ""Elly""
 },{
   ""id"": ""28982c51-e2c1-4367-9e9d-ee1e4474c03e"",
   ""name"": ""Logan Lloyd"",
@@ -181,7 +199,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": null
+  ""cakeDay"": null,
+  ""NickName"": ""Log""
 },{
   ""id"": ""f523061c-eb38-4567-80c7-57398cec1ef8"",
   ""name"": ""Kyle Mitchell"",
@@ -190,7 +209,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-06""
+  ""cakeDay"": ""2020-09-06"",
+  ""NickName"": ""K""
 },{
   ""id"": ""d21ec145-99cf-4737-ae7b-4756fe9aecfa"",
   ""name"": ""Ben Mason"",
@@ -199,7 +219,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-05""
+  ""cakeDay"": ""2020-09-05"",
+  ""NickName"": ""Ben""
 },{
   ""id"": ""146855dd-ed0c-4de8-8b3c-2af80cc9a164"",
   ""name"": ""Dave Cook"",
@@ -208,7 +229,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-04""
+  ""cakeDay"": ""2020-09-04"",
+  ""NickName"": ""Davo""
 },{
   ""id"": ""3a7d4861-a789-4ae0-a49b-e77fc7b32247"",
   ""name"": ""Ruth Campbell"",
@@ -217,7 +239,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-03""
+  ""cakeDay"": ""2020-09-03"",
+  ""NickName"": ""Ruthy""
 },{
   ""id"": ""e8f7f88c-68af-41ca-8e6d-df1dc29d7b2c"",
   ""name"": ""Anthony Hill"",
@@ -226,7 +249,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": true,
   ""roles"": [""user-read""],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-09-02""
+  ""cakeDay"": ""2020-09-02"",
+  ""NickName"": ""Anton""
 },{
   ""id"": ""d4edb9af-9b53-44c7-acc4-3ff0c9d2c136"",
   ""name"": ""Kieran Lewis"",
@@ -235,7 +259,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": false,
   ""roles"": [""user-read"", ""user-write""],
   ""registrationTime"": ""2020-09-19T10:23:29.321Z"",
-  ""cackeDay"": ""2020-08-01""
+  ""cakeDay"": ""2020-08-01"",
+  ""NickName"": ""Key2""
 },{
   ""id"": ""4f9fd8f8-9ac8-4e5e-bee5-bf51b0a2622f"",
   ""name"": ""Lisa Shaw"",
@@ -244,7 +269,8 @@ namespace ArgoStore.IntegrationTests
   ""emailConfirmed"": false,
   ""roles"": [""admin""],
   ""registrationTime"": ""2020-09-19T10:23:29.32Z"",
-  ""cackeDay"": ""2020-09-01""
+  ""cakeDay"": ""2020-09-01"",
+  ""NickName"": ""Lissy""
 }]";
 
         private readonly IReadOnlyList<PersonIntPk> _intPersons;
