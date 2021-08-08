@@ -1,15 +1,3 @@
-First,
-FirstOrDefault,
-First with lambda,
-FirstOrDefault with lambda,
-last, last or default,
-single, single or default
-subqueries,
-order by, then by, order by descending, then by descending,
-count,
 
-call AsEnumerable to enumerate
-
-FirstAsync, FirstOrDefaultAsync, LastAsync, LastOrDefaultAsync, SingleAsync, SingleOrDefaultAsync, CountAsync, CountLongAsync, ToListAsync
 
 compiled queries

@@ -528,6 +528,85 @@ namespace ArgoStore.IntegrationTests
             p.Should().HaveCount(_td.Persons.Count - 3);
         }
 
+        [SkippableFact]
+        public void WhereWithTrim_GivesExpectedResult()
+        {
+            InsertWildcardPersons();
+            using IDocumentSession s = GetNewDocumentSession();
+
+            List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
+            p.Should().ContainSingle();
+
+            p = s.Query<Person>().Where(x => x.NickName.Trim() == " TeSt ".Trim()).ToList();
+            p.Should().ContainSingle();
+
+            p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
+            p.Should().BeEmpty();
+        }
+
+        [SkippableFact]
+        public void WhereWithTrimStart_GivesExpectedResult()
+        {
+            InsertWildcardPersons();
+            using IDocumentSession s = GetNewDocumentSession();
+
+            List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
+            p.Should().ContainSingle();
+
+            p = s.Query<Person>().Where(x => x.NickName.TrimStart() == "TeSt ").ToList();
+            p.Should().ContainSingle();
+
+            p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
+            p.Should().BeEmpty();
+        }
+
+        [SkippableFact]
+        public void WhereWithTrimEnd_GivesExpectedResult()
+        {
+            InsertWildcardPersons();
+            using IDocumentSession s = GetNewDocumentSession();
+
+            List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
+            p.Should().ContainSingle();
+
+            p = s.Query<Person>().Where(x => x.NickName.TrimEnd() == " TeSt").ToList();
+            p.Should().ContainSingle();
+
+            p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
+            p.Should().BeEmpty();
+        }
+
+
+        [SkippableFact]
+        public void WhereWithToUpper_GivesExpectedResult()
+        {
+            InsertWildcardPersons();
+            using IDocumentSession s = GetNewDocumentSession();
+
+            List<string> p = s.Query<Person>().Where(x => x.NickName.ToUpper() == "SOMETHING").Select(x => x.NickName.ToUpper()).ToList();
+            p.Should().ContainSingle();
+            p[0].Should().Be("SOMETHING");
+
+            p = s.Query<Person>().Where(x => x.NickName.ToUpper() == "something".ToUpper()).Select(x => x.NickName.ToUpper()).ToList();
+            p.Should().ContainSingle();
+            p[0].Should().Be("SOMETHING");
+        }
+
+        [SkippableFact]
+        public void WhereWithToLower_GivesExpectedResult()
+        {
+            InsertWildcardPersons();
+            using IDocumentSession s = GetNewDocumentSession();
+
+            List<string> p = s.Query<Person>().Where(x => x.NickName.ToLower() == "something").Select(x => x.NickName.ToLower()).ToList();
+            p.Should().ContainSingle();
+            p[0].Should().Be("something");
+
+            p = s.Query<Person>().Where(x => x.NickName.ToLower() == "SOMETHING".ToLower()).Select(x => x.NickName.ToLower()).ToList();
+            p.Should().ContainSingle();
+            p[0].Should().Be("something");
+        }
+
         private void InsertWildcardPersons()
         {
             using IDocumentSession s = GetNewDocumentSession();
@@ -535,13 +614,15 @@ namespace ArgoStore.IntegrationTests
             s.Insert(new Person
             {
                 Name = "Some_One",
-                EmailAddress = "someone_1@example.com"
+                EmailAddress = "someone_1@example.com",
+                NickName = " TeSt "
             });
 
             s.Insert(new Person
             {
                 Name = "_Some_One",
-                EmailAddress = "someone_2@example.com"
+                EmailAddress = "someone_2@example.com",
+                NickName = "SoMeThiNG"
             });
             
             s.Insert(new Person

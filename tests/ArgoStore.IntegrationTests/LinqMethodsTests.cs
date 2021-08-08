@@ -13,14 +13,15 @@ namespace ArgoStore.IntegrationTests
 {
     public class LinqMethodsTests : IntegrationTestsBase
     {
+        private readonly TestData _td;
         private const string TestNameImogenCampbell = "Imogen Campbell";
 
         public LinqMethodsTests(ITestOutputHelper output) : base(output)
         {
             using IDocumentSession session = GetNewDocumentSession();
 
-            TestData td = new TestData(TestDbConnectionString);
-            td.InsertTestPersons();
+            _td = new TestData(TestDbConnectionString);
+            _td.InsertTestPersons();
         }
 
         [SkippableFact]
@@ -246,6 +247,23 @@ namespace ArgoStore.IntegrationTests
             Action a = () => s.Query<Person>().LastOrDefault();
 
             a.Should().Throw<NotSupportedException>();
+        }
+
+        [SkippableFact]
+        public void AsEnumerable_Enumerates()
+        {
+            List<Person> result = new List<Person>();
+
+            using IDocumentSession s = GetNewDocumentSession();
+
+            IEnumerable<Person> enumerable = s.Query<Person>().AsEnumerable();
+
+            foreach (Person p in enumerable)
+            {
+                result.Add(p);
+            }
+
+            result.Should().HaveCount(_td.Persons.Count);
         }
     }
 }
