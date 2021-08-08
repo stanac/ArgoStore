@@ -8,13 +8,13 @@ namespace ArgoStore.ExpressionToStatementTranslators
 {
     internal class FirstLastSingleOnArgoStoreQueryableMethodCallExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
-        private static string[] SupportedMethodNames = new[] { "First", "FirstOrDefault", "Single", "SingleOrDefault", "Last", "LastOrDefault" };
+        private static readonly string[] _supportedMethodNames = new[] { "First", "FirstOrDefault", "Single", "SingleOrDefault", "Last", "LastOrDefault" };
 
         public bool CanTranslate(Expression expression)
         {
             if (expression is MethodCallExpression m)
             {
-                return SupportedMethodNames.Contains(m.Method.Name) && !(m.Arguments[0] is MethodCallExpression) && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
+                return _supportedMethodNames.Contains(m.Method.Name) && !(m.Arguments[0] is MethodCallExpression) && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
             }
 
             return false;
