@@ -583,13 +583,8 @@ namespace ArgoStore.IntegrationTests
             InsertWildcardPersons();
             using IDocumentSession s = GetNewDocumentSession();
 
-            List<string> p = s.Query<Person>().Where(x => x.NickName.ToUpper() == "SOMETHING").Select(x => x.NickName.ToUpper()).ToList();
+            List<Person> p = s.Query<Person>().Where(x => x.NickName.ToUpper() == "SOMETHING").ToList();
             p.Should().ContainSingle();
-            p[0].Should().Be("SOMETHING");
-
-            p = s.Query<Person>().Where(x => x.NickName.ToUpper() == "something".ToUpper()).Select(x => x.NickName.ToUpper()).ToList();
-            p.Should().ContainSingle();
-            p[0].Should().Be("SOMETHING");
         }
 
         [SkippableFact]
@@ -598,13 +593,8 @@ namespace ArgoStore.IntegrationTests
             InsertWildcardPersons();
             using IDocumentSession s = GetNewDocumentSession();
 
-            List<string> p = s.Query<Person>().Where(x => x.NickName.ToLower() == "something").Select(x => x.NickName.ToLower()).ToList();
+            List<Person> p = s.Query<Person>().Where(x => x.NickName.ToLower() == "something").ToList();
             p.Should().ContainSingle();
-            p[0].Should().Be("something");
-
-            p = s.Query<Person>().Where(x => x.NickName.ToLower() == "SOMETHING".ToLower()).Select(x => x.NickName.ToLower()).ToList();
-            p.Should().ContainSingle();
-            p[0].Should().Be("something");
         }
 
         private void InsertWildcardPersons()

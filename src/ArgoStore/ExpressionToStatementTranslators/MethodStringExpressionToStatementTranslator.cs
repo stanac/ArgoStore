@@ -19,12 +19,14 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         public bool CanTranslate(Expression expression)
         {
-            MethodCallExpression e = expression as MethodCallExpression;
+            if (expression is MethodCallExpression e)
+            {
+                return !e.Method.IsStatic
+                       && e.Method.ReflectedType == typeof(string)
+                       && _supportedMethodNames.Contains(e.Method.Name);
+            }
 
-            return e != null
-                && !e.Method.IsStatic
-                && e.Method.ReflectedType == typeof(string)
-                && _supportedMethodNames.Contains(e.Method.Name);
+            return false;
         }
 
         public Statement Translate(Expression expression)
