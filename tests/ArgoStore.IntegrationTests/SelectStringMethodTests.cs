@@ -35,6 +35,8 @@ namespace ArgoStore.IntegrationTests
                 Name = TestName,
                 EmailAddress = "someone@example.com"
             });
+
+            s.SaveChanges();
         }
     }
 }
