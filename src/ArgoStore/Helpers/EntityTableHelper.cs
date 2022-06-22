@@ -58,16 +58,14 @@ namespace ArgoStore.Helpers
         {
             string sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=@tableName";
 
-            using (var c = new SqliteConnection(_config.ConnectionString))
-            {
-                c.Open();
+            using var c = new SqliteConnection(_config.ConnectionString);
+            c.Open();
 
-                var cmd = c.CreateCommand();
-                cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("tableName", tableName);
-                long count = (long)cmd.ExecuteScalar();
-                return count > 0;
-            }
+            var cmd = c.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.Parameters.AddWithValue("tableName", tableName);
+            long count = (long)cmd.ExecuteScalar()!;
+            return count > 0;
         }
 
         private void CreateTableIfNotExists(string tableName)
@@ -80,7 +78,7 @@ namespace ArgoStore.Helpers
                     id INTEGER NOT NULL PRIMARY KEY,
                     string_id TEXT NOT NULL,
                     json_data JSON NOT NULL,
-                    create_by TEXT NULL,
+                    created_by TEXT NULL,
                     created_at TEXT NOT NULL,
                     updated_by TEXT NULL,
                     updated_at TEXT NULL,
@@ -89,14 +87,12 @@ namespace ArgoStore.Helpers
                 )
             ";
 
-            using (var c = new SqliteConnection(_config.ConnectionString))
-            {
-                c.Open();
+            using var c = new SqliteConnection(_config.ConnectionString);
+            c.Open();
 
-                var cmd = c.CreateCommand();
-                cmd.CommandText = sql;
-                cmd.ExecuteNonQuery();
-            }
+            var cmd = c.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.ExecuteNonQuery();
         }
 
         private string EscapeSqliteParameter(string parameter)

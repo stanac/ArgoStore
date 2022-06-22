@@ -10,7 +10,7 @@ namespace ArgoStore
         /// <summary>
         /// Deserializes JSON into resultType
         /// </summary>
-        /// <param name="json">JSON to deserialzie</param>
+        /// <param name="json">JSON to deserialize</param>
         /// <param name="resultType">Type of resulting object</param>
         /// <returns>Deserialized object</returns>
         object Deserialize(string json, Type resultType);

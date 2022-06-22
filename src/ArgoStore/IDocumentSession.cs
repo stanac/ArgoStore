@@ -3,6 +3,9 @@ using System.Linq.Expressions;
 
 namespace ArgoStore
 {
+    /// <summary>
+    /// Document session that supports all CRUD operations
+    /// </summary>
     public interface IDocumentSession : IQueryDocumentSession
     {
         /// <summary>

@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Microsoft.Data.Sqlite;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -20,7 +21,7 @@ namespace ArgoStore.IntegrationTests
         protected IntegrationTestsBase(ITestOutputHelper output)
         {
             _output = output;
-            FieldInfo? field = output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic);
+            FieldInfo field = output.GetType().GetField("test", BindingFlags.Instance | BindingFlags.NonPublic);
             // ReSharper disable once PossibleNullReferenceException
             _test = (XunitTest)field.GetValue(output);
 
@@ -42,6 +43,11 @@ namespace ArgoStore.IntegrationTests
             {
                 if (!string.IsNullOrWhiteSpace(TestDbFilePath) && File.Exists(TestDbFilePath))
                 {
+                    using (SqliteConnection c = new SqliteConnection(TestDbConnectionString))
+                    {
+                        SqliteConnection.ClearPool(c);
+                    }
+
                     File.Delete(TestDbFilePath);
                 }
             }

@@ -9,9 +9,11 @@ namespace ArgoStore.Example.Console
         {
             string dbFilePath = GetDbFilePath();
 
-            var store = new DocumentStore(dbFilePath, createEntityTablesOnTheFly: true);
+            DocumentStore store = new DocumentStore(dbFilePath, createDocumentTablesOnTheFly: true);
 
             IDocumentSession session = store.CreateSession();
+            
+            session.SaveChanges();
 
             throw new NotImplementedException();
         }

@@ -312,7 +312,7 @@ namespace ArgoStore.IntegrationTests
                 Serializer = new ArgoStoreSerializer()
             });
 
-            th.EnsureEntityTableExists<Person>();
+            th.CreateDocumentTableIfNotExists<Person>();
         }
 
         internal void InsertTestPersons()
@@ -323,8 +323,8 @@ namespace ArgoStore.IntegrationTests
                 CreateEntitiesOnTheFly = true
             });
 
-            dbTableHelper.EnsureEntityTableExists<Person>();
-            dbTableHelper.EnsureEntityTableExists<Person>();
+            dbTableHelper.CreateDocumentTableIfNotExists<Person>();
+            dbTableHelper.CreateDocumentTableIfNotExists<Person>();
 
             using var c = new SqliteConnection(_connectionString);
 

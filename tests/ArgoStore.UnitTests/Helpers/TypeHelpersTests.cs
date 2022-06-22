@@ -6,10 +6,10 @@ using Xunit;
 
 namespace ArgoStore.UnitTests.Helpers
 {
-    public class TypeHelpersTets
+    public class TypeHelpersTests
     {
         [Fact]
-        public void IsCollectionType_ArrayOfint_ReturnsTrue()
+        public void IsCollectionType_ArrayOfInt_ReturnsTrue()
         {
             bool isCollectionType = TypeHelpers.IsCollectionType(typeof(int[]));
             isCollectionType.Should().BeTrue();

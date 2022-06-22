@@ -106,7 +106,7 @@ namespace ArgoStore
             ArgoSqlCommand argoCmd = _statementToSqlTranslatorFactory().CreateCommand(ts);
             SqliteCommand cmd = argoCmd.CreateCommand(_config.TenantId);
 
-            _entityTableHelper.EnsureEntityTableExists(ts.TypeFrom);
+            _entityTableHelper.CreateDocumentTableIfNotExists(ts.TypeFrom);
 
             if (ts.IsCountQuery)
             {
