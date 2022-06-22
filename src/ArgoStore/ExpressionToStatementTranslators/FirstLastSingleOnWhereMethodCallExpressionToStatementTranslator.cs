@@ -9,14 +9,16 @@ namespace ArgoStore.ExpressionToStatementTranslators
 {
     internal class FirstLastSingleOnWhereMethodCallExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
-        private static string[] SupportedMethodNames = new[] { "First", "FirstOrDefault", "Single", "SingleOrDefault", "Last", "LastOrDefault" };
+        private static readonly string[] SupportedMethodNames = new[] { "First", "FirstOrDefault", "Single", "SingleOrDefault", "Last", "LastOrDefault" };
 
         public bool CanTranslate(Expression expression)
         {
             bool result = false;
             if (expression is MethodCallExpression me)
             {
-                result = SupportedMethodNames.Contains(me.Method.Name) && IsWhereCall(me.Arguments[0]) && (me.Arguments.Count == 1 || (me.Arguments.Count == 2 && IsLambda(me.Arguments[1])));
+                result = SupportedMethodNames.Contains(me.Method.Name)
+                         && ExpressionHelpers.IsWhereCall(me.Arguments[0])
+                         && (me.Arguments.Count == 1 || (me.Arguments.Count == 2 && ExpressionHelpers.IsLambda(me.Arguments[1])));
             }
 
             return result;
@@ -24,7 +26,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         public Statement Translate(Expression expression)
         {
-            var me = expression as MethodCallExpression;
+            MethodCallExpression me = expression as MethodCallExpression;
 
             WhereStatement where = ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[0]) as WhereStatement;
 
@@ -32,9 +34,9 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (me.Arguments.Count == 2)
             {
-                Statement lambdaContition = ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[1]);
+                Statement lambdaCondition = ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[1]);
 
-                where.AddConjunctedCondition(lambdaContition);
+                where.AddConjunctedCondition(lambdaCondition);
             }
 
             List<SelectStatementElement> selectElements = new List<SelectStatementElement>
@@ -43,25 +45,6 @@ namespace ArgoStore.ExpressionToStatementTranslators
             };
 
             return new SelectStatement(where, where.TargetType, where.TargetType, selectElements, 1, methodName);
-        }
-
-        private static bool IsWhereCall(Expression e)
-        {
-            if (e is MethodCallExpression me && me.Method.Name == "Where")
-            {
-                return TypeHelpers.ImeplementsIQueryableGenericInteface(e.Type);
-            }
-            return false;
-        }
-
-        private static bool IsLambda(Expression e)
-        {
-            while (e.NodeType == ExpressionType.Quote)
-            {
-                e = (e as UnaryExpression).Operand;
-            }
-
-            return e.NodeType == ExpressionType.Lambda;
         }
     }
 }

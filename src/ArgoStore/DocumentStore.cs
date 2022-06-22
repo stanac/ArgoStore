@@ -22,6 +22,9 @@ namespace ArgoStore
 
         public string ConnectionString { get; }
 
+        public void CreateTableForEntityIfNotExists<T>()
+            => CreateTableForEntityIfNotExists(typeof(T));
+
         public void CreateTableForEntityIfNotExists(Type entityType)
         {
             if (entityType == null) throw new ArgumentNullException(nameof(entityType));

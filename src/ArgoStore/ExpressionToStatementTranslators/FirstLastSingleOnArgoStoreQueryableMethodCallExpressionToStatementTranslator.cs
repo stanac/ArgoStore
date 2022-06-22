@@ -13,12 +13,16 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         public bool CanTranslate(Expression expression)
         {
+            bool result = false;
+
             if (expression is MethodCallExpression m)
             {
-                return _supportedMethodNames.Contains(m.Method.Name) && !(m.Arguments[0] is MethodCallExpression) && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
+                 result = _supportedMethodNames.Contains(m.Method.Name)
+                          && !(ExpressionHelpers.IsWhereCall(m.Arguments[0]))
+                          && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
             }
 
-            return false;
+            return result;
         }
 
         public Statement Translate(Expression expression)

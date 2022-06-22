@@ -43,13 +43,7 @@ namespace ArgoStore
         /// <typeparam name="T">Entity type</typeparam>
         /// <param name="predicate">Predicate, condition for deleting</param>
         void DeleteWhere<T>(Expression<Func<T, bool>> predicate);
-
-        /// <summary>
-        /// Creates table for entity if not exists
-        /// </summary>
-        /// <param name="entityType">Type of entity for which to create table</param>
-        void CreateTableForEntityIfNotExists(Type entityType);
-
+        
         /// <summary>
         /// Executes all pending commands (insert, update, delete, upsert) but doesn't commit changes (transaction).
         /// All changes applied after <see cref="SaveChanges"/>.

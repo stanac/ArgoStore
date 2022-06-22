@@ -215,7 +215,7 @@ namespace ArgoStore
             return _config.GetOrCreateEntityMetadata(entityType);
         }
 
-        public void CreateTableForEntityIfNotExists(Type entityType)
+        internal void CreateTableForEntityIfNotExists(Type entityType)
         {
             if (entityType == null) throw new ArgumentNullException(nameof(entityType));
 

@@ -9,7 +9,8 @@ namespace ArgoStore.Example.Console
         {
             string dbFilePath = GetDbFilePath();
 
-            DocumentStore store = new DocumentStore(dbFilePath, createDocumentTablesOnTheFly: true);
+            DocumentStore store = new DocumentStore(dbFilePath, createDocumentTablesOnTheFly: false);
+            store.CreateTableForEntityIfNotExists<Person>();
 
             IDocumentSession session = store.CreateSession();
             
