@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using ArgoStore.Statements;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {

@@ -2,6 +2,7 @@
 using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using System.Linq;
+using ArgoStore.Statements;
 
 namespace FluentAssertions
 {

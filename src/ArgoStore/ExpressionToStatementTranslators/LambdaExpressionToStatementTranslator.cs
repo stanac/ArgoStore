@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using ArgoStore.Statements;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {

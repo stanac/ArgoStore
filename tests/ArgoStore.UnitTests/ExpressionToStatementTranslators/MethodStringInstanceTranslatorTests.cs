@@ -2,6 +2,7 @@
 using ArgoStore.ExpressionToStatementTranslators;
 using System;
 using System.Linq.Expressions;
+using ArgoStore.Statements;
 using Xunit;
 
 namespace ArgoStore.UnitTests.ExpressionToStatementTranslators

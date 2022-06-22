@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ArgoStore.Helpers;
+using ArgoStore.Statements;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore
