@@ -46,6 +46,20 @@ public class EntityMetadataTests
     }
 
     [Fact]
+    public void Ctor_MultipleIdPkProps_ThrowsException()
+    {
+        Action a = () => new EntityMetadata(typeof(MultiplePksWithId));
+        a.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void Ctor_MultipleKeyPkProps_ThrowsException()
+    {
+        Action a = () => new EntityMetadata(typeof(MultiplePksWithKey));
+        a.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
     public void Ctor_FullEntityNamePkId_SetsAppropriatePropertyAsKey()
     {
         EntityMetadata meta = new EntityMetadata(typeof(MyEntity));
@@ -127,6 +141,18 @@ public class EntityMetadataTests
     private class NoPk
     {
         public string Value { get; set; }
+    }
+
+    public class MultiplePksWithId
+    {
+        public int Id { get; set; }
+        public Guid MultiplePksWithIdId { get; set; }
+    }
+
+    public class MultiplePksWithKey
+    {
+        public int Key { get; set; }
+        public Guid MultiplePksWithKeyKey { get; set; }
     }
 
     private class MyEntity

@@ -6,7 +6,7 @@ namespace ArgoStore.Helpers
     internal class EntityTableHelper
     {
         private readonly Configuration _config;
-        private readonly CacheHashSet<Type> _createdTables = new();
+        private readonly CacheHashSet<Type> _createdTables = new(); // make static to cache
         
         public EntityTableHelper(Configuration config)
         {

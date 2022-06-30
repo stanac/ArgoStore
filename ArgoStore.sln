@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30907.101
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32414.318
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{1E4076D7-627C-4E3C-8ECD-80877D9217D5}"
 EndProject
@@ -24,7 +24,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgoStore.TestsCommon", "te
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{2F22E48E-EA07-4EA8-9583-4BBC0E83D17D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ArgoStore.Example.Console", "examples\ArgoStore.Example.Console\ArgoStore.Example.Console.csproj", "{8D258FF0-1D16-46E6-A069-8D705B44FF41}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ArgoStore.Example.Console", "examples\ArgoStore.Example.Console\ArgoStore.Example.Console.csproj", "{8D258FF0-1D16-46E6-A069-8D705B44FF41}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

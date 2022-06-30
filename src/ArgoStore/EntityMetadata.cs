@@ -61,8 +61,15 @@ namespace ArgoStore
 
             string expectedNames = "`" + string.Join("`, `", expectedKeyPropertyNames) + "`";
 
+            if (prop.Count == 0)
+            {
+                throw new InvalidOperationException(
+                    "Cannot find public property with public getter and setter to use as primary key " +
+                    $"for `{entityType.Name}`, looked for {expectedNames}.");
+            }
+
             throw new InvalidOperationException(
-                "Cannot find public property with public getter and setter to use as primary key " +
+                "Found multiple public properties with public getter and setter to use as primary key " +
                 $"for `{entityType.Name}`, looked for {expectedNames}.");
         }
 
