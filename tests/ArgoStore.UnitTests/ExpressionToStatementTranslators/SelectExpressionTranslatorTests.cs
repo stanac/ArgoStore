@@ -18,6 +18,7 @@ public class SelectExpressionTranslatorTests
 
         SelectStatement s = (SelectStatement)statement;
 
+        s.CalledByMethod.Should().Be(CalledByMethods.Select);
         s.TypeFrom.Should().Be<Person>();
         s.TypeTo.Should().Be<string>();
     }

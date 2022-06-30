@@ -21,15 +21,25 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             MethodCallExpression me = expression as MethodCallExpression;
 
-            Type targetType = GetTargetType(me.Arguments[0]);
+            Type fromType = GetTargetType(me.Arguments[0]);
 
             LambdaExpression lambda = GetSelectLambda(me);
 
-            return SelectLambdaTranslator.Translate(lambda, targetType, null, CalledByMethods.Select);
+            return SelectLambdaTranslator.Translate(lambda, fromType, null, CalledByMethods.Select);
         }
 
         private Type GetTargetType(Expression expression)
         {
+            if (ExpressionHelpers.IsLambda(expression))
+            {
+                expression = ExpressionHelpers.RemoveQuotes(expression);
+            }
+
+            if (expression is LambdaExpression le)
+            {
+                return le.ReturnType;
+            }
+
             if (expression is ConstantExpression ce)
             {
                 if (ce.Type.IsGenericType && TypeHelpers.ImplementsIQueryableGenericInterface(ce.Type))
