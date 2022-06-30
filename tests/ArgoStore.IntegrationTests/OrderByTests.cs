@@ -1,54 +1,53 @@
-﻿namespace ArgoStore.IntegrationTests
+﻿namespace ArgoStore.IntegrationTests;
+
+public class OrderByTests : IntegrationTestsBase
 {
-    public class OrderByTests : IntegrationTestsBase
+    private readonly TestData _td;
+
+    public OrderByTests(ITestOutputHelper output) : base(output)
     {
-        private readonly TestData _td;
-
-        public OrderByTests(ITestOutputHelper output) : base(output)
-        {
-            _td = new TestData(TestDbConnectionString);
+        _td = new TestData(TestDbConnectionString);
             
-            using IDocumentSession session = GetNewDocumentSession();
+        using IDocumentSession session = GetNewDocumentSession();
 
-            _td.InsertTestPersons();
-        }
+        _td.InsertTestPersons();
+    }
 
-        [Fact]
-        public void OrderBy_ReturnsEntitiesInCorrectOrder()
-        {
-            using IDocumentSession session = GetNewDocumentSession();
+    [Fact]
+    public void OrderBy_ReturnsEntitiesInCorrectOrder()
+    {
+        using IDocumentSession session = GetNewDocumentSession();
 
-            List<Person> persons = session.Query<Person>()
-                .OrderBy(x => x.Name)
-                .Where(x => x.EmailAddress != null)
-                .ToList();
+        List<Person> persons = session.Query<Person>()
+            .OrderBy(x => x.Name)
+            .Where(x => x.EmailAddress != null)
+            .ToList();
 
-            int count = persons.Count;
-            count.Should().Be(_td.Persons.Count);
+        int count = persons.Count;
+        count.Should().Be(_td.Persons.Count);
 
-            List<Person> orderedPersons = _td.Persons.OrderBy(x => x.Name).ToList();
+        List<Person> orderedPersons = _td.Persons.OrderBy(x => x.Name).ToList();
 
-            persons.First().Should().BeEquivalentTo(orderedPersons.First());
-            persons.Last().Should().BeEquivalentTo(orderedPersons.Last());
-        }
+        persons.First().Should().BeEquivalentTo(orderedPersons.First());
+        persons.Last().Should().BeEquivalentTo(orderedPersons.Last());
+    }
 
-        [Fact]
-        public void OrderByDesc_ReturnsEntitiesInCorrectOrder()
-        {
-            using IDocumentSession session = GetNewDocumentSession();
+    [Fact]
+    public void OrderByDesc_ReturnsEntitiesInCorrectOrder()
+    {
+        using IDocumentSession session = GetNewDocumentSession();
 
-            List<Person> persons = session.Query<Person>()
-                .OrderByDescending(x => x.Name)
-                .Where(x => x.EmailAddress != null)
-                .ToList();
+        List<Person> persons = session.Query<Person>()
+            .OrderByDescending(x => x.Name)
+            .Where(x => x.EmailAddress != null)
+            .ToList();
 
-            int count = persons.Count;
-            count.Should().Be(_td.Persons.Count);
+        int count = persons.Count;
+        count.Should().Be(_td.Persons.Count);
 
-            List<Person> orderedPersons = _td.Persons.OrderByDescending(x => x.Name).ToList();
+        List<Person> orderedPersons = _td.Persons.OrderByDescending(x => x.Name).ToList();
 
-            persons.First().Should().BeEquivalentTo(orderedPersons.First());
-            persons.Last().Should().BeEquivalentTo(orderedPersons.Last());
-        }
+        persons.First().Should().BeEquivalentTo(orderedPersons.First());
+        persons.Last().Should().BeEquivalentTo(orderedPersons.Last());
     }
 }

@@ -1,135 +1,134 @@
-﻿namespace ArgoStore.UnitTests.StatementsTests
+﻿namespace ArgoStore.UnitTests.StatementsTests;
+
+public class LastAndLastOrDefaultTests
 {
-    public class LastAndLastOrDefaultTests
+    [Fact]
+    public void LastOrDefaultOnQueryable_CreatesCorrectStatementAndSetsTop1()
     {
-        [Fact]
-        public void LastOrDefaultOnQueryable_CreatesCorrectStatementAndSetsTop1()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.LastOrDefault();
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.LastOrDefault();
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            SelectStatement s = st as SelectStatement;
+        SelectStatement s = st as SelectStatement;
 
-            s.SelectElements.Should().ContainSingle();
-            s.SelectElements[0].SelectsJson.Should().BeTrue();
+        s.SelectElements.Should().ContainSingle();
+        s.SelectElements[0].SelectsJson.Should().BeTrue();
 
-            s.Top.Should().HaveValue();
-            s.Top.Value.Should().Be(1);
+        s.Top.Should().HaveValue();
+        s.Top.Value.Should().Be(1);
 
-            s.WhereStatement.Should().BeNull();
+        s.WhereStatement.Should().BeNull();
 
-            s.CalledByMethod.Should().Be(CalledByMethods.LastOrDefault);
-        }
+        s.CalledByMethod.Should().Be(CalledByMethods.LastOrDefault);
+    }
 
-        [Fact]
-        public void LastOrDefaultOnQueryableWithFilter_SetsWhere()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.LastOrDefault(x => x.Key == "a");
+    [Fact]
+    public void LastOrDefaultOnQueryableWithFilter_SetsWhere()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.LastOrDefault(x => x.Key == "a");
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            SelectStatement s = st as SelectStatement;
+        SelectStatement s = st as SelectStatement;
 
-            s.SelectElements.Should().ContainSingle();
-            s.SelectElements[0].SelectsJson.Should().BeTrue();
+        s.SelectElements.Should().ContainSingle();
+        s.SelectElements[0].SelectsJson.Should().BeTrue();
 
-            s.Top.Should().HaveValue();
-            s.Top.Value.Should().Be(1);
+        s.Top.Should().HaveValue();
+        s.Top.Value.Should().Be(1);
 
-            s.WhereStatement.Should().NotBeNull();
-            s.WhereStatement.Statement.Should().BeOfType<BinaryComparisonStatement>();
-            s.WhereStatement.Statement.As<BinaryComparisonStatement>().Left.Should().BeOfType<PropertyAccessStatement>();
-        }
+        s.WhereStatement.Should().NotBeNull();
+        s.WhereStatement.Statement.Should().BeOfType<BinaryComparisonStatement>();
+        s.WhereStatement.Statement.As<BinaryComparisonStatement>().Left.Should().BeOfType<PropertyAccessStatement>();
+    }
 
-        [Fact]
-        public void LastOrDefaultOnWhereWithFilter_SetsWhereStatementsInConjuction()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Key == "b").LastOrDefault(x => x.Key == "a");
+    [Fact]
+    public void LastOrDefaultOnWhereWithFilter_SetsWhereStatementsInConjuction()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Key == "b").LastOrDefault(x => x.Key == "a");
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            SelectStatement s = st as SelectStatement;
+        SelectStatement s = st as SelectStatement;
 
-            s.SelectElements.Should().ContainSingle();
-            s.SelectElements[0].SelectsJson.Should().BeTrue();
+        s.SelectElements.Should().ContainSingle();
+        s.SelectElements[0].SelectsJson.Should().BeTrue();
 
-            s.Top.Should().HaveValue();
-            s.Top.Value.Should().Be(1);
+        s.Top.Should().HaveValue();
+        s.Top.Value.Should().Be(1);
 
-            s.WhereStatement.Should().NotBeNull();
-            s.WhereStatement.Statement.Should().BeOfType<BinaryLogicalStatement>();
-            s.WhereStatement.Statement.As<BinaryLogicalStatement>().IsAnd.Should().BeTrue();
-        }
+        s.WhereStatement.Should().NotBeNull();
+        s.WhereStatement.Statement.Should().BeOfType<BinaryLogicalStatement>();
+        s.WhereStatement.Statement.As<BinaryLogicalStatement>().IsAnd.Should().BeTrue();
+    }
 
-        [Fact]
-        public void LastOnQueryable_CreatesCorrectStatementAndSetsTop1()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Last();
+    [Fact]
+    public void LastOnQueryable_CreatesCorrectStatementAndSetsTop1()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Last();
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            SelectStatement s = st as SelectStatement;
+        SelectStatement s = st as SelectStatement;
 
-            s.SelectElements.Should().ContainSingle();
-            s.SelectElements[0].SelectsJson.Should().BeTrue();
+        s.SelectElements.Should().ContainSingle();
+        s.SelectElements[0].SelectsJson.Should().BeTrue();
 
-            s.Top.Should().HaveValue();
-            s.Top.Value.Should().Be(1);
+        s.Top.Should().HaveValue();
+        s.Top.Value.Should().Be(1);
 
-            s.WhereStatement.Should().BeNull();
-        }
+        s.WhereStatement.Should().BeNull();
+    }
 
-        [Fact]
-        public void LastOnQueryableWithFilter_SetsWhere()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Last(x => x.Key == "a");
+    [Fact]
+    public void LastOnQueryableWithFilter_SetsWhere()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Last(x => x.Key == "a");
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            SelectStatement s = st as SelectStatement;
+        SelectStatement s = st as SelectStatement;
 
-            s.SelectElements.Should().ContainSingle();
-            s.SelectElements[0].SelectsJson.Should().BeTrue();
+        s.SelectElements.Should().ContainSingle();
+        s.SelectElements[0].SelectsJson.Should().BeTrue();
 
-            s.Top.Should().HaveValue();
-            s.Top.Value.Should().Be(1);
+        s.Top.Should().HaveValue();
+        s.Top.Value.Should().Be(1);
 
-            s.WhereStatement.Should().NotBeNull();
-            s.WhereStatement.Statement.Should().BeOfType<BinaryComparisonStatement>();
-            s.WhereStatement.Statement.As<BinaryComparisonStatement>().Left.Should().BeOfType<PropertyAccessStatement>();
-        }
+        s.WhereStatement.Should().NotBeNull();
+        s.WhereStatement.Statement.Should().BeOfType<BinaryComparisonStatement>();
+        s.WhereStatement.Statement.As<BinaryComparisonStatement>().Left.Should().BeOfType<PropertyAccessStatement>();
+    }
 
-        [Fact]
-        public void LastOnWhereWithFilter_SetsWhereStatementsInConjuction()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Key == "b").Last(x => x.Key == "a");
+    [Fact]
+    public void LastOnWhereWithFilter_SetsWhereStatementsInConjuction()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Key == "b").Last(x => x.Key == "a");
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            SelectStatement s = st as SelectStatement;
+        SelectStatement s = st as SelectStatement;
 
-            s.SelectElements.Should().ContainSingle();
-            s.SelectElements[0].SelectsJson.Should().BeTrue();
+        s.SelectElements.Should().ContainSingle();
+        s.SelectElements[0].SelectsJson.Should().BeTrue();
 
-            s.Top.Should().HaveValue();
-            s.Top.Value.Should().Be(1);
+        s.Top.Should().HaveValue();
+        s.Top.Value.Should().Be(1);
 
-            s.WhereStatement.Should().NotBeNull();
-            s.WhereStatement.Statement.Should().BeOfType<BinaryLogicalStatement>();
-            s.WhereStatement.Statement.As<BinaryLogicalStatement>().IsAnd.Should().BeTrue();
-        }
+        s.WhereStatement.Should().NotBeNull();
+        s.WhereStatement.Statement.Should().BeOfType<BinaryLogicalStatement>();
+        s.WhereStatement.Statement.As<BinaryLogicalStatement>().IsAnd.Should().BeTrue();
     }
 }

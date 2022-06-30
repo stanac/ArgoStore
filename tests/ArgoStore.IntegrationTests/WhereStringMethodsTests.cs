@@ -1,637 +1,636 @@
-﻿namespace ArgoStore.IntegrationTests
+﻿namespace ArgoStore.IntegrationTests;
+
+public class WhereStringMethodsTests : IntegrationTestsBase
 {
-    public class WhereStringMethodsTests : IntegrationTestsBase
+    private readonly TestData _td;
+    private const string TestNameNeilHughesBell = "Neil HughesBell";
+    private const string TestNameNeil = "Neil";
+    private const string TestNameHughesBell = "HughesBell";
+
+    public WhereStringMethodsTests(ITestOutputHelper output) : base(output)
     {
-        private readonly TestData _td;
-        private const string TestNameNeilHughesBell = "Neil HughesBell";
-        private const string TestNameNeil = "Neil";
-        private const string TestNameHughesBell = "HughesBell";
+        _td = new TestData(TestDbConnectionString);
+        _td.InsertTestPersons();
+    }
 
-        public WhereStringMethodsTests(ITestOutputHelper output) : base(output)
-        {
-            _td = new TestData(TestDbConnectionString);
-            _td.InsertTestPersons();
-        }
+    [SkippableFact]
+    public void StringEqualsOperator_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-        [SkippableFact]
-        public void StringEqualsOperator_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+        List<Person> persons = s.Query<Person>().Where(x => x.Name == TestNameNeilHughesBell).ToList();
+        persons.Should().ContainSingle();
 
-            List<Person> persons = s.Query<Person>().Where(x => x.Name == TestNameNeilHughesBell).ToList();
-            persons.Should().ContainSingle();
+        persons = s.Query<Person>().Where(x => x.Name == TestNameNeilHughesBell + " non existing").ToList();
+        persons.Should().BeEmpty();
+    }
 
-            persons = s.Query<Person>().Where(x => x.Name == TestNameNeilHughesBell + " non existing").ToList();
-            persons.Should().BeEmpty();
-        }
+    [SkippableFact]
+    public void StringNotEqualsOperator_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-        [SkippableFact]
-        public void StringNotEqualsOperator_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+        List<Person> persons = s.Query<Person>().Where(x => x.Name != TestNameNeilHughesBell).ToList();
+        persons.Should().HaveCountGreaterThan(1);
+    }
 
-            List<Person> persons = s.Query<Person>().Where(x => x.Name != TestNameNeilHughesBell).ToList();
-            persons.Should().HaveCountGreaterThan(1);
-        }
+    [SkippableFact]
+    public void StringEqualsMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-        [SkippableFact]
-        public void StringEqualsMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.Equals(TestNameNeilHughesBell)).ToList();
-            persons.Should().ContainSingle();
-        }
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.Equals(TestNameNeilHughesBell)).ToList();
+        persons.Should().ContainSingle();
+    }
 
 
-        [SkippableFact]
-        public void NegatedStringEqualsMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void NegatedStringEqualsMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            List<Person> persons = s.Query<Person>().Where(x => !(x.Name.Equals(TestNameNeilHughesBell))).ToList();
-            persons.Should().HaveCount(_td.Persons.Count - 1);
-        }
+        List<Person> persons = s.Query<Person>().Where(x => !(x.Name.Equals(TestNameNeilHughesBell))).ToList();
+        persons.Should().HaveCount(_td.Persons.Count - 1);
+    }
 
 
-        [SkippableFact]
-        public void StringEqualsStaticMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void StringEqualsStaticMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            List<Person> persons = s.Query<Person>().Where(x => string.Equals(x.Name, TestNameNeilHughesBell)).ToList();
-            persons.Should().ContainSingle();
-        }
+        List<Person> persons = s.Query<Person>().Where(x => string.Equals(x.Name, TestNameNeilHughesBell)).ToList();
+        persons.Should().ContainSingle();
+    }
         
-        [SkippableFact]
-        public void StringEqualsOnParameterMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void StringEqualsOnParameterMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            List<Person> persons = s.Query<Person>().Where(x => TestNameNeilHughesBell.Equals(x.Name)).ToList();
-            persons.Should().ContainSingle(x => x.Name == TestNameNeilHughesBell);
-        }
+        List<Person> persons = s.Query<Person>().Where(x => TestNameNeilHughesBell.Equals(x.Name)).ToList();
+        persons.Should().ContainSingle(x => x.Name == TestNameNeilHughesBell);
+    }
 
-        [SkippableFact]
-        public void NegatedStringEqualsOnParameterMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void NegatedStringEqualsOnParameterMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            List<Person> persons = s.Query<Person>().Where(x => !TestNameNeilHughesBell.Equals(x.Name)).ToList();
-            persons.Should().HaveCount(_td.Persons.Count - 1);
-        }
+        List<Person> persons = s.Query<Person>().Where(x => !TestNameNeilHughesBell.Equals(x.Name)).ToList();
+        persons.Should().HaveCount(_td.Persons.Count - 1);
+    }
 
-        [SkippableFact]
-        public void StringContainsMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void StringContainsMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            string nameLowercase = TestNameNeil.ToLower();
+        string nameLowercase = TestNameNeil.ToLower();
 
-            List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase)).ToList();
-            p.Should().BeEmpty();
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.Contains(TestNameNeil)).ToList();
-            p.Should().ContainSingle();
-        }
+        p = s.Query<Person>().Where(x => x.Name.Contains(TestNameNeil)).ToList();
+        p.Should().ContainSingle();
+    }
         
-        [SkippableFact]
-        public void StringContainsCaseInsensitiveMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void StringContainsCaseInsensitiveMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            string nameLowercase = TestNameNeil.ToLower();
+        string nameLowercase = TestNameNeil.ToLower();
 
-            List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase)).ToList();
-            p.Should().BeEmpty();
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.Ordinal)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.Ordinal)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.InvariantCulture)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.InvariantCulture)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.CurrentCulture)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.CurrentCulture)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
-            p.Should().ContainSingle();
+        p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().ContainSingle();
 
-            p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.InvariantCultureIgnoreCase)).ToList();
-            p.Should().ContainSingle();
+        p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        p.Should().ContainSingle();
 
-            p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.CurrentCultureIgnoreCase)).ToList();
-            p.Should().ContainSingle();
-        }
+        p = s.Query<Person>().Where(x => x.Name.Contains(nameLowercase, StringComparison.CurrentCultureIgnoreCase)).ToList();
+        p.Should().ContainSingle();
+    }
 
-        [SkippableFact]
-        public void StringStartsWithMethod_GivesExpectedResult()
-        {
-            string nameLowercase = TestNameNeil.ToLower();
+    [SkippableFact]
+    public void StringStartsWithMethod_GivesExpectedResult()
+    {
+        string nameLowercase = TestNameNeil.ToLower();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
             
-            List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase)).ToList();
-            p.Should().BeEmpty();
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.StartsWith(TestNameNeil)).ToList();
-            p.Should().ContainSingle();
-        }
+        p = s.Query<Person>().Where(x => x.Name.StartsWith(TestNameNeil)).ToList();
+        p.Should().ContainSingle();
+    }
 
-        [SkippableFact]
-        public void StringStartsWithCaseInsensitiveMethod_GivesExpectedResult()
-        {
-            string nameLowercase = TestNameNeil.ToLower();
+    [SkippableFact]
+    public void StringStartsWithCaseInsensitiveMethod_GivesExpectedResult()
+    {
+        string nameLowercase = TestNameNeil.ToLower();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
 
-            List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase)).ToList();
-            p.Should().BeEmpty();
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase, StringComparison.Ordinal)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase, StringComparison.Ordinal)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase, StringComparison.InvariantCulture)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase, StringComparison.InvariantCulture)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase, StringComparison.CurrentCulture)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase, StringComparison.CurrentCulture)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
-            p.Should().ContainSingle();
-        }
+        p = s.Query<Person>().Where(x => x.Name.StartsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().ContainSingle();
+    }
 
-        [SkippableFact]
-        public void StringEndsWithMethod_GivesExpectedResult()
-        {
-            string nameLowercase = TestNameHughesBell.ToLower();
+    [SkippableFact]
+    public void StringEndsWithMethod_GivesExpectedResult()
+    {
+        string nameLowercase = TestNameHughesBell.ToLower();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
 
-            List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase)).ToList();
-            p.Should().BeEmpty();
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase)).ToList();
+        p.Should().BeEmpty();
             
-            p = s.Query<Person>().Where(x => x.Name.EndsWith(TestNameHughesBell)).ToList();
-            p.Should().ContainSingle();
+        p = s.Query<Person>().Where(x => x.Name.EndsWith(TestNameHughesBell)).ToList();
+        p.Should().ContainSingle();
 
-            p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
-            p.Should().ContainSingle();
-        }
+        p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().ContainSingle();
+    }
 
-        [SkippableFact]
-        public void StringEndsWithCaseInsensitiveMethod_GivesExpectedResult()
-        {
-            string nameLowercase = TestNameHughesBell.ToLower();
+    [SkippableFact]
+    public void StringEndsWithCaseInsensitiveMethod_GivesExpectedResult()
+    {
+        string nameLowercase = TestNameHughesBell.ToLower();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
 
-            List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase)).ToList();
-            p.Should().BeEmpty();
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.Ordinal)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.Ordinal)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.InvariantCulture)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.InvariantCulture)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.CurrentCulture)).ToList();
-            p.Should().BeEmpty();
+        p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.CurrentCulture)).ToList();
+        p.Should().BeEmpty();
 
-            p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
-            p.Should().ContainSingle();
-        }
+        p = s.Query<Person>().Where(x => x.Name.EndsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().ContainSingle();
+    }
 
-        [SkippableFact]
-        public void NegateStringContainsMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void NegateStringContainsMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            string nameLowercase = TestNameNeil.ToLower();
+        string nameLowercase = TestNameNeil.ToLower();
 
-            List<Person> p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        List<Person> p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.Contains(TestNameNeil)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
-        }
+        p = s.Query<Person>().Where(x => !x.Name.Contains(TestNameNeil)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
+    }
 
-        [SkippableFact]
-        public void NegateStringContainsCaseInsensitiveMethod_GivesExpectedResult()
-        {
-            using IQueryDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void NegateStringContainsCaseInsensitiveMethod_GivesExpectedResult()
+    {
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            string nameLowercase = TestNameNeil.ToLower();
+        string nameLowercase = TestNameNeil.ToLower();
 
-            List<Person> p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        List<Person> p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.Ordinal)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.Ordinal)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.InvariantCulture)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.InvariantCulture)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.CurrentCulture)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.CurrentCulture)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
+        p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
 
-            p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.InvariantCultureIgnoreCase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
+        p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.InvariantCultureIgnoreCase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
 
-            p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.CurrentCultureIgnoreCase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
-        }
+        p = s.Query<Person>().Where(x => !x.Name.Contains(nameLowercase, StringComparison.CurrentCultureIgnoreCase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
+    }
 
-        [SkippableFact]
-        public void NegateStringStartsWithMethod_GivesExpectedResult()
-        {
-            string nameLowercase = TestNameNeil.ToLower();
+    [SkippableFact]
+    public void NegateStringStartsWithMethod_GivesExpectedResult()
+    {
+        string nameLowercase = TestNameNeil.ToLower();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
 
-            List<Person> p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        List<Person> p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.StartsWith(TestNameNeil)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
-        }
+        p = s.Query<Person>().Where(x => !x.Name.StartsWith(TestNameNeil)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
+    }
 
-        [SkippableFact]
-        public void NegateStringStartsWithCaseInsensitiveMethod_GivesExpectedResult()
-        {
-            string nameLowercase = TestNameNeil.ToLower();
+    [SkippableFact]
+    public void NegateStringStartsWithCaseInsensitiveMethod_GivesExpectedResult()
+    {
+        string nameLowercase = TestNameNeil.ToLower();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
 
-            List<Person> p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        List<Person> p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase, StringComparison.Ordinal)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase, StringComparison.Ordinal)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase, StringComparison.InvariantCulture)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase, StringComparison.InvariantCulture)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase, StringComparison.CurrentCulture)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase, StringComparison.CurrentCulture)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
-        }
+        p = s.Query<Person>().Where(x => !x.Name.StartsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
+    }
 
-        [SkippableFact]
-        public void NegateStringEndsWithMethod_GivesExpectedResult()
-        {
+    [SkippableFact]
+    public void NegateStringEndsWithMethod_GivesExpectedResult()
+    {
 
-            string nameLowercase = TestNameHughesBell.ToLower();
+        string nameLowercase = TestNameHughesBell.ToLower();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
 
-            List<Person> p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        List<Person> p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.EndsWith(TestNameHughesBell)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
+        p = s.Query<Person>().Where(x => !x.Name.EndsWith(TestNameHughesBell)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
 
-            p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
-        }
+        p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
+    }
 
-        [SkippableFact]
-        public void NegateStringEndsWithCaseInsensitiveMethod_GivesExpectedResult()
-        {
-            string nameLowercase = TestNameHughesBell.ToLower();
+    [SkippableFact]
+    public void NegateStringEndsWithCaseInsensitiveMethod_GivesExpectedResult()
+    {
+        string nameLowercase = TestNameHughesBell.ToLower();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
 
-            List<Person> p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        List<Person> p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.Ordinal)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.Ordinal)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.InvariantCulture)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.InvariantCulture)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.CurrentCulture)).ToList();
-            p.Should().HaveCount(_td.Persons.Count);
+        p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.CurrentCulture)).ToList();
+        p.Should().HaveCount(_td.Persons.Count);
 
-            p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
-        }
+        p = s.Query<Person>().Where(x => !x.Name.EndsWith(nameLowercase, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
+    }
 
-        [SkippableFact]
-        public void StringContainsUnderscoreMethod_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
+    [SkippableFact]
+    public void StringContainsUnderscoreMethod_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
             
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("_")).ToList();
-            persons.Should().HaveCount(5);
-        }
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("_")).ToList();
+        persons.Should().HaveCount(5);
+    }
 
-        [SkippableFact]
-        public void StringContainsPercentageMethod_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
+    [SkippableFact]
+    public void StringContainsPercentageMethod_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
 
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("%")).ToList();
-            persons.Should().HaveCount(3);
-        }
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("%")).ToList();
+        persons.Should().HaveCount(3);
+    }
 
-        [SkippableFact]
-        public void StringContainsUnderscoreCaseInsensitiveMethod_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
+    [SkippableFact]
+    public void StringContainsUnderscoreCaseInsensitiveMethod_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
             
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("_")).ToList();
-            persons.Should().HaveCount(5);
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("_")).ToList();
+        persons.Should().HaveCount(5);
             
-            persons = s.Query<Person>().Where(x => x.Name.Contains("_", StringComparison.OrdinalIgnoreCase)).ToList();
-            persons.Should().HaveCount(5);
-        }
+        persons = s.Query<Person>().Where(x => x.Name.Contains("_", StringComparison.OrdinalIgnoreCase)).ToList();
+        persons.Should().HaveCount(5);
+    }
 
-        [SkippableFact]
-        public void StringContainsPercentageCaseInsensitiveMethod_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
+    [SkippableFact]
+    public void StringContainsPercentageCaseInsensitiveMethod_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
 
-            using IDocumentSession s = GetNewDocumentSession();
+        using IDocumentSession s = GetNewDocumentSession();
             
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("%")).ToList();
-            persons.Should().HaveCount(3);
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.Contains("%")).ToList();
+        persons.Should().HaveCount(3);
             
-            persons = s.Query<Person>().Where(x => x.Name.Contains("%", StringComparison.OrdinalIgnoreCase)).ToList();
-            persons.Should().HaveCount(3);
-        }
+        persons = s.Query<Person>().Where(x => x.Name.Contains("%", StringComparison.OrdinalIgnoreCase)).ToList();
+        persons.Should().HaveCount(3);
+    }
 
-        [SkippableFact]
-        public void StringStartsWithUnderscore_GivesExpectedResult()
+    [SkippableFact]
+    public void StringStartsWithUnderscore_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.StartsWith("_S")).ToList();
+        persons.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringStartsWithPercentage_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.StartsWith("%S")).ToList();
+        persons.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringStartsWithUnderscoreCaseInsensitive_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.StartsWith("_s")).ToList();
+        persons.Should().BeEmpty();
+
+        persons = s.Query<Person>().Where(x => x.Name.StartsWith("_s", StringComparison.OrdinalIgnoreCase)).ToList();
+        persons.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringStartsWithPercentageCaseInsensitive_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.StartsWith("%s")).ToList();
+        persons.Should().BeEmpty();
+
+        persons = s.Query<Person>().Where(x => x.Name.StartsWith("%s", StringComparison.OrdinalIgnoreCase)).ToList();
+        persons.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringEndsWithWithUnderscore_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.EndsWith("e_")).ToList();
+        persons.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringEndsWithWithPercentage_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.EndsWith("e%")).ToList();
+        persons.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringEndsWithUnderscoreCaseInsensitive_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.EndsWith("E_")).ToList();
+        persons.Should().BeEmpty();
+
+        persons = s.Query<Person>().Where(x => x.Name.EndsWith("E_", StringComparison.OrdinalIgnoreCase)).ToList();
+        persons.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringEndsWithPercentageCaseInsensitive_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> persons = s.Query<Person>().Where(x => x.Name.EndsWith("E%")).ToList();
+        persons.Should().BeEmpty();
+
+        persons = s.Query<Person>().Where(x => x.Name.EndsWith("E%", StringComparison.OrdinalIgnoreCase)).ToList();
+        persons.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringNull_GivesExpectedResult()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+        List<Person> p = s.Query<Person>().Where(x => x.NickName == null).ToList();
+        p.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void StringNullOrEmpty_GivesExpectedResult()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+        List<Person> p = s.Query<Person>().Where(x => string.IsNullOrEmpty(x.NickName)).ToList();
+        p.Should().HaveCount(2);
+    }
+
+    [SkippableFact]
+    public void StringNullOrWhiteSpace_GivesExpectedResult()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+        List<Person> p = s.Query<Person>().Where(x => string.IsNullOrWhiteSpace(x.NickName)).ToList();
+        p.Should().HaveCount(3);
+    }
+
+    [SkippableFact]
+    public void NegatedStringNull_GivesExpectedResult()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+        List<Person> p = s.Query<Person>().Where(x => x.NickName != null).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 1);
+    }
+
+    [SkippableFact]
+    public void NegatedStringNullOrEmpty_GivesExpectedResult()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+        List<Person> p = s.Query<Person>().Where(x => !string.IsNullOrEmpty(x.NickName)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 2);
+    }
+
+    [SkippableFact]
+    public void NegatedStringNullOrWhiteSpace_GivesExpectedResult()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+        List<Person> p = s.Query<Person>().Where(x => !string.IsNullOrWhiteSpace(x.NickName)).ToList();
+        p.Should().HaveCount(_td.Persons.Count - 3);
+    }
+
+    [SkippableFact]
+    public void WhereWithTrim_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
+        p.Should().ContainSingle();
+
+        p = s.Query<Person>().Where(x => x.NickName.Trim() == " TeSt ".Trim()).ToList();
+        p.Should().ContainSingle();
+
+        p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
+        p.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public void WhereWithTrimStart_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
+        p.Should().ContainSingle();
+
+        p = s.Query<Person>().Where(x => x.NickName.TrimStart() == "TeSt ").ToList();
+        p.Should().ContainSingle();
+
+        p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
+        p.Should().BeEmpty();
+    }
+
+    [SkippableFact]
+    public void WhereWithTrimEnd_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
+        p.Should().ContainSingle();
+
+        p = s.Query<Person>().Where(x => x.NickName.TrimEnd() == " TeSt").ToList();
+        p.Should().ContainSingle();
+
+        p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
+        p.Should().BeEmpty();
+    }
+
+
+    [SkippableFact]
+    public void WhereWithToUpper_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> p = s.Query<Person>().Where(x => x.NickName.ToUpper() == "SOMETHING").ToList();
+        p.Should().ContainSingle();
+    }
+
+    [SkippableFact]
+    public void WhereWithToLower_GivesExpectedResult()
+    {
+        InsertWildcardPersons();
+        using IDocumentSession s = GetNewDocumentSession();
+
+        List<Person> p = s.Query<Person>().Where(x => x.NickName.ToLower() == "something").ToList();
+        p.Should().ContainSingle();
+    }
+
+    private void InsertWildcardPersons()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+
+        s.Insert(new Person
         {
-            InsertWildcardPersons();
+            Name = "Some_One",
+            EmailAddress = "someone_1@example.com",
+            NickName = " TeSt "
+        });
 
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.StartsWith("_S")).ToList();
-            persons.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringStartsWithPercentage_GivesExpectedResult()
+        s.Insert(new Person
         {
-            InsertWildcardPersons();
-
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.StartsWith("%S")).ToList();
-            persons.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringStartsWithUnderscoreCaseInsensitive_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.StartsWith("_s")).ToList();
-            persons.Should().BeEmpty();
-
-            persons = s.Query<Person>().Where(x => x.Name.StartsWith("_s", StringComparison.OrdinalIgnoreCase)).ToList();
-            persons.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringStartsWithPercentageCaseInsensitive_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.StartsWith("%s")).ToList();
-            persons.Should().BeEmpty();
-
-            persons = s.Query<Person>().Where(x => x.Name.StartsWith("%s", StringComparison.OrdinalIgnoreCase)).ToList();
-            persons.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringEndsWithWithUnderscore_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.EndsWith("e_")).ToList();
-            persons.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringEndsWithWithPercentage_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.EndsWith("e%")).ToList();
-            persons.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringEndsWithUnderscoreCaseInsensitive_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.EndsWith("E_")).ToList();
-            persons.Should().BeEmpty();
-
-            persons = s.Query<Person>().Where(x => x.Name.EndsWith("E_", StringComparison.OrdinalIgnoreCase)).ToList();
-            persons.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringEndsWithPercentageCaseInsensitive_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> persons = s.Query<Person>().Where(x => x.Name.EndsWith("E%")).ToList();
-            persons.Should().BeEmpty();
-
-            persons = s.Query<Person>().Where(x => x.Name.EndsWith("E%", StringComparison.OrdinalIgnoreCase)).ToList();
-            persons.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringNull_GivesExpectedResult()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
-            List<Person> p = s.Query<Person>().Where(x => x.NickName == null).ToList();
-            p.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void StringNullOrEmpty_GivesExpectedResult()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
-            List<Person> p = s.Query<Person>().Where(x => string.IsNullOrEmpty(x.NickName)).ToList();
-            p.Should().HaveCount(2);
-        }
-
-        [SkippableFact]
-        public void StringNullOrWhiteSpace_GivesExpectedResult()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
-            List<Person> p = s.Query<Person>().Where(x => string.IsNullOrWhiteSpace(x.NickName)).ToList();
-            p.Should().HaveCount(3);
-        }
-
-        [SkippableFact]
-        public void NegatedStringNull_GivesExpectedResult()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
-            List<Person> p = s.Query<Person>().Where(x => x.NickName != null).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 1);
-        }
-
-        [SkippableFact]
-        public void NegatedStringNullOrEmpty_GivesExpectedResult()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
-            List<Person> p = s.Query<Person>().Where(x => !string.IsNullOrEmpty(x.NickName)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 2);
-        }
-
-        [SkippableFact]
-        public void NegatedStringNullOrWhiteSpace_GivesExpectedResult()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
-            List<Person> p = s.Query<Person>().Where(x => !string.IsNullOrWhiteSpace(x.NickName)).ToList();
-            p.Should().HaveCount(_td.Persons.Count - 3);
-        }
-
-        [SkippableFact]
-        public void WhereWithTrim_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
-            p.Should().ContainSingle();
-
-            p = s.Query<Person>().Where(x => x.NickName.Trim() == " TeSt ".Trim()).ToList();
-            p.Should().ContainSingle();
-
-            p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
-            p.Should().BeEmpty();
-        }
-
-        [SkippableFact]
-        public void WhereWithTrimStart_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
-            p.Should().ContainSingle();
-
-            p = s.Query<Person>().Where(x => x.NickName.TrimStart() == "TeSt ").ToList();
-            p.Should().ContainSingle();
-
-            p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
-            p.Should().BeEmpty();
-        }
-
-        [SkippableFact]
-        public void WhereWithTrimEnd_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> p = s.Query<Person>().Where(x => x.NickName.Trim() == "TeSt").ToList();
-            p.Should().ContainSingle();
-
-            p = s.Query<Person>().Where(x => x.NickName.TrimEnd() == " TeSt").ToList();
-            p.Should().ContainSingle();
-
-            p = s.Query<Person>().Where(x => x.NickName == "TeSt").ToList();
-            p.Should().BeEmpty();
-        }
-
-
-        [SkippableFact]
-        public void WhereWithToUpper_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> p = s.Query<Person>().Where(x => x.NickName.ToUpper() == "SOMETHING").ToList();
-            p.Should().ContainSingle();
-        }
-
-        [SkippableFact]
-        public void WhereWithToLower_GivesExpectedResult()
-        {
-            InsertWildcardPersons();
-            using IDocumentSession s = GetNewDocumentSession();
-
-            List<Person> p = s.Query<Person>().Where(x => x.NickName.ToLower() == "something").ToList();
-            p.Should().ContainSingle();
-        }
-
-        private void InsertWildcardPersons()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
-
-            s.Insert(new Person
-            {
-                Name = "Some_One",
-                EmailAddress = "someone_1@example.com",
-                NickName = " TeSt "
-            });
-
-            s.Insert(new Person
-            {
-                Name = "_Some_One",
-                EmailAddress = "someone_2@example.com",
-                NickName = "SoMeThiNG"
-            });
+            Name = "_Some_One",
+            EmailAddress = "someone_2@example.com",
+            NickName = "SoMeThiNG"
+        });
             
-            s.Insert(new Person
-            {
-                Name = "Some_One_",
-                EmailAddress = "someone_3@example.com"
-            });
+        s.Insert(new Person
+        {
+            Name = "Some_One_",
+            EmailAddress = "someone_3@example.com"
+        });
 
-            s.Insert(new Person
-            {
-                Name = "Some%One",
-                EmailAddress = "someone_4@example.com"
-            });
+        s.Insert(new Person
+        {
+            Name = "Some%One",
+            EmailAddress = "someone_4@example.com"
+        });
 
-            s.Insert(new Person
-            {
-                Name = "%Some_One",
-                EmailAddress = "someone_5@example.com"
-            });
+        s.Insert(new Person
+        {
+            Name = "%Some_One",
+            EmailAddress = "someone_5@example.com"
+        });
 
-            s.Insert(new Person
-            {
-                Name = "Some_One%",
-                EmailAddress = "someone_6@example.com"
-            });
+        s.Insert(new Person
+        {
+            Name = "Some_One%",
+            EmailAddress = "someone_6@example.com"
+        });
 
-            s.SaveChanges();
-        }
+        s.SaveChanges();
     }
 }

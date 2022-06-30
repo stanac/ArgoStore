@@ -1,48 +1,47 @@
-﻿namespace ArgoStore.IntegrationTests
+﻿namespace ArgoStore.IntegrationTests;
+
+public class SelectStringMethodTests : IntegrationTestsBase
 {
-    public class SelectStringMethodTests : IntegrationTestsBase
+    private const string TestName = " SoMEonE ";
+
+    public SelectStringMethodTests(ITestOutputHelper output) : base(output)
     {
-        private const string TestName = " SoMEonE ";
+    }
 
-        public SelectStringMethodTests(ITestOutputHelper output) : base(output)
-        {
-        }
+    [SkippableFact]
+    public void SelectFirst_GivesExpectedResult()
+    {
+        InsertTestData();
 
-        [SkippableFact]
-        public void SelectFirst_GivesExpectedResult()
-        {
-            InsertTestData();
+        using IQueryDocumentSession s = GetNewDocumentSession();
 
-            using IQueryDocumentSession s = GetNewDocumentSession();
+        string name = s.Query<Person>().Select(x => x.Name).First();
 
-            string name = s.Query<Person>().Select(x => x.Name).First();
+        name.Should().Be(TestName);
+    }
 
-            name.Should().Be(TestName);
-        }
-
-        //[SkippableFact]
-        //public void SelectToUpper_GivesExpectedResult()
-        //{
-        //    InsertTestData();
+    //[SkippableFact]
+    //public void SelectToUpper_GivesExpectedResult()
+    //{
+    //    InsertTestData();
             
-        //    using IQueryDocumentSession s = GetNewDocumentSession();
+    //    using IQueryDocumentSession s = GetNewDocumentSession();
 
-        //    string name = s.Query<Person>().Select(x => x.Name.ToUpper()).First();
+    //    string name = s.Query<Person>().Select(x => x.Name.ToUpper()).First();
 
-        //    name.Should().Be(TestName.ToUpper());
-        //}
+    //    name.Should().Be(TestName.ToUpper());
+    //}
         
-        private void InsertTestData()
+    private void InsertTestData()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+
+        s.Insert(new Person
         {
-            using IDocumentSession s = GetNewDocumentSession();
+            Name = TestName,
+            EmailAddress = "someone@example.com"
+        });
 
-            s.Insert(new Person
-            {
-                Name = TestName,
-                EmailAddress = "someone@example.com"
-            });
-
-            s.SaveChanges();
-        }
+        s.SaveChanges();
     }
 }

@@ -1,86 +1,85 @@
 ﻿using ArgoStore.IntegrationTests.Entities;
 
-namespace ArgoStore.IntegrationTests
+namespace ArgoStore.IntegrationTests;
+
+public class DocumentSessionTests : IntegrationTestsBase
 {
-    public class DocumentSessionTests : IntegrationTestsBase
+    private readonly TestData _td;
+
+    public DocumentSessionTests(ITestOutputHelper output) : base(output)
     {
-        private readonly TestData _td;
+        _td = new TestData(TestDbConnectionString);
+    }
 
-        public DocumentSessionTests(ITestOutputHelper output) : base(output)
-        {
-            _td = new TestData(TestDbConnectionString);
-        }
+    [SkippableFact]
+    public void Insert_Execute_IdSet()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
 
-        [SkippableFact]
-        public void Insert_Execute_IdSet()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
+        PersonIntPk p0 = _td.PersonIntPkValues[0].Copy();
+        PersonIntPk p1 = _td.PersonIntPkValues[1].Copy();
 
-            PersonIntPk p0 = _td.PersonIntPkValues[0].Copy();
-            PersonIntPk p1 = _td.PersonIntPkValues[1].Copy();
+        s.Insert(p0);
+        s.Insert(p1);
 
-            s.Insert(p0);
-            s.Insert(p1);
+        p0.Id.Should().Be(p1.Id);
 
-            p0.Id.Should().Be(p1.Id);
+        s.Execute();
 
-            s.Execute();
+        p0.Id.Should().NotBe(p1.Id);
+    }
 
-            p0.Id.Should().NotBe(p1.Id);
-        }
+    [SkippableFact]
+    public void Insert_Execute_SaveChanges_EntityIsInDb()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
 
-        [SkippableFact]
-        public void Insert_Execute_SaveChanges_EntityIsInDb()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
+        PersonIntPk p0 = _td.PersonIntPkValues[0].Copy();
 
-            PersonIntPk p0 = _td.PersonIntPkValues[0].Copy();
-
-            s.Insert(p0);
+        s.Insert(p0);
             
-            s.Execute();
+        s.Execute();
 
-            s.SaveChanges();
+        s.SaveChanges();
 
-            bool exists = s.Query<PersonIntPk>().Any(x => x.EmailAddress == p0.EmailAddress);
+        bool exists = s.Query<PersonIntPk>().Any(x => x.EmailAddress == p0.EmailAddress);
             
-            exists.Should().BeTrue();
-        }
+        exists.Should().BeTrue();
+    }
 
-        [SkippableFact]
-        public void Insert_Execute_EntityNotIsInDb()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void Insert_Execute_EntityNotIsInDb()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
 
-            PersonIntPk p0 = _td.PersonIntPkValues[0].Copy();
+        PersonIntPk p0 = _td.PersonIntPkValues[0].Copy();
 
-            s.Insert(p0);
+        s.Insert(p0);
             
-            s.Execute();
+        s.Execute();
             
-            bool exists = s.Query<PersonIntPk>().Any(x => x.EmailAddress == p0.EmailAddress);
+        bool exists = s.Query<PersonIntPk>().Any(x => x.EmailAddress == p0.EmailAddress);
 
-            exists.Should().BeFalse();
-        }
+        exists.Should().BeFalse();
+    }
         
-        [SkippableFact]
-        public void Insert_Execute_DiscardChanges_SaveChanges_EntityNotIsInDb()
-        {
-            using IDocumentSession s = GetNewDocumentSession();
+    [SkippableFact]
+    public void Insert_Execute_DiscardChanges_SaveChanges_EntityNotIsInDb()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
 
-            PersonIntPk p0 = _td.PersonIntPkValues[0].Copy();
+        PersonIntPk p0 = _td.PersonIntPkValues[0].Copy();
 
-            s.Insert(p0);
+        s.Insert(p0);
 
-            s.Execute();
+        s.Execute();
 
-            s.DiscardChanges();
+        s.DiscardChanges();
             
-            s.SaveChanges();
+        s.SaveChanges();
 
-            bool exists = s.Query<PersonIntPk>().Any(x => x.EmailAddress == p0.EmailAddress);
+        bool exists = s.Query<PersonIntPk>().Any(x => x.EmailAddress == p0.EmailAddress);
 
-            exists.Should().BeFalse();
-        }
+        exists.Should().BeFalse();
     }
 }

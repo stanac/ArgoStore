@@ -2,13 +2,13 @@
 using ArgoStore.IntegrationTests.Entities;
 using Microsoft.Data.Sqlite;
 
-namespace ArgoStore.IntegrationTests
-{
-    public class TestData
-    {
-        private readonly string _connectionString;
+namespace ArgoStore.IntegrationTests;
 
-        private static readonly string _personsJson = @"[{
+public class TestData
+{
+    private readonly string _connectionString;
+
+    private static readonly string _personsJson = @"[{
   ""id"": ""784bcc08-ce14-4854-9c04-ab6a57a62100"",
   ""name"": ""Imogen Campbell"",
   ""emailAddress"": ""imogell@a.example.com"",
@@ -270,96 +270,95 @@ namespace ArgoStore.IntegrationTests
   ""NickName"": ""Lissy""
 }]";
 
-        private readonly IReadOnlyList<PersonIntPk> _intPersons;
+    private readonly IReadOnlyList<PersonIntPk> _intPersons;
 
-        public IReadOnlyList<Person> Persons { get; }
+    public IReadOnlyList<Person> Persons { get; }
 
-        public IReadOnlyList<PersonIntPk> PersonIntPkValues => _intPersons.Select(x => x.Copy()).ToList();
+    public IReadOnlyList<PersonIntPk> PersonIntPkValues => _intPersons.Select(x => x.Copy()).ToList();
 
-        public TestData(string connectionString)
+    public TestData(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
         {
-            if (string.IsNullOrWhiteSpace(connectionString))
-            {
-                throw new ArgumentException($"'{nameof(connectionString)}' cannot be null or whitespace", nameof(connectionString));
-            }
-
-            _connectionString = connectionString;
-
-            ArgoStoreSerializer s = new ArgoStoreSerializer();
-            Persons = s.Deserialize<List<Person>>(_personsJson);
-
-            List<PersonIntPk> intPersons = new List<PersonIntPk>();
-
-            for (int i = 0; i < 30; i++)
-            {
-                intPersons.Add(new PersonIntPk
-                {
-                    BirthYear = 1999 - i,
-                    EmailAddress = $"testintperson{i}@example.com",
-                    Name = $"Integer Person {i}"
-                });
-            }
-
-            _intPersons = intPersons;
-
-            var th = new EntityTableHelper(new Configuration
-            {
-                ConnectionString = _connectionString,
-                CreateEntitiesOnTheFly = true,
-                Serializer = new ArgoStoreSerializer()
-            });
-
-            th.EnsureEntityTableExists<Person>();
+            throw new ArgumentException($"'{nameof(connectionString)}' cannot be null or whitespace", nameof(connectionString));
         }
 
-        internal void InsertTestPersons()
+        _connectionString = connectionString;
+
+        ArgoStoreSerializer s = new ArgoStoreSerializer();
+        Persons = s.Deserialize<List<Person>>(_personsJson);
+
+        List<PersonIntPk> intPersons = new List<PersonIntPk>();
+
+        for (int i = 0; i < 30; i++)
         {
-            EntityTableHelper dbTableHelper = new EntityTableHelper(new Configuration
+            intPersons.Add(new PersonIntPk
             {
-                ConnectionString = _connectionString,
-                CreateEntitiesOnTheFly = true
+                BirthYear = 1999 - i,
+                EmailAddress = $"testintperson{i}@example.com",
+                Name = $"Integer Person {i}"
             });
+        }
 
-            dbTableHelper.EnsureEntityTableExists<Person>();
-            dbTableHelper.EnsureEntityTableExists<Person>();
+        _intPersons = intPersons;
 
-            using var c = new SqliteConnection(_connectionString);
+        var th = new EntityTableHelper(new Configuration
+        {
+            ConnectionString = _connectionString,
+            CreateEntitiesOnTheFly = true,
+            Serializer = new ArgoStoreSerializer()
+        });
 
-            c.Open();
-            ArgoStoreSerializer s = new ArgoStoreSerializer();
+        th.EnsureEntityTableExists<Person>();
+    }
 
-            foreach (var p in Persons)
-            {
-                string json = s.Serialize(p);
+    internal void InsertTestPersons()
+    {
+        EntityTableHelper dbTableHelper = new EntityTableHelper(new Configuration
+        {
+            ConnectionString = _connectionString,
+            CreateEntitiesOnTheFly = true
+        });
 
-                string sql = $@"
+        dbTableHelper.EnsureEntityTableExists<Person>();
+        dbTableHelper.EnsureEntityTableExists<Person>();
+
+        using var c = new SqliteConnection(_connectionString);
+
+        c.Open();
+        ArgoStoreSerializer s = new ArgoStoreSerializer();
+
+        foreach (var p in Persons)
+        {
+            string json = s.Serialize(p);
+
+            string sql = $@"
                         INSERT INTO {EntityTableHelper.GetTableName<Person>()} (string_id, json_data, created_at, tenant_id)
                         VALUES (@id, json(@jsonData), @createdTime, @tenantId)
                     ";
 
-                SqliteCommand cmd = c.CreateCommand();
-                cmd.CommandText = sql;
-                cmd.Parameters.AddWithValue("@id", p.Id.ToString());
-                cmd.Parameters.AddWithValue("@jsonData", json);
-                cmd.Parameters.AddWithValue("@createdTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
-                cmd.Parameters.AddWithValue("@tenantId", TenantIdDefault.DefaultValue);
-
-                cmd.ExecuteNonQuery();
-            }
-        }
-
-        public void DeleteTestPersons()
-        {
-            string sql = $"DELETE FROM {EntityTableHelper.GetTableName<Person>()}";
-
-            using var c = new SqliteConnection(_connectionString);
-
-            c.Open();
-
             SqliteCommand cmd = c.CreateCommand();
             cmd.CommandText = sql;
+            cmd.Parameters.AddWithValue("@id", p.Id.ToString());
+            cmd.Parameters.AddWithValue("@jsonData", json);
+            cmd.Parameters.AddWithValue("@createdTime", DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss"));
+            cmd.Parameters.AddWithValue("@tenantId", TenantIdDefault.DefaultValue);
 
             cmd.ExecuteNonQuery();
         }
+    }
+
+    public void DeleteTestPersons()
+    {
+        string sql = $"DELETE FROM {EntityTableHelper.GetTableName<Person>()}";
+
+        using var c = new SqliteConnection(_connectionString);
+
+        c.Open();
+
+        SqliteCommand cmd = c.CreateCommand();
+        cmd.CommandText = sql;
+
+        cmd.ExecuteNonQuery();
     }
 }

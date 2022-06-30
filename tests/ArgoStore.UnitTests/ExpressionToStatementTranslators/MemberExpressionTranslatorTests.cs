@@ -1,20 +1,19 @@
-﻿namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
+﻿namespace ArgoStore.UnitTests.ExpressionToStatementTranslators;
+
+public class MemberExpressionTranslatorTests
 {
-    public class MemberExpressionTranslatorTests
+    [Fact]
+    public void Translate_BoolProperty_TranslatesToExpectedExpression()
     {
-        [Fact]
-        public void Translate_BoolProperty_TranslatesToExpectedExpression()
-        {
-            Expression<Func<TestEntityPerson, bool>> ex = x => x.Active;
+        Expression<Func<TestEntityPerson, bool>> ex = x => x.Active;
 
-            var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            where.Should().BeOfType(typeof(PropertyAccessStatement));
+        where.Should().BeOfType(typeof(PropertyAccessStatement));
 
-            var p = where as PropertyAccessStatement;
-            p.Name.Should().Be("Active");
-            p.IsBoolean.Should().BeTrue();
-        }
-
+        var p = where as PropertyAccessStatement;
+        p.Name.Should().Be("Active");
+        p.IsBoolean.Should().BeTrue();
     }
+
 }

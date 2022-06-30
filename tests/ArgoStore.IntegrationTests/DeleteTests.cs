@@ -1,36 +1,35 @@
-﻿namespace ArgoStore.IntegrationTests
+﻿namespace ArgoStore.IntegrationTests;
+
+public class DeleteTests : IntegrationTestsBase
 {
-    public class DeleteTests : IntegrationTestsBase
+    private const string TestNameImogenCampbell = "Imogen Campbell";
+    private readonly TestData _td;
+
+    public DeleteTests(ITestOutputHelper output) : base(output)
     {
-        private const string TestNameImogenCampbell = "Imogen Campbell";
-        private readonly TestData _td;
+        _td = new TestData(TestDbConnectionString);
 
-        public DeleteTests(ITestOutputHelper output) : base(output)
-        {
-            _td = new TestData(TestDbConnectionString);
+        using IDocumentSession session = GetNewDocumentSession();
+        _td.InsertTestPersons();
+    }
 
-            using IDocumentSession session = GetNewDocumentSession();
-            _td.InsertTestPersons();
-        }
+    [SkippableFact]
+    public void Delete_SaveChanges_DeletesEntity()
+    {
+        using IDocumentSession session = GetNewDocumentSession();
 
-        [SkippableFact]
-        public void Delete_SaveChanges_DeletesEntity()
-        {
-            using IDocumentSession session = GetNewDocumentSession();
+        int countBefore = session.Query<Person>().Count();
 
-            int countBefore = session.Query<Person>().Count();
+        Person p = session.Query<Person>().FirstOrDefault(x => x.Name == TestNameImogenCampbell);
+        p.Should().NotBeNull();
 
-            Person p = session.Query<Person>().FirstOrDefault(x => x.Name == TestNameImogenCampbell);
-            p.Should().NotBeNull();
+        session.Delete(p);
+        session.SaveChanges();
 
-            session.Delete(p);
-            session.SaveChanges();
+        p = session.Query<Person>().FirstOrDefault(x => x.Name == TestNameImogenCampbell);
+        p.Should().BeNull();
 
-            p = session.Query<Person>().FirstOrDefault(x => x.Name == TestNameImogenCampbell);
-            p.Should().BeNull();
-
-            int countAfter = session.Query<Person>().Count();
-            countAfter.Should().Be(countBefore - 1);
-        }
+        int countAfter = session.Query<Person>().Count();
+        countAfter.Should().Be(countBefore - 1);
     }
 }

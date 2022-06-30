@@ -1,773 +1,773 @@
-﻿namespace ArgoStore.UnitTests.StatementsTests
+﻿namespace ArgoStore.UnitTests.StatementsTests;
+
+public class OrderByTests
 {
-    public class OrderByTests
+    /*
+     to cover:
+         - ✅ order by on queryable
+         - ✅ order by desc on queryable
+         - ✅ then by on queryable
+         - ✅ then by 3x on queryable
+         - ✅ then by 3x desc on queryable
+
+         - ✅ order by on select
+         - ✅ order by desc on select
+         - ✅ then by on select
+         - ✅ then by 3x on select
+         - ✅ then by 3x desc on select
+
+         - ✅ order by on where
+         - ✅ order by desc on where
+         - ✅ then by on where
+         - ✅ then by 3x on where
+         - ✅ then by 3x desc on where
+    
+         - ✅ where, select, order by
+         - ✅ where, select, order by desc
+         - ✅ where, select, then by
+         - ✅ where, select, 3x order by
+         - ✅ where, select, 3x then by desc
+         - ✅ where, select, 3x then by asc, desc
+    
+         - ✅ order, where, select, order by
+         - ✅ order, where, select, order by desc
+         - ✅ order, where, select, then by
+         - ✅ order, where, select, then by desc
+         - ✅ order, where, select, 3x order by
+         - ✅ order, where, select, 3x then by desc
+         - ✅ order, where, select, 3x then by asc, desc
+    
+         - ✅ order by on subquery
+         - ✅ order by desc on subquery
+         - ✅ then by on subquery
+         - ✅ then desc by on subquery
+         - ✅ order, select, where, select, order by
+     */
+
+    #region on queryable
+
+    [Fact]
+    public void OrderByOnQueryable_SetsCorrectOrderInStatement()
     {
-        /*
-         to cover:
-             - ✅ order by on queryable
-             - ✅ order by desc on queryable
-             - ✅ then by on queryable
-             - ✅ then by 3x on queryable
-             - ✅ then by 3x desc on queryable
-
-             - ✅ order by on select
-             - ✅ order by desc on select
-             - ✅ then by on select
-             - ✅ then by 3x on select
-             - ✅ then by 3x desc on select
-
-             - ✅ order by on where
-             - ✅ order by desc on where
-             - ✅ then by on where
-             - ✅ then by 3x on where
-             - ✅ then by 3x desc on where
-        
-             - ✅ where, select, order by
-             - ✅ where, select, order by desc
-             - ✅ where, select, then by
-             - ✅ where, select, 3x order by
-             - ✅ where, select, 3x then by desc
-             - ✅ where, select, 3x then by asc, desc
-        
-             - ✅ order, where, select, order by
-             - ✅ order, where, select, order by desc
-             - ✅ order, where, select, then by
-             - ✅ order, where, select, then by desc
-             - ✅ order, where, select, 3x order by
-             - ✅ order, where, select, 3x then by desc
-             - ✅ order, where, select, 3x then by asc, desc
-        
-             - ✅ order by on subquery
-             - ✅ order by desc on subquery
-             - ✅ then by on subquery
-             - ✅ then desc by on subquery
-             - ✅ order, select, where, select, order by
-         */
-
-        #region on queryable
-
-        [Fact]
-        public void OrderByOnQueryable_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name);
-
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
-
-            st.Should().BeOfType(typeof(OrderByStatement));
-            st.As<OrderByStatement>().Elements.Should().ContainSingle();
-            st.As<OrderByStatement>().Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-        }
-
-        [Fact]
-        public void OrderByDescendingOnQueryable_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderByDescending(x => x.Name);
-
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
-
-            st.Should().BeOfType(typeof(OrderByStatement));
-            st.As<OrderByStatement>().Elements.Should().ContainSingle();
-            st.As<OrderByStatement>().Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false);
-        }
-
-        [Fact]
-        public void OrderByThenByOnQueryable_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).ThenBy(x => x.EmailAddress);
-
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
-
-            st.Should().BeOfType(typeof(OrderByStatement));
-            st.As<OrderByStatement>().Elements.Should().HaveCount(2);
-            st.As<OrderByStatement>().Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            st.As<OrderByStatement>().Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
-        }
-
-
-        [Fact]
-        public void OrderByMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .OrderBy(x => x.Name)
-                .ThenBy(x => x.EmailAddress)
-                .ThenBy(x => x.BirthYear)
-                .ThenBy(x => x.Active);
-
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
-
-            st.Should().BeOfType(typeof(OrderByStatement));
-
-            var obst = st as OrderByStatement;
-
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
-        }
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name);
+
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-        [Fact]
-        public void OrderByDescMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .OrderByDescending(x => x.Name)
-                .ThenByDescending(x => x.EmailAddress)
-                .ThenByDescending(x => x.BirthYear)
-                .ThenByDescending(x => x.Active);
+        st.Should().BeOfType(typeof(OrderByStatement));
+        st.As<OrderByStatement>().Elements.Should().ContainSingle();
+        st.As<OrderByStatement>().Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+    }
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+    [Fact]
+    public void OrderByDescendingOnQueryable_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderByDescending(x => x.Name);
 
-            st.Should().BeOfType(typeof(OrderByStatement));
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            var obst = st as OrderByStatement;
+        st.Should().BeOfType(typeof(OrderByStatement));
+        st.As<OrderByStatement>().Elements.Should().ContainSingle();
+        st.As<OrderByStatement>().Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false);
+    }
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false, 3);
-        }
+    [Fact]
+    public void OrderByThenByOnQueryable_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).ThenBy(x => x.EmailAddress);
 
-        [Fact]
-        public void OrderByAscDescMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .OrderByDescending(x => x.Name)
-                .ThenBy(x => x.EmailAddress)
-                .ThenByDescending(x => x.BirthYear)
-                .ThenBy(x => x.Active);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        st.Should().BeOfType(typeof(OrderByStatement));
+        st.As<OrderByStatement>().Elements.Should().HaveCount(2);
+        st.As<OrderByStatement>().Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        st.As<OrderByStatement>().Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+    }
 
-            st.Should().BeOfType(typeof(OrderByStatement));
 
-            var obst = st as OrderByStatement;
+    [Fact]
+    public void OrderByMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .OrderBy(x => x.Name)
+            .ThenBy(x => x.EmailAddress)
+            .ThenBy(x => x.BirthYear)
+            .ThenBy(x => x.Active);
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
-        }
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-        #endregion on queryable
+        st.Should().BeOfType(typeof(OrderByStatement));
 
-        #region on select
+        var obst = st as OrderByStatement;
 
-        [Fact]
-        public void OrderByOnSelect_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Select(x => x).OrderBy(x => x.Name);
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+    }
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+    [Fact]
+    public void OrderByDescMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .OrderByDescending(x => x.Name)
+            .ThenByDescending(x => x.EmailAddress)
+            .ThenByDescending(x => x.BirthYear)
+            .ThenByDescending(x => x.Active);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            var select = st as SelectStatement;
+        st.Should().BeOfType(typeof(OrderByStatement));
 
-            select.OrderByStatement.Should().NotBeNull();
+        var obst = st as OrderByStatement;
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-        }
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false, 3);
+    }
 
-        [Fact]
-        public void OrderByDescendingOnSelect_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Select(x => x).OrderByDescending(x => x.Name);
+    [Fact]
+    public void OrderByAscDescMultipleThenByOnQueryable_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .OrderByDescending(x => x.Name)
+            .ThenBy(x => x.EmailAddress)
+            .ThenByDescending(x => x.BirthYear)
+            .ThenBy(x => x.Active);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(OrderByStatement));
 
-            var select = st as SelectStatement;
+        var obst = st as OrderByStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+    }
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false);
-        }
+    #endregion on queryable
 
-        [Fact]
-        public void OrderByThenByOnSelect_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Select(x => x).OrderBy(x => x.Name).ThenBy(x => x.EmailAddress);
+    #region on select
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+    [Fact]
+    public void OrderByOnSelect_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Select(x => x).OrderBy(x => x.Name);
 
-            st.Should().BeOfType(typeof(SelectStatement));
-            var s = st as SelectStatement;
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            s.OrderByStatement.Elements.Should().HaveCount(2);
-            s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
-        }
+        st.Should().BeOfType(typeof(SelectStatement));
 
-        [Fact]
-        public void OrderByMultipleThenByOnSelect_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .Select(x => x)
-                .OrderBy(x => x.Name)
-                .ThenBy(x => x.EmailAddress)
-                .ThenBy(x => x.BirthYear)
-                .ThenBy(x => x.Active);
+        var select = st as SelectStatement;
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        select.OrderByStatement.Should().NotBeNull();
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+    }
 
-            var obst = (st as SelectStatement).OrderByStatement;
+    [Fact]
+    public void OrderByDescendingOnSelect_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Select(x => x).OrderByDescending(x => x.Name);
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
-        }
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-        [Fact]
-        public void OrderByDescMultipleThenByOnSelect_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .Select(x => x)
-                .OrderByDescending(x => x.Name)
-                .ThenByDescending(x => x.EmailAddress)
-                .ThenByDescending(x => x.BirthYear)
-                .ThenByDescending(x => x.Active);
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        var select = st as SelectStatement;
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        select.OrderByStatement.Should().NotBeNull();
 
-            var obst = (st as SelectStatement).OrderByStatement;
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false);
+    }
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false, 3);
-        }
+    [Fact]
+    public void OrderByThenByOnSelect_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Select(x => x).OrderBy(x => x.Name).ThenBy(x => x.EmailAddress);
 
-        [Fact]
-        public void OrderByAscDescMultipleThenByOnSelect_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .Select(x => x)
-                .OrderByDescending(x => x.Name)
-                .ThenBy(x => x.EmailAddress)
-                .ThenByDescending(x => x.BirthYear)
-                .ThenBy(x => x.Active);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        st.Should().BeOfType(typeof(SelectStatement));
+        var s = st as SelectStatement;
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        s.OrderByStatement.Elements.Should().HaveCount(2);
+        s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+    }
 
-            var obst = (st as SelectStatement).OrderByStatement;
+    [Fact]
+    public void OrderByMultipleThenByOnSelect_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .Select(x => x)
+            .OrderBy(x => x.Name)
+            .ThenBy(x => x.EmailAddress)
+            .ThenBy(x => x.BirthYear)
+            .ThenBy(x => x.Active);
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
-        }
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-        #endregion on select
+        st.Should().BeOfType(typeof(SelectStatement));
 
-        #region on where
+        var obst = (st as SelectStatement).OrderByStatement;
 
-        [Fact]
-        public void OrderByOnWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Name != null).OrderBy(x => x.Name);
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+    }
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+    [Fact]
+    public void OrderByDescMultipleThenByOnSelect_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .Select(x => x)
+            .OrderByDescending(x => x.Name)
+            .ThenByDescending(x => x.EmailAddress)
+            .ThenByDescending(x => x.BirthYear)
+            .ThenByDescending(x => x.Active);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            var select = st as SelectStatement;
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            select.OrderByStatement.Should().NotBeNull();
+        var obst = (st as SelectStatement).OrderByStatement;
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-        }
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false, 3);
+    }
 
-        [Fact]
-        public void OrderByDescendingOnWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Name != null).OrderByDescending(x => x.Name);
+    [Fact]
+    public void OrderByAscDescMultipleThenByOnSelect_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .Select(x => x)
+            .OrderByDescending(x => x.Name)
+            .ThenBy(x => x.EmailAddress)
+            .ThenByDescending(x => x.BirthYear)
+            .ThenBy(x => x.Active);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var obst = (st as SelectStatement).OrderByStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+    }
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false);
-        }
+    #endregion on select
 
-        [Fact]
-        public void OrderByThenByOnWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Name != null).OrderBy(x => x.Name).ThenBy(x => x.EmailAddress);
+    #region on where
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+    [Fact]
+    public void OrderByOnWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Name != null).OrderBy(x => x.Name);
 
-            st.Should().BeOfType(typeof(SelectStatement));
-            var s = st as SelectStatement;
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            s.OrderByStatement.Elements.Should().HaveCount(2);
-            s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
-        }
+        st.Should().BeOfType(typeof(SelectStatement));
 
-        [Fact]
-        public void OrderByMultipleThenByOnWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .Where(x => x.Name != null)
-                .OrderBy(x => x.Name)
-                .ThenBy(x => x.EmailAddress)
-                .ThenBy(x => x.BirthYear)
-                .ThenBy(x => x.Active);
+        var select = st as SelectStatement;
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        select.OrderByStatement.Should().NotBeNull();
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+    }
 
-            var obst = (st as SelectStatement).OrderByStatement;
+    [Fact]
+    public void OrderByDescendingOnWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Name != null).OrderByDescending(x => x.Name);
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
-        }
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-        [Fact]
-        public void OrderByDescMultipleThenByOnWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .Where(x => x.Name != null)
-                .OrderByDescending(x => x.Name)
-                .ThenByDescending(x => x.EmailAddress)
-                .ThenByDescending(x => x.BirthYear)
-                .ThenByDescending(x => x.Active);
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        var select = st as SelectStatement;
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        select.OrderByStatement.Should().NotBeNull();
 
-            var obst = (st as SelectStatement).OrderByStatement;
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false);
+    }
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false, 3);
-        }
+    [Fact]
+    public void OrderByThenByOnWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.Where(x => x.Name != null).OrderBy(x => x.Name).ThenBy(x => x.EmailAddress);
 
-        [Fact]
-        public void OrderByAscDescMultipleThenByOnWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .Where(x => x.Name != null)
-                .OrderByDescending(x => x.Name)
-                .ThenBy(x => x.EmailAddress)
-                .ThenByDescending(x => x.BirthYear)
-                .ThenBy(x => x.Active);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        st.Should().BeOfType(typeof(SelectStatement));
+        var s = st as SelectStatement;
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        s.OrderByStatement.Elements.Should().HaveCount(2);
+        s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+    }
 
-            var obst = (st as SelectStatement).OrderByStatement;
+    [Fact]
+    public void OrderByMultipleThenByOnWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .Where(x => x.Name != null)
+            .OrderBy(x => x.Name)
+            .ThenBy(x => x.EmailAddress)
+            .ThenBy(x => x.BirthYear)
+            .ThenBy(x => x.Active);
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
-        }
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-        #endregion on where
+        st.Should().BeOfType(typeof(SelectStatement));
 
-        #region order by where select
+        var obst = (st as SelectStatement).OrderByStatement;
 
-        [Fact]
-        public void OrderByThenWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).Where(x => x.Active);
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+    }
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+    [Fact]
+    public void OrderByDescMultipleThenByOnWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .Where(x => x.Name != null)
+            .OrderByDescending(x => x.Name)
+            .ThenByDescending(x => x.EmailAddress)
+            .ThenByDescending(x => x.BirthYear)
+            .ThenByDescending(x => x.Active);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            var select = st as SelectStatement;
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            select.OrderByStatement.Should().NotBeNull();
+        var obst = (st as SelectStatement).OrderByStatement;
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false, 3);
+    }
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+    [Fact]
+    public void OrderByAscDescMultipleThenByOnWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .Where(x => x.Name != null)
+            .OrderByDescending(x => x.Name)
+            .ThenBy(x => x.EmailAddress)
+            .ThenByDescending(x => x.BirthYear)
+            .ThenBy(x => x.Active);
 
-        [Fact]
-        public void OrderByDescendingThenWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderByDescending(x => x.Name).Where(x => x.Active);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        var obst = (st as SelectStatement).OrderByStatement;
 
-            var select = st as SelectStatement;
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+    }
 
-            select.OrderByStatement.Should().NotBeNull();
+    #endregion on where
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false);
+    #region order by where select
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+    [Fact]
+    public void OrderByThenWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).Where(x => x.Active);
 
-        [Fact]
-        public void OrderByThenByThenWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).ThenBy(x => x.EmailAddress).Where(x => x.Active);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            st.Should().BeOfType(typeof(SelectStatement));
-            var s = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            s.OrderByStatement.Elements.Should().HaveCount(2);
-            s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+        select.OrderByStatement.Should().NotBeNull();
 
-            s.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
 
-        [Fact]
-        public void OrderByMultipleThenByThenWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .OrderBy(x => x.Name)
-                .ThenBy(x => x.EmailAddress)
-                .ThenBy(x => x.BirthYear)
-                .ThenBy(x => x.Active)
-                .Where(x => x.Active);
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+    [Fact]
+    public void OrderByDescendingThenWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderByDescending(x => x.Name).Where(x => x.Active);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            var obst = (st as SelectStatement).OrderByStatement;
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+        var select = st as SelectStatement;
 
-            (st as SelectStatement).WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        select.OrderByStatement.Should().NotBeNull();
 
-        [Fact]
-        public void OrderByDescMultipleThenByThenWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .OrderByDescending(x => x.Name)
-                .ThenByDescending(x => x.EmailAddress)
-                .ThenByDescending(x => x.BirthYear)
-                .ThenByDescending(x => x.Active)
-                .Where(x => x.Active);
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-            st.Should().BeOfType(typeof(SelectStatement));
+    [Fact]
+    public void OrderByThenByThenWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).ThenBy(x => x.EmailAddress).Where(x => x.Active);
 
-            var obst = (st as SelectStatement).OrderByStatement;
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false, 3);
+        st.Should().BeOfType(typeof(SelectStatement));
+        var s = st as SelectStatement;
 
-            (st as SelectStatement).WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        s.OrderByStatement.Elements.Should().HaveCount(2);
+        s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        s.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
 
-        [Fact]
-        public void OrderByAscDescMultipleThenByThenWhere_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
-                .OrderByDescending(x => x.Name)
-                .ThenBy(x => x.EmailAddress)
-                .ThenByDescending(x => x.BirthYear)
-                .ThenBy(x => x.Active)
-                .Where(x => x.Active);
+        s.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+    [Fact]
+    public void OrderByMultipleThenByThenWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .OrderBy(x => x.Name)
+            .ThenBy(x => x.EmailAddress)
+            .ThenBy(x => x.BirthYear)
+            .ThenBy(x => x.Active)
+            .Where(x => x.Active);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            var obst = (st as SelectStatement).OrderByStatement;
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            obst.Elements.Should().HaveCount(4);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
-            obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+        var obst = (st as SelectStatement).OrderByStatement;
 
-            (st as SelectStatement).WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
 
-        #endregion order by where select
+        (st as SelectStatement).WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-        #region order by where select order
+    [Fact]
+    public void OrderByDescMultipleThenByThenWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .OrderByDescending(x => x.Name)
+            .ThenByDescending(x => x.EmailAddress)
+            .ThenByDescending(x => x.BirthYear)
+            .ThenByDescending(x => x.Active)
+            .Where(x => x.Active);
 
-        [Fact]
-        public void OrderByThenWhereThenOrder_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).Where(x => x.Active).OrderBy(x => x.Key);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        var obst = (st as SelectStatement).OrderByStatement;
 
-            var select = st as SelectStatement;
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false, 3);
 
-            select.OrderByStatement.Should().NotBeNull();
+        (st as SelectStatement).WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-            select.OrderByStatement.Elements.Should().HaveCount(2);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
+    [Fact]
+    public void OrderByAscDescMultipleThenByThenWhere_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+            .OrderByDescending(x => x.Name)
+            .ThenBy(x => x.EmailAddress)
+            .ThenByDescending(x => x.BirthYear)
+            .ThenBy(x => x.Active)
+            .Where(x => x.Active);
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-        [Fact]
-        public void OrderByDescendingThenWhereThenOrder_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => 
-                q.OrderBy(x => x.Name)
+        st.Should().BeOfType(typeof(SelectStatement));
+
+        var obst = (st as SelectStatement).OrderByStatement;
+
+        obst.Elements.Should().HaveCount(4);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), false, 0);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true, 1);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false, 2);
+        obst.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true, 3);
+
+        (st as SelectStatement).WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
+
+    #endregion order by where select
+
+    #region order by where select order
+
+    [Fact]
+    public void OrderByThenWhereThenOrder_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q.OrderBy(x => x.Name).Where(x => x.Active).OrderBy(x => x.Key);
+
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+
+        st.Should().BeOfType(typeof(SelectStatement));
+
+        var select = st as SelectStatement;
+
+        select.OrderByStatement.Should().NotBeNull();
+
+        select.OrderByStatement.Elements.Should().HaveCount(2);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
+
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
+
+    [Fact]
+    public void OrderByDescendingThenWhereThenOrder_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => 
+            q.OrderBy(x => x.Name)
                 .Where(x => x.Active)
                 .OrderByDescending(x => x.Key);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(2);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), false);
+        select.OrderByStatement.Elements.Should().HaveCount(2);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), false);
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-        [Fact]
-        public void OrderByThenWhereThenOrderThenBy_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
-                q.OrderBy(x => x.Name)
+    [Fact]
+    public void OrderByThenWhereThenOrderThenBy_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
+            q.OrderBy(x => x.Name)
                 .Where(x => x.Active)
                 .OrderBy(x => x.Key)
                 .ThenBy(x => x.EmailAddress);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(3);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+        select.OrderByStatement.Elements.Should().HaveCount(3);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-        [Fact]
-        public void OrderByThenWhereThenOrderThenByDesc_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
-                q.OrderBy(x => x.Name)
+    [Fact]
+    public void OrderByThenWhereThenOrderThenByDesc_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
+            q.OrderBy(x => x.Name)
                 .Where(x => x.Active)
                 .OrderBy(x => x.Key)
                 .ThenByDescending(x => x.EmailAddress);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(3);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false);
+        select.OrderByStatement.Elements.Should().HaveCount(3);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false);
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-        [Fact]
-        public void OrderByThenWhereThenOrderThenByThreeTimes_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
-                q.OrderBy(x => x.Name)
+    [Fact]
+    public void OrderByThenWhereThenOrderThenByThreeTimes_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
+            q.OrderBy(x => x.Name)
                 .Where(x => x.Active)
                 .OrderBy(x => x.Key)
                 .ThenBy(x => x.EmailAddress)
                 .ThenBy(x => x.BirthYear)
                 .ThenBy(x => x.Active);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(5);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true);
+        select.OrderByStatement.Elements.Should().HaveCount(5);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true);
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-        [Fact]
-        public void OrderByThenWhereThenOrderThenByDescThreeTimes_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
-                q.OrderBy(x => x.Name)
+    [Fact]
+    public void OrderByThenWhereThenOrderThenByDescThreeTimes_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
+            q.OrderBy(x => x.Name)
                 .Where(x => x.Active)
                 .OrderBy(x => x.Key)
                 .ThenByDescending(x => x.EmailAddress)
                 .ThenByDescending(x => x.BirthYear)
                 .ThenByDescending(x => x.Active);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(5);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false);
+        select.OrderByStatement.Elements.Should().HaveCount(5);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false);
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-        [Fact]
-        public void OrderByThenWhereThenOrderThenByAscDescThreeTimes_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
-                q.OrderBy(x => x.Name)
+    [Fact]
+    public void OrderByThenWhereThenOrderThenByAscDescThreeTimes_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q =>
+            q.OrderBy(x => x.Name)
                 .Where(x => x.Active)
                 .OrderBy(x => x.Key)
                 .ThenBy(x => x.EmailAddress)
                 .ThenByDescending(x => x.BirthYear)
                 .ThenBy(x => x.Active);
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(5);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true);
+        select.OrderByStatement.Elements.Should().HaveCount(5);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Name), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Key), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true);
 
-            select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
-        }
+        select.WhereStatement.Statement.Should().BeStatement<PropertyAccessStatement>(s => s.Name == nameof(TestEntityPerson.Active) && s.IsBoolean);
+    }
 
-        #endregion order by where select order
+    #endregion order by where select order
 
-        #region order by on subquery
+    #region order by on subquery
 
-        [Fact]
-        public void OrderByOnSubQuery_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+    [Fact]
+    public void OrderByOnSubQuery_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
                 .Where(x => x.Active)
                 .Select(x => new { x.EmailAddress, x.BirthYear })
                 .OrderBy(x => x.BirthYear)
             ;
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
 
-            select.SubQueryStatement.Should().NotBeNull();
-        }
+        select.SubQueryStatement.Should().NotBeNull();
+    }
 
-        [Fact]
-        public void OrderByDescOnSubQuery_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+    [Fact]
+    public void OrderByDescOnSubQuery_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
                 .Where(x => x.Active)
                 .Select(x => new { x.EmailAddress, x.BirthYear })
                 .OrderByDescending(x => x.BirthYear)
             ;
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
 
-            select.SubQueryStatement.Should().NotBeNull();
-        }
+        select.SubQueryStatement.Should().NotBeNull();
+    }
 
-        [Fact]
-        public void OrderByThenByOnSubQuery_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+    [Fact]
+    public void OrderByThenByOnSubQuery_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
                 .Where(x => x.Active)
                 .Select(x => new { x.EmailAddress, x.BirthYear })
@@ -775,25 +775,25 @@
                 .ThenBy(x => x.EmailAddress)
             ;
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(2);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
+        select.OrderByStatement.Elements.Should().HaveCount(2);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), true);
 
-            select.SubQueryStatement.Should().NotBeNull();
-        }
+        select.SubQueryStatement.Should().NotBeNull();
+    }
 
-        [Fact]
-        public void OrderByThenByDescOnSubQuery_SetsCorrectOrderInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+    [Fact]
+    public void OrderByThenByDescOnSubQuery_SetsCorrectOrderInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
                 .Where(x => x.Active)
                 .Select(x => new { x.EmailAddress, x.BirthYear })
@@ -801,25 +801,25 @@
                 .ThenByDescending(x => x.EmailAddress)
             ;
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().HaveCount(2);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false);
+        select.OrderByStatement.Elements.Should().HaveCount(2);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.EmailAddress), false);
 
-            select.SubQueryStatement.Should().NotBeNull();
-        }
+        select.SubQueryStatement.Should().NotBeNull();
+    }
 
-        [Fact]
-        public void OrderByWhereOnSubQueryOrderBy_SetsCorrectOrderByInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+    [Fact]
+    public void OrderByWhereOnSubQueryOrderBy_SetsCorrectOrderByInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .OrderBy(x => x.Active)
                 .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
                 .Where(x => x.Active)
@@ -827,26 +827,26 @@
                 .OrderBy(x => x.BirthYear)
             ;
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), true);
             
-            select.SubQueryStatement.Should().NotBeNull();
-            select.SubQueryStatement.OrderByStatement.Should().NotBeNull();
-            select.SubQueryStatement.OrderByStatement.Elements.Should().ContainSingle();
-            select.SubQueryStatement.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true);
-        }
-        [Fact]
-        public void OrderByDescWhereOnSubQueryOrderByDesc_SetsCorrectOrderByInStatement()
-        {
-            Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
+        select.SubQueryStatement.Should().NotBeNull();
+        select.SubQueryStatement.OrderByStatement.Should().NotBeNull();
+        select.SubQueryStatement.OrderByStatement.Elements.Should().ContainSingle();
+        select.SubQueryStatement.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), true);
+    }
+    [Fact]
+    public void OrderByDescWhereOnSubQueryOrderByDesc_SetsCorrectOrderByInStatement()
+    {
+        Expression<Func<IQueryable<TestEntityPerson>, object>> ex = q => q
                 .OrderByDescending(x => x.Active)
                 .Select(x => new { x.Active, x.EmailAddress, x.BirthYear })
                 .Where(x => x.Active)
@@ -854,24 +854,23 @@
                 .OrderByDescending(x => x.BirthYear)
             ;
 
-            Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        Statement st = ExpressionToStatementTranslatorStrategy.Translate(ex);
 
-            st.Should().BeOfType(typeof(SelectStatement));
+        st.Should().BeOfType(typeof(SelectStatement));
 
-            var select = st as SelectStatement;
+        var select = st as SelectStatement;
 
-            select.OrderByStatement.Should().NotBeNull();
+        select.OrderByStatement.Should().NotBeNull();
 
-            select.OrderByStatement.Elements.Should().ContainSingle();
-            select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
+        select.OrderByStatement.Elements.Should().ContainSingle();
+        select.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.BirthYear), false);
 
-            select.SubQueryStatement.Should().NotBeNull();
-            select.SubQueryStatement.OrderByStatement.Should().NotBeNull();
-            select.SubQueryStatement.OrderByStatement.Elements.Should().ContainSingle();
-            select.SubQueryStatement.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false);
-        }
-
-
-        #endregion order by on subquery
+        select.SubQueryStatement.Should().NotBeNull();
+        select.SubQueryStatement.OrderByStatement.Should().NotBeNull();
+        select.SubQueryStatement.OrderByStatement.Elements.Should().ContainSingle();
+        select.SubQueryStatement.OrderByStatement.Should().ContainOrderByElement(nameof(TestEntityPerson.Active), false);
     }
+
+
+    #endregion order by on subquery
 }

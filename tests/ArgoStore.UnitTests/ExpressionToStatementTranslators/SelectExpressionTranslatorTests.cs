@@ -1,7 +1,6 @@
-﻿namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
-{
-    public class SelectExpressionTranslatorTests
-    {
+﻿namespace ArgoStore.UnitTests.ExpressionToStatementTranslators;
 
-    }
+public class SelectExpressionTranslatorTests
+{
+
 }

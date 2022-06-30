@@ -1,55 +1,54 @@
-﻿namespace ArgoStore.IntegrationTests
+﻿namespace ArgoStore.IntegrationTests;
+
+public class AnyTests : IntegrationTestsBase
 {
-    public class AnyTests : IntegrationTestsBase
+    private const string TestNameImogenCampbell = "Imogen Campbell";
+    private const string TestNameNonExisting = "Someone who is not in test DB";
+
+    private readonly TestData _td;
+
+    public AnyTests(ITestOutputHelper output) : base(output)
     {
-        private const string TestNameImogenCampbell = "Imogen Campbell";
-        private const string TestNameNonExisting = "Someone who is not in test DB";
+        _td = new TestData(TestDbConnectionString);
 
-        private readonly TestData _td;
+        using IDocumentSession session = GetNewDocumentSession();
+        _td.InsertTestPersons();
+    }
 
-        public AnyTests(ITestOutputHelper output) : base(output)
-        {
-            _td = new TestData(TestDbConnectionString);
+    [Fact]
+    public void Any_ReturnsExpectedResult()
+    {
+        using IDocumentSession session = GetNewDocumentSession();
 
-            using IDocumentSession session = GetNewDocumentSession();
-            _td.InsertTestPersons();
-        }
+        bool exists = session.Query<Person>().Any();
+        exists.Should().BeTrue();
+    }
 
-        [Fact]
-        public void Any_ReturnsExpectedResult()
-        {
-            using IDocumentSession session = GetNewDocumentSession();
+    [Fact]
+    public void Any_EmptyTable_ReturnsExpectedResult()
+    {
+        using IDocumentSession session = GetNewDocumentSession();
+        _td.DeleteTestPersons();
 
-            bool exists = session.Query<Person>().Any();
-            exists.Should().BeTrue();
-        }
+        bool exists = session.Query<Person>().Any();
+        exists.Should().BeFalse();
+    }
 
-        [Fact]
-        public void Any_EmptyTable_ReturnsExpectedResult()
-        {
-            using IDocumentSession session = GetNewDocumentSession();
-            _td.DeleteTestPersons();
+    [Fact]
+    public void AnyWithCondition_ReturnsExpectedResult()
+    {
+        using IDocumentSession session = GetNewDocumentSession();
 
-            bool exists = session.Query<Person>().Any();
-            exists.Should().BeFalse();
-        }
+        bool exists = session.Query<Person>().Any(x => x.Name == TestNameImogenCampbell);
+        exists.Should().BeTrue();
+    }
 
-        [Fact]
-        public void AnyWithCondition_ReturnsExpectedResult()
-        {
-            using IDocumentSession session = GetNewDocumentSession();
+    [Fact]
+    public void AnyWithCondition_NonExistingPerson_ReturnsExpectedResult()
+    {
+        using IDocumentSession session = GetNewDocumentSession();
 
-            bool exists = session.Query<Person>().Any(x => x.Name == TestNameImogenCampbell);
-            exists.Should().BeTrue();
-        }
-
-        [Fact]
-        public void AnyWithCondition_NonExistingPerson_ReturnsExpectedResult()
-        {
-            using IDocumentSession session = GetNewDocumentSession();
-
-            bool exists = session.Query<Person>().Any(x => x.Name == TestNameNonExisting);
-            exists.Should().BeFalse();
-        }
+        bool exists = session.Query<Person>().Any(x => x.Name == TestNameNonExisting);
+        exists.Should().BeFalse();
     }
 }

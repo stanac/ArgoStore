@@ -1,9 +1,9 @@
-﻿namespace ArgoStore.UnitTests
-{
-    public class TestData
-    {
+﻿namespace ArgoStore.UnitTests;
 
-        private const string _personsJson = @"[{
+public class TestData
+{
+
+    private const string _personsJson = @"[{
   ""id"": ""784bcc08-ce14-4854-9c04-ab6a57a62100"",
   ""name"": ""Imogen Campbell"",
   ""emailAddress"": ""imogell@a.example.com"",
@@ -238,18 +238,17 @@
   ""registrationTime"": ""2020-09-19T10:23:29.32Z"",
   ""cackeDay"": ""2020-09-01""
 }]";
-        private readonly string _connectionString;
+    private readonly string _connectionString;
 
-        public TestData(string connectionString)
+    public TestData(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString))
         {
-            if (string.IsNullOrWhiteSpace(connectionString))
-            {
-                throw new ArgumentException($"'{nameof(connectionString)}' cannot be null or whitespace", nameof(connectionString));
-            }
-
-            _connectionString = connectionString;
+            throw new ArgumentException($"'{nameof(connectionString)}' cannot be null or whitespace", nameof(connectionString));
         }
 
-
+        _connectionString = connectionString;
     }
+
+
 }
