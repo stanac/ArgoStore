@@ -16,7 +16,7 @@ namespace ArgoStore
     internal class ArgoSqlCommand
     {
         public string CommandText { get; set; }
-        public ArgoSqlParameterCollection Parameters { get; } = new ArgoSqlParameterCollection();
+        public ArgoSqlParameterCollection Parameters { get; } = new();
         public string AddParameterAndGetParameterName(object value) => Parameters.AddParameterAndGetName(value);
 
         public void SetRandomParametersPrefix()
@@ -60,6 +60,15 @@ namespace ArgoStore
             cmd.Parameters.AddWithValue("$__tenant_id__", tenantId);
 
             return cmd;
+        }
+
+        public void SetParameters(ArgoSqlParameterCollection parameters)
+        {
+            Parameters.Clear();
+            foreach (ArgoSqlParameter p in parameters)
+            {
+                Parameters.Add(p);
+            }
         }
     }
 

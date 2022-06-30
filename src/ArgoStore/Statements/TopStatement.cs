@@ -12,7 +12,7 @@ namespace ArgoStore.Statements
         public bool IsCountQuery { get; private set; }
         public string TenantId { get; }
         
-        public TopStatement(WhereStatement where, SelectStatement.CalledByMethods method, string tenantId)
+        public TopStatement(WhereStatement where, CalledByMethods method, string tenantId)
         {
             if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
 
@@ -61,14 +61,14 @@ namespace ArgoStore.Statements
             
             if (statement is WhereStatement ws)
             {
-                return new TopStatement(ws, SelectStatement.CalledByMethods.Select, tenantId); // todo: check CalledByMethods.Select in other methods
+                return new TopStatement(ws, CalledByMethods.Select, tenantId); // todo: check CalledByMethods.Select in other methods
             }
 
             if (statement is SelectCountStatement cq)
             {
                 if (cq.Where != null)
                 {
-                    return new TopStatement(cq.Where, SelectStatement.CalledByMethods.Count, tenantId)
+                    return new TopStatement(cq.Where, CalledByMethods.Count, tenantId)
                     {
                         IsCountQuery = true
                     };
@@ -95,7 +95,7 @@ namespace ArgoStore.Statements
             {
                 if (eq.Where != null)
                 {
-                    return new TopStatement(eq.Where, SelectStatement.CalledByMethods.Count, tenantId)
+                    return new TopStatement(eq.Where, CalledByMethods.Count, tenantId)
                     {
                         IsAnyQuery = true
                     };

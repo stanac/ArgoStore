@@ -32,7 +32,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (l == null) throw new NotSupportedException($"Expected lambda in Select in {nameof(SelectOnSelectMethodCallExpressionToStatementTranslator)}");
 
-            return SelectLambdaTranslator.Translate(l, l.ReturnType, subQuery, SelectStatement.CalledByMethods.Select);
+            return SelectLambdaTranslator.Translate(l, l.ReturnType, subQuery, CalledByMethods.Select);
         }
 
     }

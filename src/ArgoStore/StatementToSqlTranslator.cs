@@ -31,7 +31,21 @@ namespace ArgoStore
                 return CreateAnyCommand(statement);
             }
 
-            return CreateSelectCommand(statement.SelectStatement, false);
+            ArgoSqlCommand selectStatement = CreateSelectCommand(statement.SelectStatement, false);
+
+            if (statement.SelectStatement.Top.HasValue)
+            {
+                string sql = selectStatement.CommandText + " LIMIT " + statement.SelectStatement.Top.Value;
+                ArgoSqlParameterCollection parameters = selectStatement.Parameters;
+
+                selectStatement = new ArgoSqlCommand
+                {
+                    CommandText = sql
+                };
+                selectStatement.SetParameters(parameters);
+            }
+
+            return selectStatement;
         }
 
         // todo: optimize sql generation, use string builder
@@ -73,7 +87,7 @@ namespace ArgoStore
 
         private ArgoSqlCommand CreateSelectCommand(SelectStatement select, bool isSubQuery)
         {
-            if (select.CalledByMethod == SelectStatement.CalledByMethods.Last || select.CalledByMethod == SelectStatement.CalledByMethods.LastOrDefault)
+            if (select.CalledByMethod == CalledByMethods.Last || select.CalledByMethod == CalledByMethods.LastOrDefault)
             {
                 throw new NotSupportedException($"Method {select.CalledByMethod} is not supported. Use OrderBy/OrderByDescending and First/FirstOrDefault");
             }

@@ -12,8 +12,8 @@ namespace ArgoStore.Statements
         public Type TypeFrom { get; }
         public Type TypeTo { get; }
         public IReadOnlyList<SelectStatementElement> SelectElements { get; }
-        public int? Top { get; }
-        public CalledByMethods CalledByMethod { get; }
+        public int? Top { get; private set; }
+        public CalledByMethods CalledByMethod { get; private set; }
         public string Alias { get; private set; }
         
         public SelectStatement(WhereStatement whereStatement, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
@@ -140,10 +140,17 @@ namespace ArgoStore.Statements
 
             return this;
         }
-        
-        public enum CalledByMethods
+
+        public SelectStatement SetTop(int top)
         {
-            Select, First, FirstOrDefault, Last, LastOrDefault, Single, SingleOrDefault, Count, Any
+            Top = top;
+            return this;
+        }
+
+        public SelectStatement SetCalledByMethod(CalledByMethods method)
+        {
+            CalledByMethod = method;
+            return this;
         }
     }
 }

@@ -61,7 +61,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                         SelectStatementElement.CreateWithStar(where.TargetType)
                     };
 
-                    SelectStatement ss = new SelectStatement(where, where.TargetType, where.TargetType, selectElements, null, SelectStatement.CalledByMethods.Select);
+                    SelectStatement ss = new SelectStatement(where, where.TargetType, where.TargetType, selectElements, null, CalledByMethods.Select);
                     ss.SetOrderBy(orderByStatement);
                     return ss;
                 }

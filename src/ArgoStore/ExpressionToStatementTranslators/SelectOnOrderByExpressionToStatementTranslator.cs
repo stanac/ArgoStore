@@ -24,7 +24,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             LambdaExpression lambda = ExpressionHelpers.RemoveQuotes(m.Arguments[1]) as LambdaExpression;
 
-            SelectStatement ret = SelectLambdaTranslator.Translate(lambda, lambda.ReturnType, orderBy, SelectStatement.CalledByMethods.Select);
+            SelectStatement ret = SelectLambdaTranslator.Translate(lambda, lambda.ReturnType, orderBy, CalledByMethods.Select);
 
             return ret;
         }

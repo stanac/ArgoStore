@@ -5,6 +5,8 @@ namespace ArgoStore
 {
     public static class ArgoStoreConvert
     {
+        private static readonly ArgoStoreSerializer _serializer = new();
+
         public static object To(Type toType, object value)
         {
             if (toType is null) throw new ArgumentNullException(nameof(toType));
@@ -32,6 +34,11 @@ namespace ArgoStore
             if (toType == typeof(DateTimeOffset)) return ToDateTimeOffset(value);
             if (toType == typeof(DateTimeOffset?)) return ToDateTimeOffsetNullable(value);
 
+
+            if (value is string json)
+            {
+                return _serializer.Deserialize(json, toType);
+            }
 
             throw new NotImplementedException();
         }

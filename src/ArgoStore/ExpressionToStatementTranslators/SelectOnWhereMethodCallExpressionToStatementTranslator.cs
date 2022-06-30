@@ -29,12 +29,12 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (calledOn is WhereStatement where)
             {
-                return SelectLambdaTranslator.Translate(lambda, where.TargetType, where, SelectStatement.CalledByMethods.Select);
+                return SelectLambdaTranslator.Translate(lambda, where.TargetType, where, CalledByMethods.Select);
             }
 
             if (calledOn is SelectStatement parentSelect)
             {
-                return SelectLambdaTranslator.Translate(lambda, parentSelect.TypeTo, parentSelect, SelectStatement.CalledByMethods.Select);
+                return SelectLambdaTranslator.Translate(lambda, parentSelect.TypeTo, parentSelect, CalledByMethods.Select);
             }
 
             throw new NotSupportedException($"Cannot add select to statement of type {calledOn.GetType().Name}");

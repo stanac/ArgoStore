@@ -10,7 +10,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 {
     internal static class SelectLambdaTranslator
     {
-        public static SelectStatement Translate(LambdaExpression lambda, Type targetType, Statement from, SelectStatement.CalledByMethods method)
+        public static SelectStatement Translate(LambdaExpression lambda, Type targetType, Statement from, CalledByMethods method)
         {
             if (lambda is null) throw new ArgumentNullException(nameof(lambda));
             if (targetType is null) throw new ArgumentNullException(nameof(targetType));

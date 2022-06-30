@@ -26,7 +26,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             LambdaExpression lambda = GetSelectLambda(me);
 
-            return SelectLambdaTranslator.Translate(lambda, targetType, null, SelectStatement.CalledByMethods.Select);
+            return SelectLambdaTranslator.Translate(lambda, targetType, null, CalledByMethods.Select);
         }
 
         private Type GetTargetType(Expression expression)

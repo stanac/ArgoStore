@@ -30,7 +30,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             WhereStatement where = ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[0]) as WhereStatement;
 
-            SelectStatement.CalledByMethods methodName = (SelectStatement.CalledByMethods)Enum.Parse(typeof(SelectStatement.CalledByMethods), me.Method.Name);
+            CalledByMethods methodName = (CalledByMethods)Enum.Parse(typeof(CalledByMethods), me.Method.Name);
 
             if (me.Arguments.Count == 2)
             {

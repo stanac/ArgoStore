@@ -49,11 +49,16 @@ namespace ArgoStore
 
         public TResult Execute<TResult>(Expression expression)
         {
-            object result = Execute(expression);
+            object result = Execute(expression, out TopStatement statement);
+
+            if (result == null)
+            {
+                return default;
+            }
 
             Type resultType = result.GetType();
 
-            if (resultType == typeof(long) && IsCountExpression(expression))
+            if (resultType == typeof(long) && statement.IsCountQuery)
             {
                 if (expression.Type == typeof(long))
                 {
@@ -68,7 +73,7 @@ namespace ArgoStore
                 }
             }
 
-            if (resultType == typeof(bool) && IsAnyExpression(expression))
+            if (resultType == typeof(bool) && statement.IsAnyQuery)
             {
                 return (TResult)result;
             }
@@ -87,8 +92,8 @@ namespace ArgoStore
 
                 return default(TResult);
             }
-
-            throw new NotSupportedException();
+            
+            return (TResult)result;
         }
 
         public IQueryable CreateQuery(Expression expression)
@@ -98,12 +103,18 @@ namespace ArgoStore
 
         public object Execute(Expression expression)
         {
+            return Execute(expression, out _);
+        }
+
+        public object Execute(Expression expression, out TopStatement topStatement)
+        {
             if (expression is null) throw new ArgumentNullException(nameof(expression));
 
             Statement statement = ExpressionToStatementTranslators.ExpressionToStatementTranslatorStrategy.Translate(expression);
 
             TopStatement ts = TopStatement.Create(statement, _config.TenantId);
-            
+            topStatement = ts;
+
             ArgoSqlCommand argoCmd = _statementToSqlTranslatorFactory().CreateCommand(ts);
             SqliteCommand cmd = argoCmd.CreateCommand(_config.TenantId);
 
@@ -121,26 +132,41 @@ namespace ArgoStore
                 return rows.Any();
             }
 
-            if (ts.SelectStatement.SelectElements.Count == 1)
+            bool isSingleSelect = ts.SelectStatement.CalledByMethod.ItSelectsOnlyOne();
+            bool selectsJson = ts.SelectStatement.SelectElements[0].SelectsJson;
+            
+            if (isSingleSelect)
             {
-                if (ts.SelectStatement.SelectElements[0].SelectsJson)
-                {
-                    IEnumerable<string> result = _dbAccess.QueryJsonField(cmd);
+                object result = _dbAccess.QueryField(cmd).ToList().FirstOrDefault();
 
-                    return result.Select(x => _config.Serializer.Deserialize(x, ts.TypeFrom));
-                }
-                else
+                if (result == null)
                 {
-                    return _dbAccess.QueryField(cmd);
+                    return null;
                 }
+
+                string json = selectsJson
+                    ? (string) result
+                    : "";
+
+                if (selectsJson)
+                {
+                    return _config.Serializer.Deserialize(json, topStatement.TypeTo);
+                }
+
+                return result;
             }
-            else
+
+            if (selectsJson)
             {
-                Type[] propTypes = ts.SelectStatement.SelectElements.Select(x => x.ReturnType).ToArray();
-                IEnumerable<object[]> rows = _dbAccess.QueryFields(cmd, propTypes);
+                List<string> result = _dbAccess.QueryStringField(cmd).ToList();
 
-                return CreateResultObjects(rows, ts.SelectStatement);
+                return result.Select(jsonRow => _config.Serializer.Deserialize(jsonRow, ts.TypeTo));
             }
+
+            Type[] propTypes = ts.SelectStatement.SelectElements.Select(x => x.ReturnType).ToArray();
+            IEnumerable<object[]> rows2 = _dbAccess.QueryFields(cmd, propTypes);
+
+            return CreateResultObjects(rows2, ts.SelectStatement);
         }
 
         private static void GuardEmptyCollectionLinqCall(Expression e)

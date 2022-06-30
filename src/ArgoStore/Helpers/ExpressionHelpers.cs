@@ -27,6 +27,16 @@ namespace ArgoStore.Helpers
             return false;
         }
 
+        public static bool IsSelectCall(Expression e)
+        {
+            if (e is MethodCallExpression me && me.Method.Name == "Select")
+            {
+                return TypeHelpers.ImeplementsIQueryableGenericInteface(e.Type);
+            }
+
+            return false;
+        }
+
         public static bool IsLambda(Expression e)
         {
             while (e.NodeType == ExpressionType.Quote)

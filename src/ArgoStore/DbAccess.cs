@@ -79,7 +79,7 @@ namespace ArgoStore
             }
         }
 
-        public IEnumerable<string> QueryJsonField(SqliteCommand cmd)
+        public IEnumerable<string> QueryStringField(SqliteCommand cmd)
         {
             if (cmd == null) throw new ArgumentNullException(nameof(cmd));
             

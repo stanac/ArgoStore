@@ -7,7 +7,7 @@ using ArgoStore.Statements;
 
 namespace ArgoStore.ExpressionToStatementTranslators
 {
-    internal class FirstLastSingleOnArgoStoreQueryableMethodCallExpressionToStatementTranslator : IExpressionToStatementTranslator
+    internal class FirstLastSingleOnSelectMethodCallExpressionToStatementTranslator : IExpressionToStatementTranslator
     {
         private static readonly string[] _supportedMethodNames = new[] { "First", "FirstOrDefault", "Single", "SingleOrDefault", "Last", "LastOrDefault" };
 
@@ -18,8 +18,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
             if (expression is MethodCallExpression m)
             {
                  result = _supportedMethodNames.Contains(m.Method.Name)
-                          && !(ExpressionHelpers.IsWhereCall(m.Arguments[0]))
-                          && !(ExpressionHelpers.IsSelectCall(m.Arguments[0]))
+                          && ExpressionHelpers.IsSelectCall(m.Arguments[0])
                           && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
             }
 
@@ -34,25 +33,13 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             Type targetType = GetTargetType(me.Arguments[0]);
 
-            WhereStatement whereStatement = null;
+            SelectStatement selectStatement = (SelectStatement)ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[0]);
 
-            if (me.Arguments.Count == 2)
-            {
-                Statement whereCondition = ExpressionToStatementTranslatorStrategy.Translate(me.Arguments[1]);
-                whereStatement = new WhereStatement(whereCondition, targetType);
-            }
+            selectStatement
+                .SetTop(1)
+                .SetCalledByMethod(method);
 
-            List<SelectStatementElement> selectElements = new List<SelectStatementElement>
-            {
-                SelectStatementElement.CreateWithStar(targetType)
-            };
-
-            if (whereStatement != null)
-            {
-                return new SelectStatement(whereStatement, targetType, targetType, selectElements, 1, method);
-            }
-
-            return new SelectStatement(targetType, targetType, selectElements, 1, method);
+            return selectStatement;
         }
 
         private Type GetTargetType(Expression expression)
