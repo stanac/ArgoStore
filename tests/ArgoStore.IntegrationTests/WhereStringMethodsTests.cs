@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ArgoStore.IntegrationTests.Entities;
+using ArgoStore.TestsCommon.Entities;
 using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;

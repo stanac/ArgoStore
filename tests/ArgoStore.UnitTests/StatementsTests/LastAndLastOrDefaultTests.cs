@@ -29,7 +29,7 @@ namespace ArgoStore.UnitTests.StatementsTests
 
             s.WhereStatement.Should().BeNull();
 
-            s.CalledByMethod.Should().Be(SelectStatement.CalledByMethods.LastOrDefault);
+            s.CalledByMethod.Should().Be(CalledByMethods.LastOrDefault);
         }
 
         [Fact]

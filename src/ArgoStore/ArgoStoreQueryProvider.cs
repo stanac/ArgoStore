@@ -141,6 +141,11 @@ namespace ArgoStore
 
                 if (result == null)
                 {
+                    if (ts.SelectStatement.CalledByMethod.ShouldThrowOnNotFound())
+                    {
+                        throw new InvalidOperationException("Collection is empty");
+                    }
+
                     return null;
                 }
 

@@ -4,6 +4,7 @@ using System.Linq;
 using Xunit;
 using System;
 using System.Collections.Generic;
+using ArgoStore.TestsCommon.Entities;
 using Xunit.Abstractions;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable ReplaceWithSingleCallToFirstOrDefault
@@ -129,7 +130,7 @@ namespace ArgoStore.IntegrationTests
                     .Where(x => x.Name == "non existing")
                     .First();
             };
-
+            
             query.Should().Throw<InvalidOperationException>();
         }
 

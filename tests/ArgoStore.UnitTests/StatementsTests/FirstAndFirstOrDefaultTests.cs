@@ -92,7 +92,7 @@ namespace ArgoStore.UnitTests.StatementsTests
             s.Top.Value.Should().Be(1);
 
             s.WhereStatement.Should().BeNull();
-            s.CalledByMethod.Should().Be(SelectStatement.CalledByMethods.First);
+            s.CalledByMethod.Should().Be(CalledByMethods.First);
         }
 
         [Fact]

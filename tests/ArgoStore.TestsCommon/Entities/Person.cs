@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArgoStore.IntegrationTests.Entities
+namespace ArgoStore.TestsCommon.Entities
 {
     public class Person
     {

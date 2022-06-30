@@ -9,7 +9,7 @@ namespace ArgoStore.Statements
 
     internal static class CalledByMethodsExtensions
     {
-        private static readonly CalledByMethods[] _returningOnlyOneMethods = new CalledByMethods[]
+        private static readonly CalledByMethods[] _returningOnlyOneMethods = 
         {
             CalledByMethods.First,
             CalledByMethods.FirstOrDefault,
@@ -19,6 +19,15 @@ namespace ArgoStore.Statements
             CalledByMethods.SingleOrDefault
         };
 
+        private static readonly CalledByMethods[] _shouldThrowOnNotFound = 
+        {
+            CalledByMethods.First,
+            CalledByMethods.Last,
+            CalledByMethods.Single
+        };
+
         public static bool ItSelectsOnlyOne(this CalledByMethods m) => _returningOnlyOneMethods.Contains(m);
+
+        public static bool ShouldThrowOnNotFound(this CalledByMethods m) => _shouldThrowOnNotFound.Contains(m);
     }
 }

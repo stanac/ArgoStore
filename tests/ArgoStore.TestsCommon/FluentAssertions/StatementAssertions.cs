@@ -1,5 +1,4 @@
-﻿using ArgoStore;
-using FluentAssertions.Execution;
+﻿using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using System;
 using ArgoStore.Statements;
