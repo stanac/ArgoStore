@@ -60,7 +60,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         private Type GetTargetType(Expression expression)
         {
-            if (TypeHelpers.ImeplementsIQueryableGenericInteface(expression.Type))
+            if (TypeHelpers.ImplementsIQueryableGenericInterface(expression.Type))
             {
                 return expression.Type.GetGenericArguments()[0];
             }

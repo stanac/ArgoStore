@@ -55,7 +55,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                 }
                 else if (me.Arguments[0] is MethodCallExpression mc)
                 {
-                    return TypeHelpers.ImeplementsIQueryableGenericInteface(mc.Type);
+                    return TypeHelpers.ImplementsIQueryableGenericInterface(mc.Type);
                 }
             }
 

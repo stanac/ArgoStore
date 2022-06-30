@@ -181,16 +181,32 @@ namespace ArgoStore
         {
             if (TypeHelpers.IsAnonymousType(selectStatement.TypeTo))
             {
-                foreach (var r in rows)
+                foreach (var row in rows)
                 {
-                    yield return CreateResultAnonymousObject(r, selectStatement);
+                    yield return CreateResultAnonymousObject(row, selectStatement);
+                }
+            }
+            else if (TypeHelpers.IsPrimitiveType(selectStatement.TypeTo))
+            {
+                Type dbObjectType = null;
+
+                foreach (object[] row in rows)
+                {
+                    Debug.Assert(row.Length == 1);
+
+                    if (dbObjectType == null)
+                    {
+                        dbObjectType = row[0].GetType();
+                    }
+
+                    yield return CastResultingType(row[0], dbObjectType, selectStatement.TypeTo);
                 }
             }
             else
             {
-                foreach (var r in rows)
+                foreach (object[] row in rows)
                 {
-                    yield return CreateResultObject(r, selectStatement);
+                    yield return CreateResultObject(row, selectStatement);
                 }
             }
         }
@@ -217,26 +233,19 @@ namespace ArgoStore
             return Activator.CreateInstance(selectStatement.TypeTo, row);
         }
 
-        private static bool IsCountExpression(Expression e)
+        private static object CastResultingType(object dbObject, Type dbObjectType, Type typeTo)
         {
-            if (e is MethodCallExpression mce)
+            if (dbObject == DBNull.Value)
             {
-                return mce.Method.DeclaringType == typeof(Queryable) 
-                       && (mce.Method.Name == "Count" || mce.Method.Name == "LongCount");
+                return null;
             }
 
-            return false;
-        }
-
-        private static bool IsAnyExpression(Expression e)
-        {
-            if (e is MethodCallExpression mce)
+            if (dbObjectType == typeTo)
             {
-                return mce.Method.DeclaringType == typeof(Queryable)
-                       && mce.Method.Name == "Any";
+                return dbObject;
             }
 
-            return false;
+            throw new NotImplementedException();
         }
     }
 }

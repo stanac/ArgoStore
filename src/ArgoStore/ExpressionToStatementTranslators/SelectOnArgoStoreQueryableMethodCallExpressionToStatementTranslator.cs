@@ -12,7 +12,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             if (expression is MethodCallExpression m)
             {
-                return m.Method.Name == "Select" && !(m.Arguments[0] is MethodCallExpression) && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
+                return m.Method.Name == "Select" && !(m.Arguments[0] is MethodCallExpression) && TypeHelpers.ImplementsIQueryableGenericInterface(m.Arguments[0].Type);
             }
 
             return false;
@@ -33,7 +33,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
         {
             if (expression is ConstantExpression ce)
             {
-                if (ce.Type.IsGenericType && TypeHelpers.ImeplementsIQueryableGenericInteface(ce.Type))
+                if (ce.Type.IsGenericType && TypeHelpers.ImplementsIQueryableGenericInterface(ce.Type))
                 {
                     return ce.Type.GetGenericArguments()[0];
                 }
@@ -41,7 +41,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
             if (expression is ParameterExpression pe)
             {
-                if (pe.Type.IsGenericType && TypeHelpers.ImeplementsIQueryableGenericInteface(pe.Type))
+                if (pe.Type.IsGenericType && TypeHelpers.ImplementsIQueryableGenericInterface(pe.Type))
                 {
                     return pe.Type.GetGenericArguments()[0];
                 }

@@ -20,7 +20,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
                  result = _supportedMethodNames.Contains(m.Method.Name)
                           && !(ExpressionHelpers.IsWhereCall(m.Arguments[0]))
                           && !(ExpressionHelpers.IsSelectCall(m.Arguments[0]))
-                          && TypeHelpers.ImeplementsIQueryableGenericInteface(m.Arguments[0].Type);
+                          && TypeHelpers.ImplementsIQueryableGenericInterface(m.Arguments[0].Type);
             }
 
             return result;
@@ -57,7 +57,7 @@ namespace ArgoStore.ExpressionToStatementTranslators
 
         private Type GetTargetType(Expression expression)
         {
-            if (TypeHelpers.ImeplementsIQueryableGenericInteface(expression.Type))
+            if (TypeHelpers.ImplementsIQueryableGenericInterface(expression.Type))
             {
                 return expression.Type.GetGenericArguments()[0];
             }

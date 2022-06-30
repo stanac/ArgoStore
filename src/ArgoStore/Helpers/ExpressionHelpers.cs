@@ -21,7 +21,7 @@ namespace ArgoStore.Helpers
         {
             if (e is MethodCallExpression me && me.Method.Name == "Where")
             {
-                return TypeHelpers.ImeplementsIQueryableGenericInteface(e.Type);
+                return TypeHelpers.ImplementsIQueryableGenericInterface(e.Type);
             }
 
             return false;
@@ -31,7 +31,7 @@ namespace ArgoStore.Helpers
         {
             if (e is MethodCallExpression me && me.Method.Name == "Select")
             {
-                return TypeHelpers.ImeplementsIQueryableGenericInteface(e.Type);
+                return TypeHelpers.ImplementsIQueryableGenericInterface(e.Type);
             }
 
             return false;

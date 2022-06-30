@@ -18,7 +18,7 @@ namespace ArgoStore.IntegrationTests
             TestData td = new TestData(TestDbConnectionString);
             td.InsertTestPersons();
         }
-
+        
         [SkippableFact]
         public void SelectSinglePropertyFromSubQuery()
         {
