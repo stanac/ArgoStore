@@ -1,12 +1,4 @@
-﻿using ArgoStore.IntegrationTests.Entities;
-using FluentAssertions;
-using System.Collections.Generic;
-using System.Linq;
-using ArgoStore.TestsCommon.Entities;
-using Xunit;
-using Xunit.Abstractions;
-
-namespace ArgoStore.IntegrationTests
+﻿namespace ArgoStore.IntegrationTests
 {
     public class WhereTests : IntegrationTestsBase
     {

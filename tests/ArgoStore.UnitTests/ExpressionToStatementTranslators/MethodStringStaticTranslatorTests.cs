@@ -1,16 +1,9 @@
-﻿using FluentAssertions;
-using ArgoStore.ExpressionToStatementTranslators;
-using System;
-using System.Linq.Expressions;
-using ArgoStore.Statements;
-using Xunit;
-
-namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
+﻿namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
 {
     public class MethodStringStaticTranslatorTests
     {
         [Fact]
-        public void Transalte_StringIsNullOrEmpty_TranslatesToExpectedExpression()
+        public void Translate_StringIsNullOrEmpty_TranslatesToExpectedExpression()
         {
             Expression<Action> ex = () => string.IsNullOrEmpty("");
 
@@ -22,7 +15,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Transalte_StringIsNullOrWhiteSpace_TranslatesToExpectedExpression()
+        public void Translate_StringIsNullOrWhiteSpace_TranslatesToExpectedExpression()
         {
             Expression<Action> ex = () => string.IsNullOrWhiteSpace("");
 
@@ -34,7 +27,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Transalte_StringComparisonNoTypeSet_TranslatesToExpectedExpression()
+        public void Translate_StringComparisonNoTypeSet_TranslatesToExpectedExpression()
         {
             Expression<Action> ex = () => string.Equals("Marcus", "MARCUS");
 
@@ -52,7 +45,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         [InlineData(StringComparison.CurrentCulture, false)]
         [InlineData(StringComparison.InvariantCultureIgnoreCase, true)]
         [InlineData(StringComparison.InvariantCulture, false)]
-        public void Transalte_StringComparison_TranslatesToExpectedExpression(StringComparison c, bool shouldIgnoreCase)
+        public void Translate_StringComparison_TranslatesToExpectedExpression(StringComparison c, bool shouldIgnoreCase)
         {
             Expression<Action> ex = () => string.Equals("Marcus", "MARCUS", c);
 

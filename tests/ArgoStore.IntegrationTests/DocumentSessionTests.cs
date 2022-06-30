@@ -1,8 +1,4 @@
-﻿using System.Linq;
-using ArgoStore.IntegrationTests.Entities;
-using FluentAssertions;
-using Xunit;
-using Xunit.Abstractions;
+﻿using ArgoStore.IntegrationTests.Entities;
 
 namespace ArgoStore.IntegrationTests
 {

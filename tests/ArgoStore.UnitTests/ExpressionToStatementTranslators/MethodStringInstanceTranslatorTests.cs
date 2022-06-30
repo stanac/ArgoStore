@@ -1,16 +1,9 @@
-﻿using FluentAssertions;
-using ArgoStore.ExpressionToStatementTranslators;
-using System;
-using System.Linq.Expressions;
-using ArgoStore.Statements;
-using Xunit;
-
-namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
+﻿namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
 {
     public class MethodStringInstanceTranslatorTests
     {
         [Fact]
-        public void Transalte_StringTrim_TranslatesToExpectedExpression()
+        public void Translate_StringTrim_TranslatesToExpectedExpression()
         {
             Expression<Func<TestEntityPerson, bool>> ex = x => x.Name.Trim() == "Marcus";
 
@@ -26,7 +19,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Transalte_StringToUpper_TranslatesToExpectedExpression()
+        public void Translate_StringToUpper_TranslatesToExpectedExpression()
         {
             Expression<Action> ex = () => "".ToUpper();
 
@@ -37,7 +30,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Transalte_StringToLower_TranslatesToExpectedExpression()
+        public void Translate_StringToLower_TranslatesToExpectedExpression()
         {
             Expression<Action> ex = () => "".ToLower();
 
@@ -48,7 +41,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrim_TransaltedToExpectedExpression()
+        public void Translate_StringTrim_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".Trim();
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -61,7 +54,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimWithParams_TransaltedToExpectedExpression()
+        public void Translate_StringTrimWithParams_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".Trim('a', 'b', 'c');
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -79,7 +72,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimWithStringToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimWithStringToCharArray_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".Trim("abc".ToCharArray());
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -97,7 +90,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimWithStringVariableToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimWithStringVariableToCharArray_TranslatedToExpectedExpression()
         {
             string variable = "abc";
             Expression<Action> ex = () => "".Trim(variable.ToCharArray());
@@ -116,7 +109,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimWithVariableToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimWithVariableToCharArray_TranslatedToExpectedExpression()
         {
             char[] variable = "abc".ToCharArray();
             Expression<Action> ex = () => "".Trim(variable);
@@ -135,7 +128,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimStart_TransaltedToExpectedExpression()
+        public void Translate_StringTrimStart_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimStart();
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -148,7 +141,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimStartWithParams_TransaltedToExpectedExpression()
+        public void Translate_StringTrimStartWithParams_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimStart('a', 'b', 'c');
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -166,7 +159,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimStartWithStringToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimStartWithStringToCharArray_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimStart("abc".ToCharArray());
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -184,7 +177,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimStartWithStringVariableToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimStartWithStringVariableToCharArray_TranslatedToExpectedExpression()
         {
             string variable = "abc";
             Expression<Action> ex = () => "".TrimStart(variable.ToCharArray());
@@ -203,7 +196,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimStartWithVariableToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimStartWithVariableToCharArray_TranslatedToExpectedExpression()
         {
             char[] variable = "abc".ToCharArray();
             Expression<Action> ex = () => "".TrimStart(variable);
@@ -222,7 +215,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimEnd_TransaltedToExpectedExpression()
+        public void Translate_StringTrimEnd_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimEnd();
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -235,7 +228,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimEndWithParams_TransaltedToExpectedExpression()
+        public void Translate_StringTrimEndWithParams_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimEnd('a', 'b', 'c');
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -253,7 +246,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimEndWithStringToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimEndWithStringToCharArray_TranslatedToExpectedExpression()
         {
             Expression<Action> ex = () => "".TrimEnd("abc".ToCharArray());
             var where = ExpressionToStatementTranslatorStrategy.Translate(ex);
@@ -271,7 +264,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimEndWithStringVariableToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimEndWithStringVariableToCharArray_TranslatedToExpectedExpression()
         {
             string variable = "abc";
             Expression<Action> ex = () => "".TrimEnd(variable.ToCharArray());
@@ -290,7 +283,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Translate_StringTrimEndWithVariableToCharArray_TransaltedToExpectedExpression()
+        public void Translate_StringTrimEndWithVariableToCharArray_TranslatedToExpectedExpression()
         {
             char[] variable = "abc".ToCharArray();
             Expression<Action> ex = () => "".TrimEnd(variable);

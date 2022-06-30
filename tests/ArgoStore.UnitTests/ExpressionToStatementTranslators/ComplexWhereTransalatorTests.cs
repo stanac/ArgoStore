@@ -1,19 +1,10 @@
-﻿using FluentAssertions;
-using ArgoStore.ExpressionToStatementTranslators;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using ArgoStore.Statements;
-using Xunit;
-
-namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
+﻿namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
 {
-    public class ComplexWhereTransalatorTests
+    public class ComplexWhereTranslatorTests
     {
 
         [Fact]
-        public void Transalte_ExpressionWithBrackets_TranslatesToExpectedExpression()
+        public void Translate_ExpressionWithBrackets_TranslatesToExpectedExpression()
         {
             Expression<Func<TestEntityPerson, bool>> ex = x => x.Active || (x.BirthYear > 1980 && x.BirthYear < 1990);
 
@@ -31,7 +22,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Transalte_ExpressionWithStringArrayContains_TranslatesToExpectedExpression()
+        public void Translate_ExpressionWithStringArrayContains_TranslatesToExpectedExpression()
         {
             string[] allowedNames = new[] { "Marcus", "Kovalski" };
 
@@ -57,7 +48,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Transalte_ExpressionWithStringListContains_TranslatesToExpectedExpression()
+        public void Translate_ExpressionWithStringListContains_TranslatesToExpectedExpression()
         {
             IReadOnlyList<string> allowedNames = new List<string> { "Marcus", "Kovalski" };
 
@@ -83,7 +74,7 @@ namespace ArgoStore.UnitTests.ExpressionToStatementTranslators
         }
 
         [Fact]
-        public void Transalte_ExpressionWithIntListContains_TranslatesToExpectedExpression()
+        public void Translate_ExpressionWithIntListContains_TranslatesToExpectedExpression()
         {
             IReadOnlyList<int> years = new List<int> { 1, 2, 3, 4 };
 

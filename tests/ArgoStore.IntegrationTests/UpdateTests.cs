@@ -1,12 +1,4 @@
-﻿using System;
-using System.Linq;
-using ArgoStore.IntegrationTests.Entities;
-using ArgoStore.TestsCommon.Entities;
-using FluentAssertions;
-using Xunit;
-using Xunit.Abstractions;
-
-namespace ArgoStore.IntegrationTests
+﻿namespace ArgoStore.IntegrationTests
 {
     public class UpdateTests : IntegrationTestsBase
     {

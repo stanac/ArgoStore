@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ArgoStore.UnitTests
+﻿namespace ArgoStore.UnitTests
 {
     public class TestData
     {

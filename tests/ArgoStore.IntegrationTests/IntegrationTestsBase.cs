@@ -1,10 +1,6 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
+﻿using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Data.Sqlite;
-using Xunit;
-using Xunit.Abstractions;
 using Xunit.Sdk;
 
 namespace ArgoStore.IntegrationTests

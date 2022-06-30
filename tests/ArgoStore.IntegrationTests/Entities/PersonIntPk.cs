@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ArgoStore.IntegrationTests.Entities
+﻿namespace ArgoStore.IntegrationTests.Entities
 {
     public class PersonIntPk
     {

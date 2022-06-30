@@ -1,12 +1,4 @@
-﻿using ArgoStore.ExpressionToStatementTranslators;
-using FluentAssertions;
-using System;
-using System.Linq;
-using System.Linq.Expressions;
-using ArgoStore.Statements;
-using Xunit;
-
-namespace ArgoStore.UnitTests.StatementsTests
+﻿namespace ArgoStore.UnitTests.StatementsTests
 {
     public class FirstAndFirstOrDefaultTests
     {
