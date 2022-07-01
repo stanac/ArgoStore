@@ -3,7 +3,7 @@
 
 using ArgoStore.Configurations;
 
-namespace ArgoStore.UnitTests;
+namespace ArgoStore.UnitTests.Configurations;
 
 public class EntityMetadataTests
 {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace ArgoStore.Configurations
 {
@@ -57,6 +58,23 @@ namespace ArgoStore.Configurations
                     throw new InvalidOperationException($"Property `{prop}` not found on type `{EntityType.FullName}`");
                 }
             }
+        }
+
+        public string GetIndexName()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (Unique) sb.Append("UX_");
+            else sb.Append("IX_");
+
+            sb.Append(EntityType.Name);
+
+            foreach (string p in PropertyNames)
+            {
+                sb.Append("_").Append(p);
+            }
+
+            return sb.ToString();
         }
 
         public override string ToString() => $"{(Unique ? "Unique" : "NonUnique")} index on {EntityType.Name} ('{string.Join("', '", PropertyNames)}')";
