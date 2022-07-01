@@ -1,4 +1,5 @@
 ﻿using System;
+using ArgoStore.Configurations;
 
 namespace ArgoStore
 {

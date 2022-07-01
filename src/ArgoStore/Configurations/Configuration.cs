@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ArgoStore
+namespace ArgoStore.Configurations
 {
     internal class Configuration
     {

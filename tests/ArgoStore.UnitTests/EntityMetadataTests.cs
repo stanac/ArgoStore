@@ -1,6 +1,8 @@
 ﻿// ReSharper disable UnusedMember.Local
 // ReSharper disable ObjectCreationAsStatement
 
+using ArgoStore.Configurations;
+
 namespace ArgoStore.UnitTests;
 
 public class EntityMetadataTests

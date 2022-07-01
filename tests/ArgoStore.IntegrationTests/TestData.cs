@@ -1,4 +1,5 @@
-﻿using ArgoStore.Helpers;
+﻿using ArgoStore.Configurations;
+using ArgoStore.Helpers;
 using ArgoStore.IntegrationTests.Entities;
 using Microsoft.Data.Sqlite;
 

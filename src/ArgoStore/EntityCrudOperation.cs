@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data;
 using System.Linq.Expressions;
+using ArgoStore.Configurations;
 
 namespace ArgoStore
 {

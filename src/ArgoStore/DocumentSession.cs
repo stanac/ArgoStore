@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
+using ArgoStore.Configurations;
 using ArgoStore.EntityCrudOperationConverters;
 using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;

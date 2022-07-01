@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
+using ArgoStore.Configurations;
 using Microsoft.Data.Sqlite;
 using Xunit.Sdk;
 

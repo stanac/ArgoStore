@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using System;
+using ArgoStore.Configurations;
 
 namespace ArgoStore.Helpers
 {
