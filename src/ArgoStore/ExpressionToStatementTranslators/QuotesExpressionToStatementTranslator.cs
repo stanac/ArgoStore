@@ -18,7 +18,7 @@ internal class QuotesExpressionToStatementTranslator : IExpressionToStatementTra
 
     public Statement Translate(Expression expression)
     {
-        var ex = ExpressionHelpers.RemoveQuotes(expression);
+        var ex = expression.RemoveQuotes();
         return ExpressionToStatementTranslatorStrategy.Translate(ex);
     }
 }

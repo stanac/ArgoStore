@@ -34,9 +34,9 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
         Type resultType = expression.Type;
 
-        if (TypeHelpers.IsCollectionType(resultType))
+        if (resultType.IsCollectionType())
         {
-            resultType = TypeHelpers.GetCollectionElementType(resultType);
+            resultType = resultType.GetCollectionElementType();
         }
 
         Type queryType = typeof(ArgoStoreQueryable<>).MakeGenericType(resultType);
@@ -76,7 +76,7 @@ internal class ArgoStoreQueryProvider : IQueryProvider
             return (TResult)result;
         }
             
-        if (TypeHelpers.IsCollectionType(resultType))
+        if (resultType.IsCollectionType())
         {
             IEnumerable resultCollection = result as IEnumerable;
 
@@ -182,14 +182,14 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
     private static IEnumerable<object> CreateResultObjects(IEnumerable<object[]> rows, SelectStatement selectStatement)
     {
-        if (TypeHelpers.IsAnonymousType(selectStatement.TypeTo))
+        if (selectStatement.TypeTo.IsAnonymousType())
         {
             foreach (var row in rows)
             {
                 yield return CreateResultAnonymousObject(row, selectStatement);
             }
         }
-        else if (TypeHelpers.IsPrimitiveType(selectStatement.TypeTo))
+        else if (selectStatement.TypeTo.IsPrimitiveType())
         {
             Type dbObjectType = null;
 

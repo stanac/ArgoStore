@@ -2,9 +2,9 @@
 
 namespace ArgoStore.Helpers;
 
-internal static class ExpressionHelpers
+internal static class ExpressionExtensions
 {
-    public static Expression RemoveQuotes(Expression e)
+    public static Expression RemoveQuotes(this Expression e)
     {
         while (e.NodeType == ExpressionType.Quote)
         {
@@ -17,27 +17,27 @@ internal static class ExpressionHelpers
         return e;
     }
 
-    public static bool IsWhereCall(Expression e)
+    public static bool IsWhereCall(this Expression e)
     {
         if (e is MethodCallExpression me && me.Method.Name == "Where")
         {
-            return TypeHelpers.ImplementsIQueryableGenericInterface(e.Type);
+            return e.Type.ImplementsIQueryableGenericInterface();
         }
 
         return false;
     }
 
-    public static bool IsSelectCall(Expression e)
+    public static bool IsSelectCall(this Expression e)
     {
         if (e is MethodCallExpression me && me.Method.Name == "Select")
         {
-            return TypeHelpers.ImplementsIQueryableGenericInterface(e.Type);
+            return e.Type.ImplementsIQueryableGenericInterface();
         }
 
         return false;
     }
 
-    public static bool IsLambda(Expression e)
+    public static bool IsLambda(this Expression e)
     {
         while (e.NodeType == ExpressionType.Quote)
         {

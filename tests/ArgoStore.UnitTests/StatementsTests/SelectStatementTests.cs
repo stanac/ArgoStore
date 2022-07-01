@@ -1,4 +1,5 @@
 ﻿using ArgoStore.Helpers;
+using TypeExtensions = ArgoStore.Helpers.TypeExtensions;
 
 namespace ArgoStore.UnitTests.StatementsTests;
 
@@ -15,7 +16,7 @@ public class SelectStatementTests
 
         SelectStatement s = st as SelectStatement;
         s.TypeFrom.Should().Be(typeof(TestEntityPerson));
-        TypeHelpers.IsAnonymousType(s.TypeTo).Should().BeTrue();
+        s.TypeTo.IsAnonymousType().Should().BeTrue();
 
         s.SelectElements.Should().HaveCount(2);
 
@@ -37,7 +38,7 @@ public class SelectStatementTests
 
         SelectStatement s = st as SelectStatement;
         s.TypeFrom.Should().Be(typeof(TestEntityPerson));
-        TypeHelpers.IsAnonymousType(s.TypeTo).Should().BeTrue();
+        s.TypeTo.IsAnonymousType().Should().BeTrue();
 
         s.SelectElements.Should().HaveCount(2);
 
@@ -60,7 +61,7 @@ public class SelectStatementTests
 
         SelectStatement s = st as SelectStatement;
         s.TypeFrom.Should().Be(typeof(TestEntityPerson));
-        TypeHelpers.IsAnonymousType(s.TypeTo).Should().BeFalse();
+        s.TypeTo.IsAnonymousType().Should().BeFalse();
 
         s.SelectElements.Should().HaveCount(2);
 

@@ -15,7 +15,7 @@ internal class NewArrayInitExpressionToStatementTranslator : IExpressionToStatem
         List<ConstantStatement> constants = exp.Expressions.Select(x => ExpressionToStatementTranslatorStrategy.Translate(x) as ConstantStatement).ToList();
         List<string> translated = constants.Select(x => x.Value).ToList();
 
-        Type elementType = TypeHelpers.GetCollectionElementType(exp.Type);
+        Type elementType = exp.Type.GetCollectionElementType();
 
         bool isString = elementType == typeof(string) || elementType == typeof(char) || elementType.IsEnum;
         bool isBool = elementType == typeof(bool);

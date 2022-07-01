@@ -53,7 +53,7 @@ internal class SelectOnWhereMethodCallExpressionToStatementTranslator : IExpress
             }
             else if (me.Arguments[0] is MethodCallExpression mc)
             {
-                return TypeHelpers.ImplementsIQueryableGenericInterface(mc.Type);
+                return mc.Type.ImplementsIQueryableGenericInterface();
             }
         }
 

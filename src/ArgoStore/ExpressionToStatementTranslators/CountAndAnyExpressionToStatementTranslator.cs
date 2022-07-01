@@ -78,9 +78,9 @@ internal class CountAndAnyExpressionToStatementTranslator : IExpressionToStateme
 
         Type calledOn = methodParams[0].ParameterType;
 
-        if (TypeHelpers.IsCollectionType(calledOn))
+        if (calledOn.IsCollectionType())
         {
-            return TypeHelpers.GetCollectionElementType(calledOn);
+            return calledOn.GetCollectionElementType();
         }
 
         throw new NotSupportedException("Unknown type in CountAndAnyExpressionToStatementTranslator");

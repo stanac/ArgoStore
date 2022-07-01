@@ -51,7 +51,7 @@ internal static class SelectLambdaTranslator
 
             for (int i = 0; i < ne.Members.Count; i++)
             {
-                Type type = TypeHelpers.GetMemberType(ne.Members[i]);
+                Type type = ne.Members[i].GetMemberType();
                 PropertyAccessStatement pa = new PropertyAccessStatement(ne.Members[i].Name, type == typeof(bool));
 
                 var prop = ExpressionToStatementTranslatorStrategy.Translate(ne.Arguments[i]) as PropertyAccessStatement;
@@ -80,7 +80,7 @@ internal static class SelectLambdaTranslator
                     var input = ExpressionToStatementTranslatorStrategy.Translate(ma.Expression);
                     string intputProp = (input as PropertyAccessStatement).Name;
 
-                    selectElements.Add(new SelectStatementElement(s, TypeHelpers.GetMemberType(ma.Member), false, intputProp, outputProp));
+                    selectElements.Add(new SelectStatementElement(s, ma.Member.GetMemberType(), false, intputProp, outputProp));
                 }
                 else
                 {

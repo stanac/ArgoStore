@@ -27,7 +27,7 @@ internal class SelectOnSelectMethodCallExpressionToStatementTranslator : IExpres
 
         if (subQuery == null) throw new NotSupportedException($"Expected subquery on Select in {nameof(SelectOnSelectMethodCallExpressionToStatementTranslator)}");
 
-        LambdaExpression l = ExpressionHelpers.RemoveQuotes(mc.Arguments[1]) as LambdaExpression;
+        LambdaExpression l = mc.Arguments[1].RemoveQuotes() as LambdaExpression;
 
         if (l == null) throw new NotSupportedException($"Expected lambda in Select in {nameof(SelectOnSelectMethodCallExpressionToStatementTranslator)}");
 

@@ -10,7 +10,7 @@ internal class SelectOnArgoStoreQueryableMethodCallExpressionToStatementTranslat
     {
         if (expression is MethodCallExpression m)
         {
-            return m.Method.Name == "Select" && !(m.Arguments[0] is MethodCallExpression) && TypeHelpers.ImplementsIQueryableGenericInterface(m.Arguments[0].Type);
+            return m.Method.Name == "Select" && !(m.Arguments[0] is MethodCallExpression) && m.Arguments[0].Type.ImplementsIQueryableGenericInterface();
         }
 
         return false;
@@ -29,9 +29,9 @@ internal class SelectOnArgoStoreQueryableMethodCallExpressionToStatementTranslat
 
     private Type GetTargetType(Expression expression)
     {
-        if (ExpressionHelpers.IsLambda(expression))
+        if (expression.IsLambda())
         {
-            expression = ExpressionHelpers.RemoveQuotes(expression);
+            expression = expression.RemoveQuotes();
         }
 
         if (expression is LambdaExpression le)
@@ -41,7 +41,7 @@ internal class SelectOnArgoStoreQueryableMethodCallExpressionToStatementTranslat
 
         if (expression is ConstantExpression ce)
         {
-            if (ce.Type.IsGenericType && TypeHelpers.ImplementsIQueryableGenericInterface(ce.Type))
+            if (ce.Type.IsGenericType && ce.Type.ImplementsIQueryableGenericInterface())
             {
                 return ce.Type.GetGenericArguments()[0];
             }
@@ -49,7 +49,7 @@ internal class SelectOnArgoStoreQueryableMethodCallExpressionToStatementTranslat
 
         if (expression is ParameterExpression pe)
         {
-            if (pe.Type.IsGenericType && TypeHelpers.ImplementsIQueryableGenericInterface(pe.Type))
+            if (pe.Type.IsGenericType && pe.Type.ImplementsIQueryableGenericInterface())
             {
                 return pe.Type.GetGenericArguments()[0];
             }

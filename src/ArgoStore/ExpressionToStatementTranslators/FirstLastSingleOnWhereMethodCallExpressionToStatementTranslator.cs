@@ -14,8 +14,8 @@ internal class FirstLastSingleOnWhereMethodCallExpressionToStatementTranslator :
         if (expression is MethodCallExpression me)
         {
             result = SupportedMethodNames.Contains(me.Method.Name)
-                     && ExpressionHelpers.IsWhereCall(me.Arguments[0])
-                     && (me.Arguments.Count == 1 || (me.Arguments.Count == 2 && ExpressionHelpers.IsLambda(me.Arguments[1])));
+                     && me.Arguments[0].IsWhereCall()
+                     && (me.Arguments.Count == 1 || (me.Arguments.Count == 2 && me.Arguments[1].IsLambda()));
         }
 
         return result;

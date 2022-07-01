@@ -22,7 +22,7 @@ internal class SelectOnOrderByExpressionToStatementTranslator : IExpressionToSta
 
         OrderByStatement orderBy = ExpressionToStatementTranslatorStrategy.Translate(m.Arguments[0]) as OrderByStatement;
 
-        LambdaExpression lambda = ExpressionHelpers.RemoveQuotes(m.Arguments[1]) as LambdaExpression;
+        LambdaExpression lambda = m.Arguments[1].RemoveQuotes() as LambdaExpression;
 
         SelectStatement ret = SelectLambdaTranslator.Translate(lambda, lambda.ReturnType, orderBy, CalledByMethods.Select);
 
@@ -31,7 +31,7 @@ internal class SelectOnOrderByExpressionToStatementTranslator : IExpressionToSta
 
     private bool IsOrderByCall(Expression ex)
     {
-        ex = ExpressionHelpers.RemoveQuotes(ex);
+        ex = ex.RemoveQuotes();
 
         if (ex is MethodCallExpression m)
         {

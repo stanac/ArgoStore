@@ -58,7 +58,7 @@ internal class WhereMethodCallExpressionToStatementTranslator : IExpressionToSta
 
     private Type GetTargetType(Expression expression)
     {
-        if (TypeHelpers.ImplementsIQueryableGenericInterface(expression.Type))
+        if (expression.Type.ImplementsIQueryableGenericInterface())
         {
             return expression.Type.GetGenericArguments()[0];
         }

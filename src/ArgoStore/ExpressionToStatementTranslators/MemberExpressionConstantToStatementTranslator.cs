@@ -24,9 +24,9 @@ internal class MemberExpressionConstantToStatementTranslator : IExpressionToStat
 
         Type valueType = value.GetType();
 
-        if (TypeHelpers.IsCollectionType(valueType))
+        if (valueType.IsCollectionType())
         {
-            Type collectionType = TypeHelpers.GetCollectionElementType(valueType);
+            Type collectionType = valueType.GetCollectionElementType();
             bool isString = collectionType == typeof(string);
             bool isBool = collectionType == typeof(bool);
 

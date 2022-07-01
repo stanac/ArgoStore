@@ -3,18 +3,18 @@ using System.Runtime.CompilerServices;
 
 namespace ArgoStore.Helpers;
 
-internal static class TypeHelpers
+internal static class TypeExtensions
 {
     private static readonly Type[] _primitiveTypes = GetSupportedPrimitiveTypes().ToArray();
 
-    public static bool IsCollectionType(Type type)
+    public static bool IsCollectionType(this Type type)
     {
         if (type is null) throw new ArgumentNullException(nameof(type));
 
         return type.IsArray || TypeIsEnumerableOfT(type) || TypeImplementsIEnumerableOfT(type);
     }
 
-    public static Type GetCollectionElementType(Type collectionType)
+    public static Type GetCollectionElementType(this Type collectionType)
     {
         if (collectionType is null) throw new ArgumentNullException(nameof(collectionType));
 
@@ -28,7 +28,7 @@ internal static class TypeHelpers
         throw new ArgumentException($"Type {nameof(collectionType)} is not a generic collection type or typed array");
     }
 
-    public static bool ImplementsIQueryableGenericInterface(Type t)
+    public static bool ImplementsIQueryableGenericInterface(this Type t)
     {
         return (t.IsGenericType && t.IsClass && t.GetInterfaces().Any(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IQueryable<>)))
                || (t.IsInterface && t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IQueryable<>))
@@ -36,7 +36,7 @@ internal static class TypeHelpers
             ;
     }
 
-    public static bool IsQueryable(Type t)
+    public static bool IsQueryable(this Type t)
     {
         if (t.IsGenericType)
         {
@@ -48,14 +48,14 @@ internal static class TypeHelpers
         return false;
     }
 
-    public static Type CreateIEnumerableOfType(Type elementType)
+    public static Type CreateIEnumerableOfType(this Type elementType)
     {
         if (elementType == null) throw new ArgumentNullException(nameof(elementType));
 
         return typeof(IEnumerable<>).MakeGenericType(elementType);
     }
 
-    public static Type GetMemberType(MemberInfo mi)
+    public static Type GetMemberType(this MemberInfo mi)
     {
         if (mi is null) throw new ArgumentNullException(nameof(mi));
 
@@ -72,16 +72,16 @@ internal static class TypeHelpers
         throw new NotSupportedException($"Cannot {nameof(GetMemberType)} from {mi.GetType().FullName}");
     }
 
-    private static bool TypeIsEnumerableOfT(Type t) =>
+    private static bool TypeIsEnumerableOfT(this Type t) =>
         t.IsGenericType && t.IsInterface && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);
 
-    private static bool TypeImplementsIEnumerableOfT(Type t) =>
+    private static bool TypeImplementsIEnumerableOfT(this Type t) =>
         t.IsGenericType && t.GetInterfaces().Any(IsInterfaceTypeGenericIEnumerable);
 
-    private static bool IsInterfaceTypeGenericIEnumerable(Type t) =>
+    private static bool IsInterfaceTypeGenericIEnumerable(this Type t) =>
         t.IsInterface && t.IsGenericType && t.GenericTypeArguments.Length == 1 && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);
 
-    public static bool IsAnonymousType(Type type)
+    public static bool IsAnonymousType(this Type type)
     {
         if (type is null) throw new ArgumentNullException(nameof(type));
 
@@ -90,7 +90,7 @@ internal static class TypeHelpers
                && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"));
     }
 
-    public static bool IsPrimitiveType(Type t) => _primitiveTypes.Contains(t);
+    public static bool IsPrimitiveType(this Type t) => _primitiveTypes.Contains(t);
 
     public static IReadOnlyList<Type> GetSupportedPrimitiveTypes()
     {

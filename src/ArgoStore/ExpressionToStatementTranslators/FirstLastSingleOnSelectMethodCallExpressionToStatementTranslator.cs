@@ -15,8 +15,8 @@ internal class FirstLastSingleOnSelectMethodCallExpressionToStatementTranslator 
         if (expression is MethodCallExpression m)
         {
             result = _supportedMethodNames.Contains(m.Method.Name)
-                     && ExpressionHelpers.IsSelectCall(m.Arguments[0])
-                     && TypeHelpers.ImplementsIQueryableGenericInterface(m.Arguments[0].Type);
+                     && m.Arguments[0].IsSelectCall()
+                     && m.Arguments[0].Type.ImplementsIQueryableGenericInterface();
         }
 
         return result;
@@ -41,7 +41,7 @@ internal class FirstLastSingleOnSelectMethodCallExpressionToStatementTranslator 
 
     private Type GetTargetType(Expression expression)
     {
-        if (TypeHelpers.ImplementsIQueryableGenericInterface(expression.Type))
+        if (expression.Type.ImplementsIQueryableGenericInterface())
         {
             return expression.Type.GetGenericArguments()[0];
         }
