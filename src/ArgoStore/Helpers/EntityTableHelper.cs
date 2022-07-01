@@ -1,78 +1,78 @@
 ﻿using Microsoft.Data.Sqlite;
 using ArgoStore.Configurations;
 
-namespace ArgoStore.Helpers
+namespace ArgoStore.Helpers;
+
+internal class EntityTableHelper
 {
-    internal class EntityTableHelper
-    {
-        private readonly Configuration _config;
-        private readonly CacheHashSet<Type> _createdTables = new(); // make static to cache
+    private readonly Configuration _config;
+    private readonly CacheHashSet<Type> _createdTables = new(); // make static to cache
         
-        public EntityTableHelper(Configuration config)
+    public EntityTableHelper(Configuration config)
+    {
+        _config = config ?? throw new ArgumentNullException(nameof(config));
+    }
+
+    public static string GetTableName<T>() => GetTableName(typeof(T));
+
+    public static string GetTableName(Type t)
+    {
+        if (t is null) throw new ArgumentNullException(nameof(t));
+
+        return $"{t.Name}_json_docs";
+    }
+
+    public void EnsureEntityTableExists<T>() => EnsureEntityTableExists(typeof(T));
+
+    public void EnsureEntityTableExists(Type t)
+    {
+        if (t is null) throw new ArgumentNullException(nameof(t));
+
+        if (_createdTables.Contains(t))
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
+            return;
         }
 
-        public static string GetTableName<T>() => GetTableName(typeof(T));
+        string tableName = GetTableName(t);
 
-        public static string GetTableName(Type t)
+        bool tableExists = TableExists(tableName);
+
+        if (!tableExists)
         {
-            if (t is null) throw new ArgumentNullException(nameof(t));
-
-            return $"{t.Name}_json_docs";
-        }
-
-        public void EnsureEntityTableExists<T>() => EnsureEntityTableExists(typeof(T));
-
-        public void EnsureEntityTableExists(Type t)
-        {
-            if (t is null) throw new ArgumentNullException(nameof(t));
-
-            if (_createdTables.Contains(t))
+            if (_config.CreateEntitiesOnTheFly)
             {
-                return;
+                CreateTableIfNotExists(tableName);
+
+                _createdTables.Add(t);
             }
-
-            string tableName = GetTableName(t);
-
-            bool tableExists = TableExists(tableName);
-
-            if (!tableExists)
+            else
             {
-                if (_config.CreateEntitiesOnTheFly)
-                {
-                    CreateTableIfNotExists(tableName);
-
-                    _createdTables.Add(t);
-                }
-                else
-                {
-                    throw new InvalidOperationException(
-                        $"Table for entity {t.FullName} doesn't exist and configuration " +
-                        $"{nameof(Configuration.CreateEntitiesOnTheFly)} is set to False");
-                }
+                throw new InvalidOperationException(
+                    $"Table for entity {t.FullName} doesn't exist and configuration " +
+                    $"{nameof(Configuration.CreateEntitiesOnTheFly)} is set to False");
             }
         }
+    }
 
-        private bool TableExists(string tableName)
-        {
-            string sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=@tableName";
+    private bool TableExists(string tableName)
+    {
+        string sql = "SELECT COUNT(*) FROM sqlite_master WHERE type='table' AND name=@tableName";
 
-            using var c = new SqliteConnection(_config.ConnectionString);
-            c.Open();
+        using var c = new SqliteConnection(_config.ConnectionString);
+        c.Open();
 
-            var cmd = c.CreateCommand();
-            cmd.CommandText = sql;
-            cmd.Parameters.AddWithValue("tableName", tableName);
-            long count = (long)cmd.ExecuteScalar()!;
-            return count > 0;
-        }
+        var cmd = c.CreateCommand();
+        cmd.CommandText = sql;
+        cmd.Parameters.AddWithValue("tableName", tableName);
+        long count = (long)cmd.ExecuteScalar()!;
+        return count > 0;
+    }
 
-        private void CreateTableIfNotExists(string tableName)
-        {
-            tableName = EscapeSqliteParameter(tableName);
+    private void CreateTableIfNotExists(string tableName)
+    {
+        tableName = EscapeSqliteParameter(tableName);
 
-            string sql = $@"
+        string sql = $@"
                 CREATE TABLE IF NOT EXISTS {tableName} (
                     tenant_id TEXT NOT NULL,
                     id INTEGER NOT NULL PRIMARY KEY,
@@ -87,17 +87,16 @@ namespace ArgoStore.Helpers
                 )
             ";
 
-            using var c = new SqliteConnection(_config.ConnectionString);
-            c.Open();
+        using var c = new SqliteConnection(_config.ConnectionString);
+        c.Open();
 
-            var cmd = c.CreateCommand();
-            cmd.CommandText = sql;
-            cmd.ExecuteNonQuery();
-        }
+        var cmd = c.CreateCommand();
+        cmd.CommandText = sql;
+        cmd.ExecuteNonQuery();
+    }
 
-        private string EscapeSqliteParameter(string parameter)
-        {
-            return parameter.Replace("'", "''");
-        }
+    private string EscapeSqliteParameter(string parameter)
+    {
+        return parameter.Replace("'", "''");
     }
 }

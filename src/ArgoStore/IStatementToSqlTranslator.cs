@@ -3,239 +3,238 @@ using ArgoStore.Helpers;
 using ArgoStore.Statements;
 using Microsoft.Data.Sqlite;
 
-namespace ArgoStore
+namespace ArgoStore;
+
+internal interface IStatementToSqlTranslator
 {
-    internal interface IStatementToSqlTranslator
+    ArgoSqlCommand CreateCommand(TopStatement statement);
+}
+
+internal class ArgoSqlCommand
+{
+    public string CommandText { get; set; }
+    public ArgoSqlParameterCollection Parameters { get; } = new();
+    public string AddParameterAndGetParameterName(object value) => Parameters.AddParameterAndGetName(value);
+
+    public void SetRandomParametersPrefix()
     {
-        ArgoSqlCommand CreateCommand(TopStatement statement);
+        string prefix = RandomString.Next();
+
+        foreach (ArgoSqlParameter p in Parameters)
+        {
+            string oldParamName = p.Name;
+            p.NamePrefix = prefix;
+            CommandText = CommandText.Replace(oldParamName, p.Name);
+        }
     }
 
-    internal class ArgoSqlCommand
+    public void LockPrefix()
     {
-        public string CommandText { get; set; }
-        public ArgoSqlParameterCollection Parameters { get; } = new();
-        public string AddParameterAndGetParameterName(object value) => Parameters.AddParameterAndGetName(value);
-
-        public void SetRandomParametersPrefix()
+        foreach (ArgoSqlParameter p in Parameters)
         {
-            string prefix = RandomString.Next();
+            p.LockPrefix();
+        }
+    }
 
-            foreach (ArgoSqlParameter p in Parameters)
-            {
-                string oldParamName = p.Name;
-                p.NamePrefix = prefix;
-                CommandText = CommandText.Replace(oldParamName, p.Name);
-            }
+    public bool ArePrefixLocked() => Parameters.Count > 0 && Parameters.Any(x => x.PrefixLocked);
+
+    public SqliteCommand CreateCommand(string tenantId)
+    {
+        if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
+        if (string.IsNullOrWhiteSpace(CommandText))
+        {
+            throw new InvalidOperationException("CommandText property not set");
         }
 
-        public void LockPrefix()
-        {
-            foreach (ArgoSqlParameter p in Parameters)
-            {
-                p.LockPrefix();
-            }
-        }
-
-        public bool ArePrefixLocked() => Parameters.Count > 0 && Parameters.Any(x => x.PrefixLocked);
-
-        public SqliteCommand CreateCommand(string tenantId)
-        {
-            if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
-
-            if (string.IsNullOrWhiteSpace(CommandText))
-            {
-                throw new InvalidOperationException("CommandText property not set");
-            }
-
-            SqliteCommand cmd = new SqliteCommand(CommandText);
+        SqliteCommand cmd = new SqliteCommand(CommandText);
             
-            foreach (ArgoSqlParameter p in Parameters)
-            {
-                cmd.Parameters.AddWithValue(p.Name, p.Value);
-            }
-
-            cmd.Parameters.AddWithValue("$__tenant_id__", tenantId);
-
-            return cmd;
-        }
-
-        public void SetParameters(ArgoSqlParameterCollection parameters)
+        foreach (ArgoSqlParameter p in Parameters)
         {
-            Parameters.Clear();
-            foreach (ArgoSqlParameter p in parameters)
-            {
-                Parameters.Add(p);
-            }
+            cmd.Parameters.AddWithValue(p.Name, p.Value);
         }
+
+        cmd.Parameters.AddWithValue("$__tenant_id__", tenantId);
+
+        return cmd;
     }
 
-    internal class ArgoSqlParameter
+    public void SetParameters(ArgoSqlParameterCollection parameters)
     {
-        private string _namePrefix;
-
-        public object Value { get; private set; }
-        public int OrderNumber { get; }
-        public string Name => $"$p{NamePrefix}___p___{OrderNumber}";
-        public bool PrefixLocked { get; private set; }
-        public string NamePrefix
+        Parameters.Clear();
+        foreach (ArgoSqlParameter p in parameters)
         {
-            get => _namePrefix;
-            set
-            {
-                if (PrefixLocked) throw new InvalidOperationException("Prefix is locked");
-
-                _namePrefix = value;
-            }
+            Parameters.Add(p);
         }
+    }
+}
+
+internal class ArgoSqlParameter
+{
+    private string _namePrefix;
+
+    public object Value { get; private set; }
+    public int OrderNumber { get; }
+    public string Name => $"$p{NamePrefix}___p___{OrderNumber}";
+    public bool PrefixLocked { get; private set; }
+    public string NamePrefix
+    {
+        get => _namePrefix;
+        set
+        {
+            if (PrefixLocked) throw new InvalidOperationException("Prefix is locked");
+
+            _namePrefix = value;
+        }
+    }
         
-        public ArgoSqlParameter(int orderNumber, object value)
+    public ArgoSqlParameter(int orderNumber, object value)
+    {
+        OrderNumber = orderNumber;
+        Value = value;
+    }
+
+    public void LockPrefix()
+    {
+        PrefixLocked = true;
+    }
+
+    public void AddWildcard(bool atTheBeginning, bool atTheEnd)
+    {
+        if (Value is string s)
         {
-            OrderNumber = orderNumber;
-            Value = value;
+            if (atTheBeginning && atTheEnd)
+            {
+                s = $"%{s}%";
+            }
+            else if (atTheBeginning)
+            {
+                s = $"%{s}";
+            }
+            else if (atTheEnd)
+            {
+                s = $"{s}%";
+            }
+
+            Value = s;
         }
-
-        public void LockPrefix()
+        else
         {
-            PrefixLocked = true;
-        }
-
-        public void AddWildcard(bool atTheBeginning, bool atTheEnd)
-        {
-            if (Value is string s)
-            {
-                if (atTheBeginning && atTheEnd)
-                {
-                    s = $"%{s}%";
-                }
-                else if (atTheBeginning)
-                {
-                    s = $"%{s}";
-                }
-                else if (atTheEnd)
-                {
-                    s = $"{s}%";
-                }
-
-                Value = s;
-            }
-            else
-            {
-                throw new InvalidOperationException("Cannot call AddWildcard to non string parameter");
-            }
-        }
-
-        public void ToUpper()
-        {
-            if (Value is string s)
-            {
-                Value = s.ToUpper();
-            }
-            else
-            {
-                throw new InvalidOperationException("Cannot call ToUpper to non string parameter");
-            }
-        }
-
-        public void ToLower()
-        {
-            if (Value is string s)
-            {
-                Value = s.ToLower();
-            }
-            else
-            {
-                throw new InvalidOperationException("Cannot call ToLower to non string parameter");
-            }
+            throw new InvalidOperationException("Cannot call AddWildcard to non string parameter");
         }
     }
 
-    internal class ArgoSqlParameterCollection : ICollection<ArgoSqlParameter>
+    public void ToUpper()
     {
-        private readonly List<ArgoSqlParameter> _items = new List<ArgoSqlParameter>();
-
-        public IEnumerator<ArgoSqlParameter> GetEnumerator() => _items.GetEnumerator();
-
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-        public void Add(ArgoSqlParameter item)
+        if (Value is string s)
         {
-            if (item == null) throw new ArgumentNullException(nameof(item));
+            Value = s.ToUpper();
+        }
+        else
+        {
+            throw new InvalidOperationException("Cannot call ToUpper to non string parameter");
+        }
+    }
 
-            _items.Add(item);
+    public void ToLower()
+    {
+        if (Value is string s)
+        {
+            Value = s.ToLower();
+        }
+        else
+        {
+            throw new InvalidOperationException("Cannot call ToLower to non string parameter");
+        }
+    }
+}
+
+internal class ArgoSqlParameterCollection : ICollection<ArgoSqlParameter>
+{
+    private readonly List<ArgoSqlParameter> _items = new List<ArgoSqlParameter>();
+
+    public IEnumerator<ArgoSqlParameter> GetEnumerator() => _items.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Add(ArgoSqlParameter item)
+    {
+        if (item == null) throw new ArgumentNullException(nameof(item));
+
+        _items.Add(item);
+    }
+
+    public string AddParameterAndGetName(object value)
+    {
+        int next = GetNextOrderNumber();
+        ArgoSqlParameter item = new ArgoSqlParameter(next, value);
+        Add(item);
+        return item.Name;
+    }
+
+    public int GetNextOrderNumber()
+    {
+        if (Count == 0)
+        {
+            return 0;
         }
 
-        public string AddParameterAndGetName(object value)
+        return this.OrderByDescending(x => x.OrderNumber).Last().OrderNumber + 1;
+    }
+
+    public void Clear() => _items.Clear();
+
+    public bool Contains(ArgoSqlParameter item) => _items.Contains(item);
+
+    public void CopyTo(ArgoSqlParameter[] array, int arrayIndex) => _items.CopyTo(array, arrayIndex);
+
+    public bool Remove(ArgoSqlParameter item) => _items.Remove(item);
+
+    public int Count => _items.Count;
+    public bool IsReadOnly => false;
+
+    public void AddWildcard(string parameterName, bool atTheBeginning, bool atTheEnd)
+    {
+        ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
+
+        if (parameter == null)
         {
-            int next = GetNextOrderNumber();
-            ArgoSqlParameter item = new ArgoSqlParameter(next, value);
-            Add(item);
-            return item.Name;
+            throw new ArgumentException("No parameter found with given name", nameof(parameterName));
         }
 
-        public int GetNextOrderNumber()
+        if (parameter.Value != null)
         {
-            if (Count == 0)
-            {
-                return 0;
-            }
+            parameter.AddWildcard(atTheBeginning, atTheEnd);
+        }
+    }
 
-            return this.OrderByDescending(x => x.OrderNumber).Last().OrderNumber + 1;
+    public void ToUpper(string parameterName)
+    {
+        ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
+
+        if (parameter == null)
+        {
+            throw new ArgumentException("No parameter found with given name", nameof(parameterName));
         }
 
-        public void Clear() => _items.Clear();
-
-        public bool Contains(ArgoSqlParameter item) => _items.Contains(item);
-
-        public void CopyTo(ArgoSqlParameter[] array, int arrayIndex) => _items.CopyTo(array, arrayIndex);
-
-        public bool Remove(ArgoSqlParameter item) => _items.Remove(item);
-
-        public int Count => _items.Count;
-        public bool IsReadOnly => false;
-
-        public void AddWildcard(string parameterName, bool atTheBeginning, bool atTheEnd)
+        if (parameter.Value != null)
         {
-            ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
+            parameter.ToUpper();
+        }
+    }
 
-            if (parameter == null)
-            {
-                throw new ArgumentException("No parameter found with given name", nameof(parameterName));
-            }
+    public void ToLower(string parameterName)
+    {
+        ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
 
-            if (parameter.Value != null)
-            {
-                parameter.AddWildcard(atTheBeginning, atTheEnd);
-            }
+        if (parameter == null)
+        {
+            throw new ArgumentException("No parameter found with given name", nameof(parameterName));
         }
 
-        public void ToUpper(string parameterName)
+        if (parameter.Value != null)
         {
-            ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
-
-            if (parameter == null)
-            {
-                throw new ArgumentException("No parameter found with given name", nameof(parameterName));
-            }
-
-            if (parameter.Value != null)
-            {
-                parameter.ToUpper();
-            }
-        }
-
-        public void ToLower(string parameterName)
-        {
-            ArgoSqlParameter parameter = _items.FirstOrDefault(x => x.Name == parameterName);
-
-            if (parameter == null)
-            {
-                throw new ArgumentException("No parameter found with given name", nameof(parameterName));
-            }
-
-            if (parameter.Value != null)
-            {
-                parameter.ToLower();
-            }
+            parameter.ToLower();
         }
     }
 }
