@@ -1,34 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using ArgoStore.Statements;
 
-namespace ArgoStore.ExpressionToStatementTranslators
+namespace ArgoStore.ExpressionToStatementTranslators;
+
+internal class ArgoStoreQueryableToStatementTranslator : IExpressionToStatementTranslator
 {
-    internal class ArgoStoreQueryableToStatementTranslator : IExpressionToStatementTranslator
+    public bool CanTranslate(Expression expression)
     {
-        public bool CanTranslate(Expression expression)
+        if (expression is ConstantExpression ce)
         {
-            if (expression is ConstantExpression ce)
-            {
-                return ce.Type.IsGenericType && ce.Type.GetGenericTypeDefinition() == typeof(ArgoStoreQueryable<>);
-            }
-
-            return false;
+            return ce.Type.IsGenericType && ce.Type.GetGenericTypeDefinition() == typeof(ArgoStoreQueryable<>);
         }
 
-        public Statement Translate(Expression expression)
+        return false;
+    }
+
+    public Statement Translate(Expression expression)
+    {
+        var ce = expression as ConstantExpression;
+
+        Type targetType = ce.Type.GetGenericArguments()[0];
+
+        var selectStatements = new List<SelectStatementElement>
         {
-            var ce = expression as ConstantExpression;
+            SelectStatementElement.CreateWithStar(targetType)
+        };
 
-            Type targetType = ce.Type.GetGenericArguments()[0];
-
-            var selectStatements = new List<SelectStatementElement>
-            {
-                SelectStatementElement.CreateWithStar(targetType)
-            };
-
-            return new SelectStatement(targetType, targetType, selectStatements, null, CalledByMethods.Select);
-        }
+        return new SelectStatement(targetType, targetType, selectStatements, null, CalledByMethods.Select);
     }
 }

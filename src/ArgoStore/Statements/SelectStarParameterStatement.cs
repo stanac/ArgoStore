@@ -1,16 +1,13 @@
-﻿using System;
+﻿namespace ArgoStore.Statements;
 
-namespace ArgoStore.Statements
+internal class SelectStarParameterStatement : Statement
 {
-    internal class SelectStarParameterStatement : Statement
+    public override Statement Negate()
     {
-        public override Statement Negate()
-        {
-            throw new NotSupportedException();
-        }
-
-        public override Statement ReduceIfPossible() => this;
-
-        public override string ToDebugString() => "*";
+        throw new NotSupportedException();
     }
+
+    public override Statement ReduceIfPossible() => this;
+
+    public override string ToDebugString() => "*";
 }

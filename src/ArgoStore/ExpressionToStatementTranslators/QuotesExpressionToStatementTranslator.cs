@@ -2,24 +2,23 @@
 using System.Linq.Expressions;
 using ArgoStore.Statements;
 
-namespace ArgoStore.ExpressionToStatementTranslators
+namespace ArgoStore.ExpressionToStatementTranslators;
+
+internal class QuotesExpressionToStatementTranslator : IExpressionToStatementTranslator
 {
-    internal class QuotesExpressionToStatementTranslator : IExpressionToStatementTranslator
+    public bool CanTranslate(Expression expression)
     {
-        public bool CanTranslate(Expression expression)
+        if (expression is UnaryExpression ex)
         {
-            if (expression is UnaryExpression ex)
-            {
-                return ex.NodeType == ExpressionType.Quote;
-            }
-
-            return false;
+            return ex.NodeType == ExpressionType.Quote;
         }
 
-        public Statement Translate(Expression expression)
-        {
-            var ex = ExpressionHelpers.RemoveQuotes(expression);
-            return ExpressionToStatementTranslatorStrategy.Translate(ex);
-        }
+        return false;
+    }
+
+    public Statement Translate(Expression expression)
+    {
+        var ex = ExpressionHelpers.RemoveQuotes(expression);
+        return ExpressionToStatementTranslatorStrategy.Translate(ex);
     }
 }

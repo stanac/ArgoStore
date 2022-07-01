@@ -1,8 +1,7 @@
-﻿namespace ArgoStore.Example.Console
+﻿namespace ArgoStore.Example.Console;
+
+public class Person
 {
-    public class Person
-    {
-        public string Id { get; set; }
-        public string Name { get; set; }
-    }
+    public string Id { get; set; }
+    public string Name { get; set; }
 }

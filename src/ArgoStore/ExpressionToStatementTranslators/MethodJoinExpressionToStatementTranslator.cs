@@ -1,24 +1,22 @@
-﻿using System;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using ArgoStore.Statements;
 
-namespace ArgoStore.ExpressionToStatementTranslators
+namespace ArgoStore.ExpressionToStatementTranslators;
+
+internal class MethodJoinExpressionToStatementTranslator : IExpressionToStatementTranslator
 {
-    internal class MethodJoinExpressionToStatementTranslator : IExpressionToStatementTranslator
+    public bool CanTranslate(Expression expression)
     {
-        public bool CanTranslate(Expression expression)
+        if (expression is MethodCallExpression mce)
         {
-            if (expression is MethodCallExpression mce)
-            {
-                return mce.Method.Name == "Join" || mce.Method.Name == "GroupJoin";
-            }
-
-            return false;
+            return mce.Method.Name == "Join" || mce.Method.Name == "GroupJoin";
         }
 
-        public Statement Translate(Expression expression)
-        {
-            throw new NotSupportedException($"LINQ methods Join and GroupJoin are not supported");
-        }
+        return false;
+    }
+
+    public Statement Translate(Expression expression)
+    {
+        throw new NotSupportedException($"LINQ methods Join and GroupJoin are not supported");
     }
 }

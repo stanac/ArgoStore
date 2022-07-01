@@ -1,11 +1,10 @@
 ﻿using System.Linq.Expressions;
 using ArgoStore.Statements;
 
-namespace ArgoStore.ExpressionToStatementTranslators
+namespace ArgoStore.ExpressionToStatementTranslators;
+
+internal interface IExpressionToStatementTranslator
 {
-    internal interface IExpressionToStatementTranslator
-    {
-        bool CanTranslate(Expression expression);
-        Statement Translate(Expression expression);
-    }
+    bool CanTranslate(Expression expression);
+    Statement Translate(Expression expression);
 }

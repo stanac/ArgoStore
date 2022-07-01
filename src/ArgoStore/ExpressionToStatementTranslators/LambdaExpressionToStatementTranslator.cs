@@ -1,16 +1,15 @@
 ﻿using System.Linq.Expressions;
 using ArgoStore.Statements;
 
-namespace ArgoStore.ExpressionToStatementTranslators
-{
-    internal class LambdaExpressionToStatementTranslator : IExpressionToStatementTranslator
-    {
-        public bool CanTranslate(Expression expression) => expression is LambdaExpression;
+namespace ArgoStore.ExpressionToStatementTranslators;
 
-        public Statement Translate(Expression expression)
-        {
-            var e = expression as LambdaExpression;
-            return ExpressionToStatementTranslatorStrategy.Translate(e.Body);
-        }
+internal class LambdaExpressionToStatementTranslator : IExpressionToStatementTranslator
+{
+    public bool CanTranslate(Expression expression) => expression is LambdaExpression;
+
+    public Statement Translate(Expression expression)
+    {
+        var e = expression as LambdaExpression;
+        return ExpressionToStatementTranslatorStrategy.Translate(e.Body);
     }
 }

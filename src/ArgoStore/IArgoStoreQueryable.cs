@@ -1,9 +1,6 @@
-﻿using System.Linq;
+﻿namespace ArgoStore;
 
-namespace ArgoStore
+public interface IArgoStoreQueryable<T> : IQueryable<T>, IOrderedQueryable<T>
 {
-    public interface IArgoStoreQueryable<T> : IQueryable<T>, IOrderedQueryable<T>
-    {
-        // string ToSqlString();
-    }
+    // string ToSqlString();
 }

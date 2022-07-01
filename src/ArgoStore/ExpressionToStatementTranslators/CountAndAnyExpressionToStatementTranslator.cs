@@ -1,111 +1,108 @@
 ﻿using ArgoStore.Helpers;
-using System;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using ArgoStore.Statements;
 
-namespace ArgoStore.ExpressionToStatementTranslators
+namespace ArgoStore.ExpressionToStatementTranslators;
+
+internal class CountAndAnyExpressionToStatementTranslator : IExpressionToStatementTranslator
 {
-    internal class CountAndAnyExpressionToStatementTranslator : IExpressionToStatementTranslator
+    private readonly string[] _supportedMethodNames = new[] { "Count", "LongCount", "Any" };
+
+    public bool CanTranslate(Expression expression)
     {
-        private readonly string[] _supportedMethodNames = new[] { "Count", "LongCount", "Any" };
-
-        public bool CanTranslate(Expression expression)
+        if (expression is MethodCallExpression mc1)
         {
-            if (expression is MethodCallExpression mc1)
-            {
-                return _supportedMethodNames.Contains(mc1.Method.Name);
-            }
-
-            if (expression is UnaryExpression ue && ue.NodeType == ExpressionType.Convert && ue.Operand is MethodCallExpression mc)
-            {
-                return _supportedMethodNames.Contains(mc.Method.Name);
-            }
-
-            return false;
+            return _supportedMethodNames.Contains(mc1.Method.Name);
         }
 
-        public Statement Translate(Expression expression)
+        if (expression is UnaryExpression ue && ue.NodeType == ExpressionType.Convert && ue.Operand is MethodCallExpression mc)
         {
-            MethodCallExpression methodCall = GetMethodCallFromExpression(expression);
+            return _supportedMethodNames.Contains(mc.Method.Name);
+        }
 
-            bool isAny = methodCall.Method.Name == "Any";
-            bool isCount = methodCall.Method.Name == "Count" || methodCall.Method.Name == "LongCount";
-            bool isLongCount = methodCall.Method.Name == "LongCount";
+        return false;
+    }
 
-            if (!isAny && !isCount) throw new NotSupportedException($"{nameof(CountAndAnyExpressionToStatementTranslator)} doesn't support method {methodCall.Method.Name}");
+    public Statement Translate(Expression expression)
+    {
+        MethodCallExpression methodCall = GetMethodCallFromExpression(expression);
+
+        bool isAny = methodCall.Method.Name == "Any";
+        bool isCount = methodCall.Method.Name == "Count" || methodCall.Method.Name == "LongCount";
+        bool isLongCount = methodCall.Method.Name == "LongCount";
+
+        if (!isAny && !isCount) throw new NotSupportedException($"{nameof(CountAndAnyExpressionToStatementTranslator)} doesn't support method {methodCall.Method.Name}");
             
-            WhereStatement where = null;
+        WhereStatement where = null;
 
-            Type type = GetEntityType(methodCall);
+        Type type = GetEntityType(methodCall);
 
-            if (methodCall.Arguments.Count == 2) // second argument if present is lambda
-            {
-                 Statement condition = ExpressionToStatementTranslatorStrategy.Translate(methodCall.Arguments[1]);
-                 where = new WhereStatement(condition, type);
-            }
+        if (methodCall.Arguments.Count == 2) // second argument if present is lambda
+        {
+            Statement condition = ExpressionToStatementTranslatorStrategy.Translate(methodCall.Arguments[1]);
+            where = new WhereStatement(condition, type);
+        }
             
-            if (isAny)
-            {
-                return CreateSelectExistsStatement(@where, type);
-            }
-            else
-            {
-                return CreateSelectCountStatement(@where, type, isLongCount);
-            }
-        }
-
-        private static MethodCallExpression GetMethodCallFromExpression(Expression expression)
+        if (isAny)
         {
-            MethodCallExpression methodCall;
+            return CreateSelectExistsStatement(@where, type);
+        }
+        else
+        {
+            return CreateSelectCountStatement(@where, type, isLongCount);
+        }
+    }
+
+    private static MethodCallExpression GetMethodCallFromExpression(Expression expression)
+    {
+        MethodCallExpression methodCall;
             
-            if (expression is UnaryExpression ue)
-            {
-                methodCall = ue.Operand as MethodCallExpression;
-            }
-            else
-            {
-                methodCall = expression as MethodCallExpression;
-            }
-
-            if (methodCall == null)  throw new InvalidOperationException("Provided expression in not method call expression");
-
-            return methodCall;
-        }
-
-        private static Type GetEntityType(MethodCallExpression methodCall)
+        if (expression is UnaryExpression ue)
         {
-            ParameterInfo[] methodParams = methodCall.Method.GetParameters();
-
-            Type calledOn = methodParams[0].ParameterType;
-
-            if (TypeHelpers.IsCollectionType(calledOn))
-            {
-                return TypeHelpers.GetCollectionElementType(calledOn);
-            }
-
-            throw new NotSupportedException("Unknown type in CountAndAnyExpressionToStatementTranslator");
+            methodCall = ue.Operand as MethodCallExpression;
         }
-
-        private static Statement CreateSelectExistsStatement(WhereStatement where, Type type)
+        else
         {
-            if (where == null)
-            {
-                return new SelectExistsStatement(type);
-            }
-
-            return new SelectExistsStatement(type, where);
+            methodCall = expression as MethodCallExpression;
         }
 
-        private static Statement CreateSelectCountStatement(WhereStatement where, Type type, bool isLongCount)
+        if (methodCall == null)  throw new InvalidOperationException("Provided expression in not method call expression");
+
+        return methodCall;
+    }
+
+    private static Type GetEntityType(MethodCallExpression methodCall)
+    {
+        ParameterInfo[] methodParams = methodCall.Method.GetParameters();
+
+        Type calledOn = methodParams[0].ParameterType;
+
+        if (TypeHelpers.IsCollectionType(calledOn))
         {
-            if (where != null)
-            {
-                return new SelectCountStatement(type, where, isLongCount);
-            }
-
-            return new SelectCountStatement(type, isLongCount);
+            return TypeHelpers.GetCollectionElementType(calledOn);
         }
+
+        throw new NotSupportedException("Unknown type in CountAndAnyExpressionToStatementTranslator");
+    }
+
+    private static Statement CreateSelectExistsStatement(WhereStatement where, Type type)
+    {
+        if (where == null)
+        {
+            return new SelectExistsStatement(type);
+        }
+
+        return new SelectExistsStatement(type, where);
+    }
+
+    private static Statement CreateSelectCountStatement(WhereStatement where, Type type, bool isLongCount)
+    {
+        if (where != null)
+        {
+            return new SelectCountStatement(type, where, isLongCount);
+        }
+
+        return new SelectCountStatement(type, isLongCount);
     }
 }

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.Data.Sqlite;
+﻿using Microsoft.Data.Sqlite;
 
-namespace ArgoStore
+namespace ArgoStore;
+
+internal interface IDbAccess
 {
-    internal interface IDbAccess
-    {
-        IEnumerable<string> QueryStringField(SqliteCommand cmd);
-        IEnumerable<object[]> QueryFields(SqliteCommand cmd, Type[] expectedResultTypes);
-        IEnumerable<object> QueryField(SqliteCommand cmd);
-        Task<IEnumerable<string>> QueryJsonFieldAsync(SqliteCommand cmd);
-    }
+    IEnumerable<string> QueryStringField(SqliteCommand cmd);
+    IEnumerable<object[]> QueryFields(SqliteCommand cmd, Type[] expectedResultTypes);
+    IEnumerable<object> QueryField(SqliteCommand cmd);
+    Task<IEnumerable<string>> QueryJsonFieldAsync(SqliteCommand cmd);
 }

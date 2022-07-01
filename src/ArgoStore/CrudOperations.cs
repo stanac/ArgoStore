@@ -1,7 +1,6 @@
-﻿namespace ArgoStore
+﻿namespace ArgoStore;
+
+public enum CrudOperations
 {
-    public enum CrudOperations
-    {
-        Insert, Update, Upsert, Delete, DeleteWhere
-    }
+    Insert, Update, Upsert, Delete, DeleteWhere
 }

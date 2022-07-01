@@ -1,18 +1,15 @@
-﻿using System;
+﻿namespace ArgoStore.Statements;
 
-namespace ArgoStore.Statements
+internal class OrderByElement
 {
-    internal class OrderByElement
+    public OrderByElement(string propertyName, bool asc)
     {
-        public OrderByElement(string propertyName, bool asc)
-        {
-            if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentException($"'{nameof(propertyName)}' cannot be null or whitespace", nameof(propertyName));
+        if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentException($"'{nameof(propertyName)}' cannot be null or whitespace", nameof(propertyName));
 
-            PropertyName = propertyName;
-            Ascending = asc;
-        }
-
-        public string PropertyName { get; }
-        public bool Ascending { get; }
+        PropertyName = propertyName;
+        Ascending = asc;
     }
+
+    public string PropertyName { get; }
+    public bool Ascending { get; }
 }

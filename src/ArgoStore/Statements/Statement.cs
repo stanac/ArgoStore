@@ -1,15 +1,14 @@
-﻿namespace ArgoStore.Statements
+﻿namespace ArgoStore.Statements;
+
+internal abstract class Statement
 {
-    internal abstract class Statement
-    {
-        public abstract string ToDebugString();
+    public abstract string ToDebugString();
 
-        public override string ToString() => ToDebugString();
+    public override string ToString() => ToDebugString();
 
-        public abstract Statement Negate();
+    public abstract Statement Negate();
 
-        public abstract Statement ReduceIfPossible();
+    public abstract Statement ReduceIfPossible();
 
-        public string StatementTypeName => GetType().Name;
-    }
+    public string StatementTypeName => GetType().Name;
 }

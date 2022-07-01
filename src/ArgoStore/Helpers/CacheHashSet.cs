@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace ArgoStore.Helpers
+﻿namespace ArgoStore.Helpers
 {
     internal class CacheHashSet<T>
     {

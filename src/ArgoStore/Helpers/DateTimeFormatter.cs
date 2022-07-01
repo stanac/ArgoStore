@@ -1,9 +1,6 @@
-﻿using System;
+﻿namespace ArgoStore.Helpers;
 
-namespace ArgoStore.Helpers
+internal static class DateTimeFormatter
 {
-    internal static class DateTimeFormatter
-    {
-        public static string ToUtcFormat(DateTime dt) => dt.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
-    }
+    public static string ToUtcFormat(DateTime dt) => dt.ToString("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'fff'Z'");
 }

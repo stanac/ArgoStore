@@ -1,7 +1,6 @@
-﻿namespace ArgoStore
+﻿namespace ArgoStore;
+
+public static class TenantIdDefault
 {
-    public static class TenantIdDefault
-    {
-        public const string DefaultValue = "DEFAULT";
-    }
+    public const string DefaultValue = "DEFAULT";
 }
