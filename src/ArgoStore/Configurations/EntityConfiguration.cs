@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Collections.ObjectModel;
+using System.Linq.Expressions;
 using System.Reflection;
 using ArgoStore.Helpers;
 
@@ -107,19 +108,49 @@ internal class EntityConfiguration<TEntity> : IEntityConfiguration<TEntity> wher
 
         if (body is MemberExpression me)
         {
-            if (me.Member is PropertyInfo pi)
+            yield return GetIndexMemberName(me.Member);
+        }
+        else if (body is NewExpression ne)
+        {
+            if (ne.Arguments.Count == 0)
             {
-                if (!pi.HasPublicGetAndSet())
+                throw new InvalidOperationException("Cannot create index from empty anonymous object");
+            }
+
+            foreach (Expression arg in ne.Arguments)
+            {
+                if (arg is MemberExpression argMember)
                 {
-                    yield return pi.Name;
+                    yield return GetIndexMemberName(argMember.Member);
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Cannot create index from anonymous object composed of: {arg.GetType().Name}");
                 }
             }
-            else
-            {
-                throw new InvalidOperationException(
-                    $"Cannot use fields for index selector expression. On entity `{typeof(TEntity).FullName}`"
-                );
-            }
         }
+        else
+        {
+            throw new InvalidOperationException($"Cannot create index from expression of type `{expression.Body.GetType().Name}`");
+        }
+    }
+
+    private static string GetIndexMemberName(MemberInfo mi)
+    {
+        if (mi is PropertyInfo pi)
+        {
+            if (pi.HasPublicGetAndSet())
+            {
+                return pi.Name;
+            }
+
+            throw new InvalidOperationException(
+                $"Property `{pi.Name}` on `{typeof(TEntity).FullName}` cannot be used for index, it doesn't have public getter and setter."
+                );
+        }
+
+        throw new InvalidOperationException(
+            $"On entity `{typeof(TEntity).FullName}` cannot use `{mi.Name}` for index, expected property selector."
+        );
     }
 }
