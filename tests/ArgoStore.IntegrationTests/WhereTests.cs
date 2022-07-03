@@ -39,4 +39,20 @@ public class WhereTests : IntegrationTestsBase
         int count = persons.Count;
         count.Should().Be(1);
     }
+
+    [SkippableFact]
+    public void WhereWithDynamicNullParameters()
+    {
+        using IDocumentSession session = GetNewDocumentSession();
+
+        string name = null;
+
+        var persons = session.Query<Person>()
+            .Where(x => (name == null || x.Name.Contains(name)))
+            .ToList();
+
+        int count = session.Query<Person>().Count();
+
+        persons.Should().HaveCount(count);
+    }
 }
