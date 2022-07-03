@@ -4,60 +4,53 @@ namespace ArgoStore;
 
 public class DocumentStore
 {
-    private readonly bool _createDocumentTablesOnTheFly;
+    private readonly Configuration _config;
 
-    public DocumentStore(string dbFilePath)
-        : this (dbFilePath, true)
+    public DocumentStore(string connectionString)
     {
+        _config = new Configuration(connectionString, true, new Dictionary<Type, EntityMetadata>(), TenantIdDefault.DefaultValue);
     }
-
-    public DocumentStore(string dbFilePath, bool createDocumentTablesOnTheFly)
+    
+    public DocumentStore(Action<IDocumentStoreConfiguration> configurationAction)
     {
-        if (string.IsNullOrWhiteSpace(dbFilePath))
-            throw new ArgumentException("Value cannot be null or whitespace.", nameof(dbFilePath));
+        DocumentStoreConfiguration configToSet = new DocumentStoreConfiguration();
+        configurationAction(configToSet);
 
-        _createDocumentTablesOnTheFly = createDocumentTablesOnTheFly;
-        ConnectionString = $"Data Source={dbFilePath};";
-    }
-
-    public string ConnectionString { get; }
-
-    public void CreateTableForEntityIfNotExists<T>()
-        => CreateTableForEntityIfNotExists(typeof(T));
-
-    public void CreateTableForEntityIfNotExists(Type entityType)
-    {
-        if (entityType == null) throw new ArgumentNullException(nameof(entityType));
-
-        Configuration config = GetConfiguration();
-        config.CreateEntitiesOnTheFly = true;
-
-        using DocumentSession session = new DocumentSession(config);
-            
-        session.CreateTableForEntityIfNotExists(entityType);
+        _config = configToSet.CreateConfiguration();
+        CreateTablesFromConfig();
     }
 
     public IDocumentSession CreateSession() => CreateSession(TenantIdDefault.DefaultValue);
         
     public IDocumentSession CreateSession(string tenantId)
     {
-        return new DocumentSession(GetConfiguration());
+        return new DocumentSession(_config.ChangeTenant(tenantId));
     }
 
     public IQueryDocumentSession CreateReadOnlySession() => CreateReadOnlySession(TenantIdDefault.DefaultValue);
 
     public IQueryDocumentSession CreateReadOnlySession(string tenantId)
     {
-        return new DocumentSession(GetConfiguration());
+        return new DocumentSession(_config.ChangeTenant(tenantId));
     }
 
-    private Configuration GetConfiguration()
+    private void CreateTablesFromConfig()
     {
-        return new Configuration
+        foreach (Type entityType in _config.GetEntityMetaCopy().Keys)
         {
-            Serializer = new ArgoStoreSerializer(),
-            ConnectionString = ConnectionString,
-            CreateEntitiesOnTheFly = _createDocumentTablesOnTheFly
-        };
+            CreateTableForEntityIfNotExists(entityType);
+        }
     }
+
+    private void CreateTableForEntityIfNotExists(Type entityType)
+    {
+        if (entityType == null) throw new ArgumentNullException(nameof(entityType));
+
+        Configuration config = _config.ChangeCreateEntitiesOnTheFly(true);
+
+        using DocumentSession session = new DocumentSession(config);
+
+        session.CreateTableForEntityIfNotExists(entityType);
+    }
+
 }

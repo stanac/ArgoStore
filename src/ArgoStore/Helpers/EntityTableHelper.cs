@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System.Text;
+using Microsoft.Data.Sqlite;
 using ArgoStore.Configurations;
 
 namespace ArgoStore.Helpers;
@@ -33,6 +34,8 @@ internal class EntityTableHelper
             return;
         }
 
+        EntityMetadata entityMeta = _config.GetOrCreateEntityMetadata(t);
+
         string tableName = GetTableName(t);
 
         bool tableExists = TableExists(tableName);
@@ -42,6 +45,7 @@ internal class EntityTableHelper
             if (_config.CreateEntitiesOnTheFly)
             {
                 CreateTableIfNotExists(tableName);
+                CreateIndexesIfMissing(entityMeta);
 
                 _createdTables.Add(t);
             }
@@ -87,11 +91,52 @@ internal class EntityTableHelper
                 )
             ";
 
-        using var c = new SqliteConnection(_config.ConnectionString);
+        using SqliteConnection c = new SqliteConnection(_config.ConnectionString);
         c.Open();
 
-        var cmd = c.CreateCommand();
+        SqliteCommand cmd = c.CreateCommand();
         cmd.CommandText = sql;
+        cmd.ExecuteNonQuery();
+    }
+
+    private void CreateIndexesIfMissing(EntityMetadata entityMeta)
+    {
+        foreach (EntityIndexMetadata indexMeta in entityMeta.Indexes)
+        {
+            CreateIndexIfNotExists(indexMeta);
+        }
+    }
+
+    private void CreateIndexIfNotExists(EntityIndexMetadata indexMeta)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.Append("CREATE ");
+        if (indexMeta.Unique) sb.Append("UNIQUE ");
+        sb.Append("INDEX IF NOT EXISTS ").Append(indexMeta.GetIndexName())
+            .Append(" ON ").Append(GetTableName(indexMeta.EntityType))
+            .Append(" (");
+
+        for (var i = 0; i < indexMeta.PropertyNames.Count; i++)
+        {
+            if (i > 0)
+            {
+                sb.Append(", ");
+            }
+
+            string s = indexMeta.PropertyNames[i];
+            string columnName = _config.Serializer.ConvertPropertyNameToCorrectCase(s);
+            string extract = $"json_extract(json_data, '$.{columnName}')";
+            
+            sb.Append(extract);
+        }
+
+        sb.Append(")");
+        
+        using SqliteConnection c = new SqliteConnection(_config.ConnectionString);
+        c.Open();
+
+        SqliteCommand cmd = c.CreateCommand();
+        cmd.CommandText = sb.ToString();
         cmd.ExecuteNonQuery();
     }
 

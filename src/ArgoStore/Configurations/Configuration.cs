@@ -2,32 +2,56 @@
 
 internal class Configuration
 {
-    private readonly Dictionary<Type, EntityMetadata> _entityMeta = new();
-
-    public string ConnectionString { get; set; }
-    public bool CreateEntitiesOnTheFly { get; set; } = true;
-    public IArgoStoreSerializer Serializer { get; set; } = new ArgoStoreSerializer();
-    public string TenantId { get; set; } = TenantIdDefault.DefaultValue;
-        
-    public void EnsureValid()
+    public Configuration(string connectionString, bool createEntitiesOnTheFly, Dictionary<Type, EntityMetadata> entityMeta, string tenantId)
     {
-        if (string.IsNullOrWhiteSpace(ConnectionString))
-        {
-            throw new InvalidOperationException($"{nameof(ConnectionString)} not set");
-        }
+        if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
+        if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
+        ConnectionString = connectionString;
+        CreateEntitiesOnTheFly = createEntitiesOnTheFly;
+        TenantId = tenantId;
+        EntityMeta = entityMeta ?? throw new ArgumentNullException(nameof(entityMeta));
     }
 
+    public string ConnectionString { get; }
+    public bool CreateEntitiesOnTheFly { get; }
+    public string TenantId { get; }
+    public IReadOnlyDictionary<Type, EntityMetadata> EntityMeta { get; }
+    public IArgoStoreSerializer Serializer { get; } = new ArgoStoreSerializer();
+    
     internal EntityMetadata GetOrCreateEntityMetadata(Type entityType)
     {
-        if (_entityMeta.TryGetValue(entityType, out EntityMetadata m))
+        if (EntityMeta.TryGetValue(entityType, out EntityMetadata m))
         {
             return m;
         }
 
         m = new EntityMetadata(entityType);
 
-        _entityMeta[entityType] = m;
+        ((Dictionary<Type, EntityMetadata>)EntityMeta)[entityType] = m;
 
         return m;
+    }
+
+    public Configuration ChangeTenant(string newTenantId)
+    {
+        return new Configuration(ConnectionString, CreateEntitiesOnTheFly, (Dictionary<Type, EntityMetadata>)EntityMeta, newTenantId);
+    }
+
+    public Configuration ChangeCreateEntitiesOnTheFly(bool createEntitiesOnTheFly)
+    {
+        return new Configuration(ConnectionString, createEntitiesOnTheFly, (Dictionary<Type, EntityMetadata>)EntityMeta, TenantId);
+    }
+
+    public Dictionary<Type, EntityMetadata> GetEntityMetaCopy()
+    {
+        Dictionary<Type, EntityMetadata> ret = new();
+
+        foreach (KeyValuePair<Type, EntityMetadata> pair in EntityMeta)
+        {
+            ret[pair.Key] = pair.Value;
+        }
+
+        return ret;
     }
 }

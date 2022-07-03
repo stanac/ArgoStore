@@ -303,23 +303,18 @@ public class TestData
 
         _intPersons = intPersons;
 
-        var th = new EntityTableHelper(new Configuration
-        {
-            ConnectionString = _connectionString,
-            CreateEntitiesOnTheFly = true,
-            Serializer = new ArgoStoreSerializer()
-        });
+        EntityTableHelper th = new EntityTableHelper(new Configuration(
+            connectionString, true, new Dictionary<Type, EntityMetadata>(), TenantIdDefault.DefaultValue
+            ));
 
         th.EnsureEntityTableExists<Person>();
     }
 
     internal void InsertTestPersons()
     {
-        EntityTableHelper dbTableHelper = new EntityTableHelper(new Configuration
-        {
-            ConnectionString = _connectionString,
-            CreateEntitiesOnTheFly = true
-        });
+        EntityTableHelper dbTableHelper = new EntityTableHelper(new Configuration(
+            _connectionString, true, new Dictionary<Type, EntityMetadata>(), TenantIdDefault.DefaultValue
+        ));
 
         dbTableHelper.EnsureEntityTableExists<Person>();
         dbTableHelper.EnsureEntityTableExists<Person>();

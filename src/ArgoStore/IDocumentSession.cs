@@ -12,21 +12,21 @@ public interface IDocumentSession : IQueryDocumentSession
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
     /// <param name="entities">Entities to insert</param>
-    void Insert<T>(params T[] entities);
+    void Insert<T>(params T[] entities) where T: class, new();
 
     /// <summary>
     /// Updates entities, changes applied on <see cref="SaveChanges"/>
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
     /// <param name="entities">Entities to update</param>
-    void Update<T>(params T[] entities);
+    void Update<T>(params T[] entities) where T : class, new();
 
     /// <summary>
     /// Deletes entities, changes applied on <see cref="SaveChanges"/>
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
     /// <param name="entities">Entities to delete</param>
-    void Delete<T>(params T[] entities);
+    void Delete<T>(params T[] entities) where T : class, new();
 
     /// <summary>
     /// Upserts entities (insert or update), changes applied on <see cref="SaveChanges"/>
@@ -34,14 +34,14 @@ public interface IDocumentSession : IQueryDocumentSession
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
     /// <param name="entities">Entities to save</param>
-    void InsertOrUpdate<T>(params T[] entities);
+    void InsertOrUpdate<T>(params T[] entities) where T : class, new();
 
     /// <summary>
     /// Deletes entities that match predicate, changes applied on <see cref="SaveChanges"/>
     /// </summary>
     /// <typeparam name="T">Entity type</typeparam>
     /// <param name="predicate">Predicate, condition for deleting</param>
-    void DeleteWhere<T>(Expression<Func<T, bool>> predicate);
+    void DeleteWhere<T>(Expression<Func<T, bool>> predicate) where T : class, new();
         
     /// <summary>
     /// Executes all pending commands (insert, update, delete, upsert) but doesn't commit changes (transaction).

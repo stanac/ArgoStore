@@ -1,68 +1,41 @@
-﻿using System.Collections.ObjectModel;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using ArgoStore.Helpers;
 
 namespace ArgoStore.Configurations;
 
-internal class EntityConfiguration<TEntity> : IEntityConfiguration<TEntity> where TEntity : class, new()
+internal abstract class EntityConfiguration
 {
-    private readonly List<LambdaExpression> _primaryKeys = new();
-    private readonly List<LambdaExpression> _uniqueIndexes = new();
-    private readonly List<LambdaExpression> _nonUniqueIndexes = new();
-
-    public IEntityConfiguration<TEntity> PrimaryKey<TProperty>(Expression<Func<TEntity, TProperty>> selector)
-    {
-        if (selector == null) throw new ArgumentNullException(nameof(selector));
-
-        _primaryKeys.Add(selector);
-
-        return this;
-    }
-
-    public IEntityConfiguration<TEntity> UniqueIndex<TProperty>(Expression<Func<TEntity, TProperty>> selector)
-    {
-        if (selector == null) throw new ArgumentNullException(nameof(selector));
-
-        _uniqueIndexes.Add(selector);
-
-        return this;
-    }
-
-    public IEntityConfiguration<TEntity> NonUniqueIndex<TProperty>(Expression<Func<TEntity, TProperty>> selector)
-    {
-        if (selector == null) throw new ArgumentNullException(nameof(selector));
-
-        _nonUniqueIndexes.Add(selector);
-
-        return this;
-    }
-
+    protected readonly List<LambdaExpression> PrimaryKeyExpressions = new();
+    protected readonly List<LambdaExpression> UniqueIndexesExpressions = new();
+    protected readonly List<LambdaExpression> NonUniqueIndexesExpressions = new();
+    protected abstract Type EntityType { get; }
+    
     internal EntityMetadata CreateMetadata()
     {
         string pkProperty = GetPrimaryKey();
         List<EntityIndexMetadata> indexes = GetIndexes().ToList();
-        return new EntityMetadata(typeof(TEntity), pkProperty, indexes);
+        return new EntityMetadata(EntityType, pkProperty, indexes);
     }
 
     private string GetPrimaryKey()
     {
-        if (_primaryKeys.Count == 0)
+        if (PrimaryKeyExpressions.Count == 0)
         {
-            return EntityMetadata.GetKeyProperty(typeof(TEntity)).Name;
+            return EntityMetadata.GetKeyProperty(EntityType).Name;
         }
 
-        if (_primaryKeys.Count == 1)
+        if (PrimaryKeyExpressions.Count == 1)
         {
             return GetPrimaryKeyFromExpression();
         }
 
-        throw new InvalidOperationException($"Primary key set more than once for entity `{typeof(TEntity).FullName}`");
+        throw new InvalidOperationException($"Primary key set more than once for entity `{EntityType.FullName}`");
     }
 
     private string GetPrimaryKeyFromExpression()
     {
-        LambdaExpression ex = _primaryKeys.Single();
+        LambdaExpression ex = PrimaryKeyExpressions.Single();
 
         if (ex.Body is MemberExpression ma)
         {
@@ -71,7 +44,7 @@ internal class EntityConfiguration<TEntity> : IEntityConfiguration<TEntity> wher
                 if (!pi.HasPublicGetAndSet())
                 {
                     throw new InvalidOperationException(
-                        $"Property `{pi.Name}` on `{typeof(TEntity).FullName}` " +
+                        $"Property `{pi.Name}` on `{EntityType.FullName}` " +
                         "cannot be used as primary key. Property must have public getter and setter.");
                 }
 
@@ -80,29 +53,29 @@ internal class EntityConfiguration<TEntity> : IEntityConfiguration<TEntity> wher
         }
 
         throw new InvalidOperationException(
-            $"Expected primary key selector for `{typeof(TEntity).FullName}` to be property selector lambda expression. " +
+            $"Expected primary key selector for `{EntityType.FullName}` to be property selector lambda expression. " +
             "Composite primary keys and anonymous objects are not supported. Expression selecting fields are not supported."
         );
     }
 
     private IEnumerable<EntityIndexMetadata> GetIndexes()
     {
-        foreach (LambdaExpression lambdaExpression in _uniqueIndexes)
+        foreach (LambdaExpression lambdaExpression in UniqueIndexesExpressions)
         {
             List<string> props = GetIndexProperties(lambdaExpression).ToList();
 
-            yield return new EntityIndexMetadata(true, props, typeof(TEntity));
+            yield return new EntityIndexMetadata(true, props, EntityType);
         }
 
-        foreach (LambdaExpression lambdaExpression in _nonUniqueIndexes)
+        foreach (LambdaExpression lambdaExpression in NonUniqueIndexesExpressions)
         {
             List<string> props = GetIndexProperties(lambdaExpression).ToList();
 
-            yield return new EntityIndexMetadata(false, props, typeof(TEntity));
+            yield return new EntityIndexMetadata(false, props, EntityType);
         }
     }
 
-    private static IEnumerable<string> GetIndexProperties(LambdaExpression expression)
+    private IEnumerable<string> GetIndexProperties(LambdaExpression expression)
     {
         Expression body = expression.Body;
 
@@ -135,7 +108,7 @@ internal class EntityConfiguration<TEntity> : IEntityConfiguration<TEntity> wher
         }
     }
 
-    private static string GetIndexMemberName(MemberInfo mi)
+    private string GetIndexMemberName(MemberInfo mi)
     {
         if (mi is PropertyInfo pi)
         {
@@ -145,12 +118,44 @@ internal class EntityConfiguration<TEntity> : IEntityConfiguration<TEntity> wher
             }
 
             throw new InvalidOperationException(
-                $"Property `{pi.Name}` on `{typeof(TEntity).FullName}` cannot be used for index, it doesn't have public getter and setter."
+                $"Property `{pi.Name}` on `{EntityType.FullName}` cannot be used for index, it doesn't have public getter and setter."
                 );
         }
 
         throw new InvalidOperationException(
-            $"On entity `{typeof(TEntity).FullName}` cannot use `{mi.Name}` for index, expected property selector."
+            $"On entity `{EntityType.FullName}` cannot use `{mi.Name}` for index, expected property selector."
         );
     }
+}
+
+internal class EntityConfiguration<TEntity> : EntityConfiguration, IEntityConfiguration<TEntity> where TEntity : class, new()
+{
+    public IEntityConfiguration<TEntity> PrimaryKey<TProperty>(Expression<Func<TEntity, TProperty>> selector)
+    {
+        if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+        PrimaryKeyExpressions.Add(selector);
+
+        return this;
+    }
+
+    public IEntityConfiguration<TEntity> UniqueIndex<TProperty>(Expression<Func<TEntity, TProperty>> selector)
+    {
+        if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+        UniqueIndexesExpressions.Add(selector);
+
+        return this;
+    }
+
+    public IEntityConfiguration<TEntity> NonUniqueIndex<TProperty>(Expression<Func<TEntity, TProperty>> selector)
+    {
+        if (selector == null) throw new ArgumentNullException(nameof(selector));
+
+        NonUniqueIndexesExpressions.Add(selector);
+
+        return this;
+    }
+
+    protected override Type EntityType => typeof(TEntity);
 }

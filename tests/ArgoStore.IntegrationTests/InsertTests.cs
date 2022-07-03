@@ -1,5 +1,7 @@
 ﻿using ArgoStore.IntegrationTests.Entities;
 
+// ReSharper disable AccessToDisposedClosure
+
 namespace ArgoStore.IntegrationTests;
 
 public class InsertTests : IntegrationTestsBase
@@ -40,7 +42,7 @@ public class InsertTests : IntegrationTestsBase
     }
 
     [SkippableFact]
-    public void InsertEntityStringPk__SaveChanges_GetEntity_ReturnsInsertedEntity()
+    public void InsertEntityStringPk_SaveChanges_GetEntity_ReturnsInsertedEntity()
     {
         using IDocumentSession s = GetNewDocumentSession();
 
@@ -64,7 +66,7 @@ public class InsertTests : IntegrationTestsBase
     }
 
     [SkippableFact]
-    public void InsertEntityIntPk__SaveChanges_GetEntity_ReturnsInsertedEntity()
+    public void InsertEntityIntPk_SaveChanges_GetEntity_ReturnsInsertedEntity()
     {
         using IDocumentSession s = GetNewDocumentSession();
 
@@ -86,7 +88,7 @@ public class InsertTests : IntegrationTestsBase
     }
 
     [SkippableFact]
-    public void InsertEntityLongPk__SaveChanges_GetEntity_ReturnsInsertedEntity()
+    public void InsertEntityLongPkSaveChanges_GetEntity_ReturnsInsertedEntity()
     {
         using IDocumentSession s = GetNewDocumentSession();
 
@@ -141,5 +143,105 @@ public class InsertTests : IntegrationTestsBase
         Action a = () => s.Insert(toInsert);
 
         a.Should().Throw<InvalidOperationException>();
+    }
+
+    [SkippableFact]
+    public void InsertNotSetStringId_SaveChanges_SetsGuidId()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+
+        PersonStringPk person = new PersonStringPk
+        {
+            Name = Guid.NewGuid().ToString(),
+            EmailAddress = "asd",
+            BirthYear = 5
+        };
+
+        s.Insert(person);
+        person.Id.Should().NotBeEmpty();
+        s.SaveChanges();
+
+        List<PersonStringPk> persons = s.Query<PersonStringPk>().ToList();
+        persons.Should().NotBeEmpty();
+        PersonStringPk insertedPerson = persons[0];
+        insertedPerson.Id.Should().NotBeEmpty();
+        insertedPerson.Id.Should().Be(person.Id);
+        insertedPerson.Name.Should().Be(person.Name);
+    }
+
+    [SkippableFact]
+    public void InsertNotSetGuidId_SaveChanges_SetsGuidId()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+
+        PersonGuidPk person = new PersonGuidPk
+        {
+            Name = Guid.NewGuid().ToString(),
+            EmailAddress = "asd",
+            BirthYear = 5
+        };
+
+        s.Insert(person);
+        person.Id.Should().NotBeEmpty();
+        s.SaveChanges();
+
+        List<PersonGuidPk> persons = s.Query<PersonGuidPk>().ToList();
+        persons.Should().NotBeEmpty();
+        PersonGuidPk insertedPerson = persons[0];
+        insertedPerson.Id.Should().NotBeEmpty();
+        insertedPerson.Id.Should().Be(person.Id);
+        insertedPerson.Name.Should().Be(person.Name);
+    }
+
+    [SkippableFact]
+    public void InsertSetStringId_SaveChanges_DoesNotChangeId()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+
+        string id = "this-is-valid-id-" + Guid.NewGuid();
+
+        PersonStringPk person = new PersonStringPk
+        {
+            Id = id,
+            Name = Guid.NewGuid().ToString(),
+            EmailAddress = "asd",
+            BirthYear = 5
+        };
+
+        s.Insert(person);
+        person.Id.Should().Be(id);
+        s.SaveChanges();
+
+        List<PersonStringPk> persons = s.Query<PersonStringPk>().ToList();
+        persons.Should().NotBeEmpty();
+        PersonStringPk insertedPerson = persons[0];
+        insertedPerson.Id.Should().Be(id);
+        insertedPerson.Name.Should().Be(person.Name);
+    }
+
+    [SkippableFact]
+    public void InsertSetGuidId_SaveChanges_DoesNotChangeId()
+    {
+        using IDocumentSession s = GetNewDocumentSession();
+
+        Guid id = Guid.NewGuid();
+
+        PersonGuidPk person = new PersonGuidPk
+        {
+            Id = id,
+            Name = Guid.NewGuid().ToString(),
+            EmailAddress = "asd",
+            BirthYear = 5
+        };
+
+        s.Insert(person);
+        person.Id.Should().Be(id);
+        s.SaveChanges();
+
+        List<PersonGuidPk> persons = s.Query<PersonGuidPk>().ToList();
+        persons.Should().NotBeEmpty();
+        PersonGuidPk insertedPerson = persons[0];
+        insertedPerson.Id.Should().Be(id);
+        insertedPerson.Name.Should().Be(person.Name);
     }
 }

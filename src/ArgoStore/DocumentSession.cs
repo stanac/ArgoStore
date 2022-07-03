@@ -20,7 +20,6 @@ internal class DocumentSession : IDocumentSession
     public DocumentSession(Configuration config)
     {
         _config = config ?? throw new ArgumentNullException(nameof(config));
-        _config.EnsureValid();
         _entityTableHelper = new EntityTableHelper(config);
         _connection = new SqliteConnection(config.ConnectionString);
     }
@@ -31,7 +30,7 @@ internal class DocumentSession : IDocumentSession
         return new ArgoStoreQueryable<T>(new ArgoStoreQueryProvider(_config));
     }
 
-    public void Insert<T>(params T[] entities)
+    public void Insert<T>(params T[] entities) where T : class, new()
     {
         EnsureNotDisposed();
         EntityMetadata meta = ValidateEntityAndGetMeta(entities);
@@ -48,21 +47,18 @@ internal class DocumentSession : IDocumentSession
                     pk.SetInEntity(entity);
                 }
             }
-            else
+            else if (!pk.HasDefaultValue())
             {
-                if (!pk.HasDefaultValue())
-                {
-                    throw new InvalidOperationException("Cannot insert entity with integer/long PK set.");
-                }
+                throw new InvalidOperationException("Cannot insert entity with integer/long PK set.");
             }
-
+            
             EntityCrudOperation op = new EntityCrudOperation(entity, CrudOperations.Insert, meta, pk);
             op.Command = EntityCrudOperationConverterStrategies.Convert(op, _connection, _config.Serializer, _config.TenantId);
             _commands.Enqueue(op);
         }
     }
 
-    public void Update<T>(params T[] entities)
+    public void Update<T>(params T[] entities) where T : class, new()
     {
         EnsureNotDisposed();
         EntityMetadata meta = ValidateEntityAndGetMeta(entities);
@@ -82,7 +78,7 @@ internal class DocumentSession : IDocumentSession
         }
     }
 
-    public void Delete<T>(params T[] entities)
+    public void Delete<T>(params T[] entities) where T : class, new()
     {
         EnsureNotDisposed();
         EntityMetadata meta = ValidateEntityAndGetMeta(entities);
@@ -102,7 +98,7 @@ internal class DocumentSession : IDocumentSession
         }
     }
 
-    public void InsertOrUpdate<T>(params T[] entities)
+    public void InsertOrUpdate<T>(params T[] entities) where T : class, new()
     {
         EnsureNotDisposed();
         EntityMetadata meta = ValidateEntityAndGetMeta(entities);
@@ -117,7 +113,7 @@ internal class DocumentSession : IDocumentSession
         }
     }
 
-    public void DeleteWhere<T>(Expression<Func<T, bool>> predicate)
+    public void DeleteWhere<T>(Expression<Func<T, bool>> predicate) where T : class, new()
     {
         EnsureNotDisposed();
         if (predicate == null) throw new ArgumentNullException(nameof(predicate));
