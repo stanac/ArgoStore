@@ -12,7 +12,7 @@ internal class DocumentStoreConfiguration : IDocumentStoreConfiguration
         _connectionString = connectionString;
     }
 
-    public void CreateNonConfiguredEntities(bool createNonConfiguredEntities)
+    public void CreateNotConfiguredEntities(bool createNonConfiguredEntities)
     {
         _createNonConfiguredEntities = createNonConfiguredEntities;
     }

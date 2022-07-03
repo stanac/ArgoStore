@@ -13,7 +13,7 @@ public class CreatingTablesAndIndexesTests : IntegrationTestsBase
         new DocumentStore(c =>
         {
             c.ConnectionString(TestDbConnectionString);
-            c.CreateNonConfiguredEntities(false);
+            c.CreateNotConfiguredEntities(false);
             c.Entity<Person>()
                 .PrimaryKey(x => x.Id)
                 .UniqueIndex(x => x.Name)

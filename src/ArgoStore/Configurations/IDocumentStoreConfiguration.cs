@@ -3,6 +3,6 @@
 public interface IDocumentStoreConfiguration
 {
     void ConnectionString(string connectionString);
-    void CreateNonConfiguredEntities(bool createNonConfiguredEntities);
+    void CreateNotConfiguredEntities(bool createNonConfiguredEntities);
     IEntityConfiguration<TEntity> Entity<TEntity>() where TEntity : class, new();
 }
