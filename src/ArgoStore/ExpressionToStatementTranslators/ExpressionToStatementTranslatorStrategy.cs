@@ -5,7 +5,7 @@ namespace ArgoStore.ExpressionToStatementTranslators;
 
 internal static class ExpressionToStatementTranslatorStrategy
 {
-    private static IReadOnlyList<IExpressionToStatementTranslator> _translators = GetAllTranslators();
+    private static readonly IReadOnlyList<IExpressionToStatementTranslator> _translators = GetAllTranslators();
 
     public static Statement Translate(Expression expression)
     {

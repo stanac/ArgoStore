@@ -21,11 +21,63 @@ public class NullableParametersTranslatorTests
     {
         int? paramName = null;
         Expression<Func<TestEntityPerson, bool>> ex = x => !paramName.HasValue || x.BirthYear >= paramName.Value;
+        
+        Statement s = ExpressionToStatementTranslatorStrategy.Translate(ex);
+        s.Should().BeStatement<BinaryLogicalStatement>();
+        BinaryLogicalStatement c = (BinaryLogicalStatement)s;
+        c.IsOr.Should().BeTrue();
+
+        c.Left.Should().BeOfType<BinaryComparisonStatement>();
+        c.Right.Should().BeOfType<BinaryComparisonStatement>();
+
+        BinaryComparisonStatement left = (BinaryComparisonStatement)c.Left;
+
+        // !paramName.HasValue is translated as !(hasValue == True) which is !(false == True)
+        // since we work with integers in Sqlite it is translated as !(0 == 1)
+        // !(0 == 1) will be reduced to 0 <> 1
+        left.Operator.Should().Be(BinaryComparisonStatement.Operators.NotEqual);
+        left.Left.Should().BeStatement<ConstantStatement>(x => x.Value == "0");
+        left.Right.Should().BeStatement<ConstantStatement>(x => x.Value == "1");
+
+        BinaryComparisonStatement right = (BinaryComparisonStatement)c.Right;
+        // since there is not value x.BirthYear >= paramName
+        // is translated as x.BirthYear >= NULL
+        right.Left.Should().BeStatement<PropertyAccessStatement>(x => x.Name == "BirthYear");
+        right.Right.Should().BeStatement<ConstantStatement>(x => x.IsNull);
+        right.Operator.Should().Be(BinaryComparisonStatement.Operators.GreaterThanOrEqual);
+    }
+
+    [Fact]
+    public void NullIntParameterCheckWithoutValueAccess_Translate_GivesExpectedStatement()
+    {
+        int? paramName = null;
+
+        // we are not using paramName.Value that's the difference between this test and previous one
+        Expression<Func<TestEntityPerson, bool>> ex = x => !paramName.HasValue || x.BirthYear >= paramName;
 
         Statement s = ExpressionToStatementTranslatorStrategy.Translate(ex);
-        s.Should().BeStatement<BinaryComparisonStatement>();
-        BinaryComparisonStatement c = (BinaryComparisonStatement)s;
-        
+        s.Should().BeStatement<BinaryLogicalStatement>();
+        BinaryLogicalStatement c = (BinaryLogicalStatement)s;
+        c.IsOr.Should().BeTrue();
+
+        c.Left.Should().BeOfType<BinaryComparisonStatement>();
+        c.Right.Should().BeOfType<BinaryComparisonStatement>();
+
+        BinaryComparisonStatement left = (BinaryComparisonStatement)c.Left;
+
+        // !paramName.HasValue is translated as !(hasValue == True) which is !(false == True)
+        // since we work with integers in Sqlite it is translated as !(0 == 1)
+        // !(0 == 1) will be reduced to 0 <> 1
+        left.Operator.Should().Be(BinaryComparisonStatement.Operators.NotEqual);
+        left.Left.Should().BeStatement<ConstantStatement>(x => x.Value == "0");
+        left.Right.Should().BeStatement<ConstantStatement>(x => x.Value == "1");
+
+        BinaryComparisonStatement right = (BinaryComparisonStatement)c.Right;
+        // since there is not value x.BirthYear >= paramName
+        // is translated as x.BirthYear >= NULL
+        right.Left.Should().BeStatement<PropertyAccessStatement>(x => x.Name == "BirthYear");
+        right.Right.Should().BeStatement<ConstantStatement>(x => x.IsNull);
+        right.Operator.Should().Be(BinaryComparisonStatement.Operators.GreaterThanOrEqual);
     }
 
     [Fact]

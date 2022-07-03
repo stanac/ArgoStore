@@ -1,6 +1,7 @@
 ﻿using ArgoStore.Helpers;
 using System.Collections;
 using System.Linq.Expressions;
+using System.Reflection;
 using ArgoStore.Statements;
 
 namespace ArgoStore.ExpressionToStatementTranslators;
@@ -19,8 +20,33 @@ internal class MemberExpressionConstantToStatementTranslator : IExpressionToStat
     
     public Statement Translate(Expression expression)
     {
-        UnaryExpression ex = Expression.Convert(expression as MemberExpression, typeof(object));
-        object value = Expression.Lambda<Func<object>>(ex).Compile().Invoke();
+        MemberExpression me = (MemberExpression) expression;
+
+        object value;
+
+        // don't throw exception when calling Nullable<>.Value
+        if (IsAccessOnNullable(me))
+        {
+            if (me.Member.Name == "Value")
+            {
+                value = GetValueFromNullable(me);
+            }
+            else if (me.Member.Name == "HasValue")
+            {
+                return GetNullableHasValueStatement(me);
+            }
+            else
+            {
+                throw new NotSupportedException($"MemberExpression, access on Nullable<> {me.Member.Name} not supported.");
+            }
+        }
+        else
+        {
+            UnaryExpression ex = Expression.Convert(me, typeof(object));
+
+            Func<object> compiled = Expression.Lambda<Func<object>>(ex).Compile();
+            value = compiled.Invoke();
+        }
 
         if (value is null)
         {
@@ -53,8 +79,39 @@ internal class MemberExpressionConstantToStatementTranslator : IExpressionToStat
 
         throw new NotSupportedException($"MemberExpression with member of type \"{(expression as MemberExpression).Member.GetType().FullName}\" isn't supported");
     }
-        
-    private bool IsConstant(MemberExpression ex)
+
+    private static Statement GetNullableHasValueStatement(MemberExpression me)
+    {
+        UnaryExpression ex = Expression.Convert(me, typeof(object));
+
+        Func<object> compiled = Expression.Lambda<Func<object>>(ex).Compile();
+        bool value = (bool)compiled.Invoke();
+        string sValue = (value ? 1 : 0).ToString();
+
+        return new BinaryComparisonStatement(
+            new ConstantStatement(false, false, sValue),
+            new ConstantStatement(false, false, "1"),
+            BinaryComparisonStatement.Operators.Equal
+        );
+    }
+
+    private static object GetValueFromNullable(MemberExpression me)
+    {
+        // TODO: optimize without catch
+        try
+        {
+            UnaryExpression ex = Expression.Convert(me, typeof(object));
+
+            Func<object> compiled = Expression.Lambda<Func<object>>(ex).Compile();
+            return compiled.Invoke();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static bool IsConstant(MemberExpression ex)
     {
         if (ex.NodeType == ExpressionType.Constant)
         {
@@ -67,5 +124,12 @@ internal class MemberExpressionConstantToStatementTranslator : IExpressionToStat
         }
 
         return ex.Expression.NodeType == ExpressionType.Constant;
+    }
+
+    private static bool IsAccessOnNullable(MemberExpression me)
+    {
+        return me.Member.ReflectedType != null
+               && me.Member.ReflectedType.IsGenericType
+               && me.Member.ReflectedType.GetGenericTypeDefinition() == typeof(Nullable<>);
     }
 }
