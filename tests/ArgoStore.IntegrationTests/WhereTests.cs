@@ -41,7 +41,7 @@ public class WhereTests : IntegrationTestsBase
     }
 
     [SkippableFact]
-    public void WhereWithDynamicNullParameters()
+    public void WhereWithNullCheckParameters()
     {
         using IDocumentSession session = GetNewDocumentSession();
 
