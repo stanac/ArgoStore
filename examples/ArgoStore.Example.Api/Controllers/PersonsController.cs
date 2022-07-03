@@ -79,7 +79,7 @@ public class PersonsController : ControllerBase
             _session.Delete(person);
 
             // OR
-            // _session.DeleteWhere<Person>(x => x.Id == id);
+            // _session.DeleteWhere<Person>(x => x.Id == id); // not implemented yet
             _session.SaveChanges();
 
             return NoContent();
