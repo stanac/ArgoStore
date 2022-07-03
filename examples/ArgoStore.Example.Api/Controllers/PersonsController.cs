@@ -17,27 +17,13 @@ public class PersonsController : ControllerBase
     [HttpGet(Name = "GetAllPersons")]
     public IEnumerable<Person> GetAll(string? name, int? minAge)
     {
-        if (name == null && minAge == null)
-        {
-            return _session.Query<Person>().ToList();
-        }
+        // if name is not null check for Person.Name.Contains(name) otherwise don't check
+        // if minAge hasValue check for Person.Age >= minAge, otherwise don't check age
 
-        if (name != null && minAge.HasValue)
-        {
-            return _session.Query<Person>()
-                .Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase) && x.Age >= minAge.Value)
-                .ToList();
-        }
-
-        if (name != null)
-        {
-            return _session.Query<Person>()
-                .Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-        }
-        
         return _session.Query<Person>()
-            .Where(x => x.Age >= minAge!.Value)
+            .Where(x => (name == null || x.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
+                        && (!minAge.HasValue || x.Age >= minAge)
+            )
             .ToList();
     }
 
