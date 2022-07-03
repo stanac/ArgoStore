@@ -14,18 +14,44 @@ public class PersonsController : ControllerBase
         _session = session;
     }
 
-    [HttpGet]
-    public IEnumerable<Person> Get()
+    [HttpGet(Name = "GetAllPersons")]
+    public IEnumerable<Person> GetAll(string? name, int? minAge)
     {
-        return _session.Query<Person>().ToList();
+        if (name == null && minAge == null)
+        {
+            return _session.Query<Person>().ToList();
+        }
+
+        if (name != null && minAge.HasValue)
+        {
+            return _session.Query<Person>()
+                .Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase) && x.Age >= minAge.Value)
+                .ToList();
+        }
+
+        if (name != null)
+        {
+            return _session.Query<Person>()
+                .Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+        }
+        
+        return _session.Query<Person>()
+            .Where(x => x.Age >= minAge!.Value)
+            .ToList();
     }
 
-    [HttpGet]
-    public IEnumerable<Person> Find(string name, int minAge)
+    [HttpGet("{id:guid}", Name = "GetPersonById")]
+    public IActionResult GetById([FromRoute]Guid id)
     {
-        return _session.Query<Person>()
-            .Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase) && x.Age >= minAge)
-            .ToList();
+        Person? person = _session.Query<Person>().FirstOrDefault(x => x.Id == id);
+
+        if (person == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(person);
     }
 
     [HttpPost]

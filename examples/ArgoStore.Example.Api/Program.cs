@@ -8,6 +8,7 @@ namespace ArgoStore.Example.Api
         {
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
+
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
@@ -37,14 +38,15 @@ namespace ArgoStore.Example.Api
 
             SeedData(app.Services.GetRequiredService<DocumentStore>());
 
-            app.UseAuthorization();
-            app.MapControllers();
-
+            app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 options.RoutePrefix = string.Empty;
             });
+
+            app.UseAuthorization();
+            app.MapControllers();
 
             app.Run();
         }
