@@ -7,6 +7,21 @@ internal class StatementToSqlTranslator : IStatementToSqlTranslator
 {
     private readonly IArgoStoreSerializer _serializer;
 
+    private static readonly MethodCallStatement.SupportedMethodNames[] _stringContainsMethods =
+    {
+        MethodCallStatement.SupportedMethodNames.StringContains,
+        MethodCallStatement.SupportedMethodNames.StringContainsIgnoreCase,
+        MethodCallStatement.SupportedMethodNames.StringStartsWith,
+        MethodCallStatement.SupportedMethodNames.StringStartsWithIgnoreCase,
+        MethodCallStatement.SupportedMethodNames.StringEndsWith,
+        MethodCallStatement.SupportedMethodNames.StringEndsWithIgnoreCase
+    };
+
+    public StatementToSqlTranslator()
+        : this (new ArgoStoreSerializer())
+    {
+    }
+
     public StatementToSqlTranslator(IArgoStoreSerializer serializer)
     {
         _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
@@ -220,6 +235,13 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
         List<string> args = statement.Arguments.Select(x => GetSql(x, alias, cmd)).ToList();
 
         string s = null;
+
+        bool argsHasNull = statement.Arguments.Any(x => x is ConstantStatement cs && cs.IsNull);
+
+        if (argsHasNull && _stringContainsMethods.Contains(statement.MethodName))
+        {
+            return $"{args[0]} IS {args[1]}";
+        }
 
         switch (statement.MethodName)
         {

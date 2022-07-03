@@ -22,6 +22,11 @@ internal class MemberExpressionConstantToStatementTranslator : IExpressionToStat
         UnaryExpression ex = Expression.Convert(expression as MemberExpression, typeof(object));
         object value = Expression.Lambda<Func<object>>(ex).Compile().Invoke();
 
+        if (value is null)
+        {
+            return new ConstantStatement(false, false, null as string);
+        }
+
         Type valueType = value.GetType();
 
         if (valueType.IsCollectionType())
