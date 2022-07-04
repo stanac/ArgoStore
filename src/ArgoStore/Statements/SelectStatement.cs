@@ -11,6 +11,7 @@ internal class SelectStatement : Statement
     public int? Top { get; private set; }
     public CalledByMethods CalledByMethod { get; private set; }
     public string Alias { get; private set; }
+    public bool IsDistinct { get; internal set; }
         
     public SelectStatement(WhereStatement whereStatement, Type typeFrom, Type typeTo, IReadOnlyList<SelectStatementElement> selectElements,
         int? top, CalledByMethods calledByMethod)
