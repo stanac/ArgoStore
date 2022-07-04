@@ -5,6 +5,10 @@ using System.Linq.Expressions;
 using ArgoStore.Configurations;
 using ArgoStore.Statements;
 using Microsoft.Data.Sqlite;
+using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
+using Remotion.Linq.Parsing.Structure;
+using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
+using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 namespace ArgoStore;
 
@@ -106,6 +110,18 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
     public object Execute(Expression expression, out TopStatement topStatement)
     {
+        //ExpressionTransformerRegistry transformerRegistry = ExpressionTransformerRegistry.CreateDefault();
+
+        //CompoundExpressionTreeProcessor processor = ExpressionTreeParser.CreateDefaultProcessor(transformerRegistry);
+
+        //MethodInfoBasedNodeTypeRegistry nodeTypeRegistry = MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly();
+        //// registerNodeTypes?.Invoke(nodeTypeRegistry);
+
+        //ExpressionTreeParser expressionTreeParser = new ExpressionTreeParser(nodeTypeRegistry, processor);
+        //QueryParser parser = new QueryParser(expressionTreeParser);
+
+        //var s = parser.GetParsedQuery(expression);
+
         if (expression is null) throw new ArgumentNullException(nameof(expression));
 
         Statement statement = ExpressionToStatementTranslators.ExpressionToStatementTranslatorStrategy.Translate(expression);
