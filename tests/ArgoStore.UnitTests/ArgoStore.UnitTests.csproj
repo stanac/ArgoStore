@@ -24,8 +24,6 @@
 
 	<ItemGroup>
 		<Using Include="ArgoStore" />
-		<Using Include="ArgoStore.Statements" />
-		<Using Include="ArgoStore.ExpressionToStatementTranslators" />
 		<Using Include="FluentAssertions" />
 		<Using Include="System.Linq.Expressions" />
 		<Using Include="Xunit" />

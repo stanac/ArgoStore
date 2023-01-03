@@ -3,7 +3,7 @@ using Remotion.Linq;
 
 namespace ArgoStore;
 
-internal class ArgoStoreQueryable<T> : QueryableBase<T>, IArgoStoreQueryable
+internal class ArgoStoreQueryable<T> : QueryableBase<T>, IArgoStoreQueryable<T>
 {
     private readonly ArgoStoreSession _session;
 
@@ -17,5 +17,10 @@ internal class ArgoStoreQueryable<T> : QueryableBase<T>, IArgoStoreQueryable
         : base(new ArgoStoreQueryProvider(session), expression)
     {
         _session = session;
+    }
+
+    public ArgoStoreQueryable(ArgoStoreSession session)
+        : base(new ArgoStoreQueryProvider(session))
+    {
     }
 }

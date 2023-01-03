@@ -1,6 +1,8 @@
-﻿namespace ArgoStore;
+﻿using System.Linq.Expressions;
 
-internal class ArgoStoreSession
+namespace ArgoStore;
+
+internal class ArgoStoreSession : IArgoDocumentSession
 {
     public string TenantId { get; }
     private readonly string _connectionString;
@@ -15,5 +17,15 @@ internal class ArgoStoreSession
     {
         TenantId = tenantId;
         _connectionString = connectionString;
+    }
+
+    public IArgoStoreQueryable<T> Query<T>() where T : class, new()
+    {
+        return new ArgoStoreQueryable<T>(this);
+    }
+
+    public void Dispose()
+    {
+        // no op
     }
 }

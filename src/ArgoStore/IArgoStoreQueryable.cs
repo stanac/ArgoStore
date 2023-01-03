@@ -1,5 +1,5 @@
 ﻿namespace ArgoStore;
 
-public interface IArgoStoreQueryable
+public interface IArgoStoreQueryable<T> : IQueryable<T>
 {
 }
