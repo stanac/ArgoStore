@@ -1,6 +1,5 @@
 ﻿namespace ArgoStore;
 
-public interface IArgoStoreQueryable<T> : IQueryable<T>, IOrderedQueryable<T>
+public interface IArgoStoreQueryable
 {
-    // string ToSqlString();
 }

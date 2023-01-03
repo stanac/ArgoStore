@@ -1,39 +1,21 @@
-﻿using System.Collections;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using Remotion.Linq;
 
 namespace ArgoStore;
 
-internal class ArgoStoreQueryable<T> : IArgoStoreQueryable<T>
+internal class ArgoStoreQueryable<T> : QueryableBase<T>, IArgoStoreQueryable
 {
-    public ArgoStoreQueryable(ArgoStoreQueryProvider provider)
-    {
-        Provider = provider ?? throw new ArgumentNullException(nameof(provider));
+    private readonly ArgoStoreSession _session;
 
-        Expression = Expression.Constant(this);
+    public ArgoStoreQueryable(ArgoStoreSession session, ArgoStoreQueryProvider queryProvider, Expression expression) 
+        : base(queryProvider, expression)
+    {
+        _session = session;
     }
 
-    public ArgoStoreQueryable(ArgoStoreQueryProvider provider, Expression expression)
+    public ArgoStoreQueryable(ArgoStoreSession session, Expression expression)
+        : base(new ArgoStoreQueryProvider(session), expression)
     {
-        Provider = provider ?? throw new ArgumentNullException(nameof(provider));
-        Expression = expression ?? throw new ArgumentNullException(nameof(expression));
-
-        if (!typeof(IQueryable<T>).IsAssignableFrom(expression.Type))
-        {
-            throw new ArgumentOutOfRangeException(nameof(expression));
-        }
+        _session = session;
     }
-
-    public Type ElementType => typeof(T);
-
-    public Expression Expression { get; }
-
-    public IQueryProvider Provider { get; }
-
-    public IEnumerator<T> GetEnumerator()
-    {
-        var res = (IEnumerable)Provider.Execute(Expression);
-        return res.Cast<T>().GetEnumerator();
-    }
-        
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 }
