@@ -17,6 +17,8 @@ public class DistinctTests : IntegrationTestsBase
             .Select(x => x.BirthYear.Value)
             .Distinct()
             .ToList();
+
+        result.Should().HaveCount(2);
     }
 
     [SkippableFact]

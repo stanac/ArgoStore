@@ -353,6 +353,11 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
         {
             string sql = "SELECT ";
 
+            if (statement.IsDistinct)
+            {
+                sql += "DISTINCT ";
+            }
+
             for (int i = 0; i < statement.SelectElements.Count; i++)
             {
                 sql += $"{statement.Alias}.{statement.SelectElements[i].BindsToSubQueryAlias}";
@@ -369,10 +374,21 @@ WHERE {select.Alias}.tenant_id = $__tenant_id__
         {
             if (statement.SelectElements.Count == 1 && statement.SelectElements[0].Statement is SelectStarParameterStatement)
             {
+                if (statement.IsDistinct)
+                {
+                    return "SELECT DISTINCT json_data";
+                }
                 return "SELECT json_data";
             }
 
-            return "SELECT " + string.Join(", ", statement.SelectElements.Select(x => GetSql(x.Statement, statement.Alias, cmd) + $" {x.Alias}"));
+            string s = "SELECT ";
+
+            if (statement.IsDistinct)
+            {
+                s += "DISTINCT ";
+            }
+
+            return s + string.Join(", ", statement.SelectElements.Select(x => GetSql(x.Statement, statement.Alias, cmd) + $" {x.Alias}"));
         }
     }
 }
