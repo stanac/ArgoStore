@@ -5,21 +5,21 @@ namespace ArgoStore;
 
 internal class ArgoStoreQueryable<T> : QueryableBase<T>, IArgoStoreQueryable<T>
 {
-    private readonly ArgoStoreSession _session;
+    private readonly ArgoSession _session;
 
-    public ArgoStoreQueryable(ArgoStoreSession session, ArgoStoreQueryProvider queryProvider, Expression expression) 
+    public ArgoStoreQueryable(ArgoSession session, ArgoStoreQueryProvider queryProvider, Expression expression) 
         : base(queryProvider, expression)
     {
         _session = session;
     }
 
-    public ArgoStoreQueryable(ArgoStoreSession session, Expression expression)
+    public ArgoStoreQueryable(ArgoSession session, Expression expression)
         : base(new ArgoStoreQueryProvider(session), expression)
     {
         _session = session;
     }
 
-    public ArgoStoreQueryable(ArgoStoreSession session)
+    public ArgoStoreQueryable(ArgoSession session)
         : base(new ArgoStoreQueryProvider(session))
     {
     }

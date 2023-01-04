@@ -13,6 +13,6 @@ public class Test
 
         IArgoQueryDocumentSession session = store.CreateQuerySession();
 
-        var res = session.Query<Person>().Where(x => x.BirthYear.HasValue).ToList();
+        List<Person> res = session.Query<Person>().Where(x => x.BirthYear.HasValue).ToList();
     }
 }

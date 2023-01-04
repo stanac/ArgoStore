@@ -1,12 +1,13 @@
-﻿using System.Linq.Expressions;
+﻿using Remotion.Linq;
+using System.Linq.Expressions;
 
 namespace ArgoStore;
 
 internal class ArgoStoreQueryProvider : IQueryProvider
 {
-    private readonly ArgoStoreSession _session;
+    private readonly ArgoSession _session;
 
-    public ArgoStoreQueryProvider(ArgoStoreSession session)
+    public ArgoStoreQueryProvider(ArgoSession session)
     {
         _session = session;
     }
@@ -28,6 +29,19 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
     public TResult Execute<TResult>(Expression expression)
     {
+        ArgoQueryModelVisitor v = VisitAndBuild(expression);
+        ArgoCommand cmd = v.CommandBuilder.Build();
+
         throw new NotImplementedException();
+    }
+
+    internal ArgoQueryModelVisitor VisitAndBuild(Expression expression)
+    {
+        QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);
+
+        ArgoQueryModelVisitor v = new();
+        v.VisitQueryModel(query);
+
+        return v;
     }
 }
