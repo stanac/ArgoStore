@@ -1,7 +1,20 @@
-﻿namespace ArgoStore.CrudOperations;
+﻿using System.Text.Json;
+using Microsoft.Data.Sqlite;
 
-internal class CrudOperationBase
+namespace ArgoStore.CrudOperations;
+
+internal abstract class CrudOperationBase
 {
-    // todo: determine how to get key from doc entity
-    public 
+    public object Document { get; }
+    public string TenantId { get; }
+    public DocumentMetadata Meta { get; }
+
+    protected CrudOperationBase(DocumentMetadata meta, object document, string tenantId)
+    {
+        Document = document;
+        TenantId = tenantId;
+        Meta = meta;
+    }
+
+    public abstract SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions);
 }

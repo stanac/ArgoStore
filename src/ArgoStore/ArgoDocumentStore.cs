@@ -69,7 +69,7 @@ public class ArgoDocumentStore
             $"""
             CREATE TABLE IF NOT EXISTS {documentName}   (
                 serialId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                guidId TEXT NOT NULL UNIQUE,
+                stringId TEXT NOT NULL UNIQUE,
                 jsonData JSON NOT NULL,
                 tenantId TEXT NOT NULL,
                 createdAt BIGINT NOT NULL,

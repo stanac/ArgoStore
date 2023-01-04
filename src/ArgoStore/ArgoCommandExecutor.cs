@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Text.Json;
+using ArgoStore.CrudOperations;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore;
@@ -34,6 +35,33 @@ internal class ArgoCommandExecutor
         return result;
     }
 
+    public void ExecuteInTransaction(IReadOnlyList<CrudOperationBase> ops, JsonSerializerOptions serializerOptions)
+    {
+        if (!ops.Any())
+        {
+            return;
+        }
+
+        using SqliteConnection con = CreateAndOpenConnection();
+        using SqliteTransaction tr = con.BeginTransaction();
+
+        foreach (CrudOperationBase op in ops)
+        {
+            ExecuteOperation(op, tr, serializerOptions);
+        }
+
+        tr.Commit();
+        con.Close();
+    }
+
+    private void ExecuteOperation(CrudOperationBase op, SqliteTransaction tr, JsonSerializerOptions serializerOptions)
+    {
+        SqliteCommand cmd = op.CreateCommand(serializerOptions);
+        cmd.Connection = tr.Connection;
+        cmd.Transaction = tr;
+        cmd.ExecuteNonQuery();
+    }
+    
     private SqliteConnection CreateAndOpenConnection()
     {
         SqliteConnection c = new SqliteConnection(_connectionString);

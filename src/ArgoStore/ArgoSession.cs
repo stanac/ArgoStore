@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using ArgoStore.CrudOperations;
 
 namespace ArgoStore;
 
@@ -9,7 +10,9 @@ internal class ArgoSession : IArgoDocumentSession
     private readonly string _connectionString;
     private readonly JsonSerializerOptions _serializerOptions;
     internal const string DefaultTenant = "DEFAULT";
-    
+
+    private readonly List<CrudOperationBase> _crudOps = new();
+
     public ArgoSession(string connectionString, IReadOnlyDictionary<string, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
         : this(connectionString, DefaultTenant, documentTypes, serializerOptions)
     {
@@ -37,7 +40,7 @@ internal class ArgoSession : IArgoDocumentSession
     {
         DocumentMetadata meta = GetRequiredMetadata<T>();
 
-
+        _crudOps.Add(new CrudOperationInsert(meta, entity, TenantId));
     }
 
     private DocumentMetadata GetRequiredMetadata<T>()
@@ -59,7 +62,12 @@ internal class ArgoSession : IArgoDocumentSession
 
     public void SaveChanges()
     {
-        throw new NotImplementedException();
+        if (_crudOps.Any())
+        {
+            ArgoCommandExecutor exec = CreateExecutor();
+            exec.ExecuteInTransaction(_crudOps, _serializerOptions);
+            _crudOps.Clear();
+        }
     }
 
     public void Dispose()

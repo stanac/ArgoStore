@@ -1,17 +1,43 @@
-﻿using System.ComponentModel.Design;
+﻿using System.Reflection;
 
 namespace ArgoStore;
 
 internal class DocumentMetadata
 {
+    private static readonly Type[] _allowedKeyTypes =
+    {
+        typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(string), typeof(Guid)
+    };
+
+    private static readonly Type[] _intTypes =
+    {
+        typeof(int), typeof(uint), typeof(long), typeof(ulong)
+    };
+
+    private const string AllowedPrimaryKeyTypeNames = "`int32`, `uint32`, `int64`, `uint64`, `string`, `Guid`";
+
+    private readonly PropertyInfo _keyProperty;
+
     public Type DocumentType { get; }
     public string DocumentName { get; }
+    public bool IsKeyPropertyInt { get; }
+    public bool IsKeyPropertyString { get; }
+    public bool IsKeyPropertyGuid { get; }
 
     public DocumentMetadata(Type documentType)
     {
         DocumentType = documentType ?? throw new ArgumentNullException(nameof(documentType));
         EnsureTypeIsValid(documentType, null);
         DocumentName = documentType.Name.Trim();
+
+        _keyProperty = GetKeyProperty(documentType);
+        IsKeyPropertyInt = _intTypes.Contains(_keyProperty.PropertyType);
+
+        if (!IsKeyPropertyInt)
+        {
+            IsKeyPropertyGuid = _keyProperty.PropertyType == typeof(Guid);
+            IsKeyPropertyString = !IsKeyPropertyGuid;
+        }
     }
 
     public DocumentMetadata(Type documentType, string documentName)
@@ -20,6 +46,136 @@ internal class DocumentMetadata
         DocumentType = documentType ?? throw new ArgumentNullException(nameof(documentType));
         DocumentName = documentName.Trim();
         EnsureTypeIsValid(documentType, DocumentName);
+
+        // todo: MAKE IT DRY
+        _keyProperty = GetKeyProperty(documentType);
+        IsKeyPropertyInt = _intTypes.Contains(_keyProperty.PropertyType);
+
+        if (!IsKeyPropertyInt)
+        {
+            IsKeyPropertyGuid = _keyProperty.PropertyType == typeof(Guid);
+            IsKeyPropertyString = !IsKeyPropertyGuid;
+        }
+    }
+
+    private PropertyInfo GetKeyProperty(Type documentType)
+    {
+        string name = documentType.Name;
+        string[] allowedKeyNames = {"Key", "Id", name + "Key", name + "Id"};
+
+        PropertyInfo[] keyProps = documentType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(x => allowedKeyNames.Contains(x.Name))
+            .ToArray();
+
+        string allowedJoined = $"For document of type `{documentType.FullName}` following keys are checked: `" + string.Join("`, `", allowedKeyNames) + "`.";
+
+        if (keyProps.Length == 0)
+        {
+            throw new InvalidOperationException("Failed to find primary keys property. " + allowedJoined);
+        }
+
+        if (keyProps.Length > 1)
+        {
+            throw new InvalidOperationException("Multiple primary keys properties found. " + allowedJoined);
+        }
+
+        var keyProp = keyProps[0];
+
+        if (!_allowedKeyTypes.Contains(keyProp.PropertyType))
+        {
+            throw new InvalidOperationException(
+                $"For document of type `{documentType.FullName}` primary key property " +
+                $"`{keyProp.Name}` is of type `{keyProp.PropertyType.FullName}` which is not supported. " +
+                $"Supported types for primary key property are: {AllowedPrimaryKeyTypeNames}.");
+        }
+
+        return keyProp;
+    }
+
+    public object SetIfNeededAndGetPrimaryKeyValue(object doc, out bool shouldBeInserted)
+    {
+        if (doc == null) throw new ArgumentNullException(nameof(doc));
+
+#if DEBUG
+        if (doc.GetType() != DocumentType)
+        {
+            throw new InvalidOperationException(
+                $"Document of type `{doc.GetType().FullName}` not expected. Expected `{DocumentType.FullName}`"
+                );
+        }
+#endif
+
+        object pk = _keyProperty.GetValue(doc);
+
+        if (IsKeyPropertyGuid)
+        {
+            shouldBeInserted = true;
+
+            Guid g = (Guid)pk;
+
+            if (g == Guid.Empty)
+            {
+                Guid newValue = Guid.NewGuid();
+                _keyProperty.SetValue(doc, newValue);
+
+                return newValue;
+            }
+
+            return g;
+        }
+
+        if (IsKeyPropertyString)
+        {
+            shouldBeInserted = true;
+
+            string s = (string)pk;
+
+            if (s == null)
+            {
+                s = Guid.NewGuid().ToString();
+                _keyProperty.SetValue(doc, s);
+            }
+
+            return s;
+        }
+
+#if DEBUG
+        if (!IsKeyPropertyInt)
+        {
+            throw new InvalidOperationException(
+                $"Expected key property for document `{DocumentType.FullName}` to be integer but got `{_keyProperty.PropertyType.FullName}`."
+                );
+        }
+#endif
+
+        if (_keyProperty.PropertyType == typeof(int))
+        {
+            int i = (int)pk;
+            shouldBeInserted = i != 0;
+        }
+        else if (_keyProperty.PropertyType == typeof(uint))
+        {
+            uint i = (uint)pk;
+            shouldBeInserted = i != 0;
+        }
+        else if (_keyProperty.PropertyType == typeof(long))
+        {
+            long i = (long)pk;
+            shouldBeInserted = i != 0;
+        }
+        else if (_keyProperty.PropertyType == typeof(ulong))
+        {
+            ulong i = (ulong)pk;
+            shouldBeInserted = i != 0;
+        }
+        else
+        {
+            throw new InvalidOperationException(
+                $"Expected key property for document `{DocumentType.FullName}` to be integer but got `{_keyProperty.PropertyType.FullName}`."
+            );
+        }
+
+        return pk;
     }
 
     private static void EnsureTypeIsValid(Type documentType, string documentName)
