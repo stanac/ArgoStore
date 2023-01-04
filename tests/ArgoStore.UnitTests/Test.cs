@@ -1,5 +1,6 @@
 ﻿using ArgoStore.IntegrationTests;
 using ArgoStore.TestsCommon.Entities;
+using ArgoStore.TestsCommon.TestData;
 
 namespace ArgoStore.UnitTests;
 
@@ -13,6 +14,7 @@ public class Test : IDisposable
         _testDb = TestDb.CreateNew();
         _store = new ArgoDocumentStore(_testDb.ConnectionString);
         _store.RegisterDocumentType<Person>();
+        AddTestPersons();
     }
 
     [Fact]
@@ -21,6 +23,20 @@ public class Test : IDisposable
         IArgoQueryDocumentSession session = _store.CreateQuerySession();
 
         List<Person> res = session.Query<Person>().Where(x => x.BirthYear.HasValue).ToList();
+    }
+
+    private void AddTestPersons()
+    {
+        IArgoDocumentSession session = _store.CreateSession();
+
+        List<Person> persons = PersonTestData.GetPersonTestData().ToList();
+
+        foreach (Person person in persons)
+        {
+            session.Insert(person);
+        }
+
+        session.SaveChanges();
     }
 
     public void Dispose()

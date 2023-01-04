@@ -7,7 +7,7 @@ namespace ArgoStore;
 public class ArgoDocumentStore
 {
     private readonly string _connectionString;
-    private JsonSerializerOptions _serializerOptions;
+    private readonly JsonSerializerOptions _serializerOptions;
 
     private readonly ConcurrentDictionary<string, DocumentMetadata> _documents = new();
 
@@ -16,13 +16,19 @@ public class ArgoDocumentStore
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
 
         _connectionString = connectionString;
-
-        // TODO: set _serializerOptions to be configurable
+        
         _serializerOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = false,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
+    }
+
+    public IArgoDocumentSession CreateSession() => CreateSession(ArgoSession.DefaultTenant);
+
+    public IArgoDocumentSession CreateSession(string tenantId)
+    {
+        return new ArgoSession(_connectionString, tenantId, _documents, _serializerOptions);
     }
 
     public IArgoQueryDocumentSession CreateQuerySession() => CreateQuerySession(ArgoSession.DefaultTenant);

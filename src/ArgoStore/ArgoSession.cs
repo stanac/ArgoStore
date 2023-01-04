@@ -37,4 +37,14 @@ internal class ArgoSession : IArgoDocumentSession
     {
         // no op
     }
+
+    public void Insert<T>(T entity)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SaveChanges()
+    {
+        throw new NotImplementedException();
+    }
 }
