@@ -49,15 +49,30 @@ public class ArgoDocumentStore
     {
         using SqliteConnection c = await GetAndOpenConnectionAsync();
 
-        string sql = $"""
-            CREATE TABLE IF NOT EXISTS as_{documentName} (
+        string[] sql =
+        {
+            $"""
+            CREATE TABLE IF NOT EXISTS as_{documentName}   (
                 serialId BIGINT NOT NULL PRIMARY KEY AUTOINCREMENT,
                 guidId TEXT NOT NULL UNIQUE,
                 jsonData JSON NOT NULL,
+                tenantId TEXT NOT NULL,
                 createdAt BIGINT NOT NULL,
                 updatedAt BIGINT NULL
             )
-        """;
+            """,
+            $"""
+            CREATE INDEX IF NOT EXISTS as_{documentName}_tenant 
+            ON {documentName} (tenantId)
+            """
+        };
+
+        foreach (string s in sql)
+        {
+            SqliteCommand cmd = c.CreateCommand();
+            cmd.CommandText = s;
+            await cmd.ExecuteNonQueryAsync();
+        }
     }
 
     private async Task<SqliteConnection> GetAndOpenConnectionAsync()

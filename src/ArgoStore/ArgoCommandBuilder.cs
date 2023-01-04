@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using ArgoStore.Statements;
+using ArgoStore.Statements.Where;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
@@ -28,6 +28,7 @@ internal class ArgoCommandBuilder
         StringBuilder sb = StringBuilderBag.Default.Get();
 
         AddSelect(sb);
+        AddFrom();
         AddWhere(sb);
 
         string sql = sb.ToString();

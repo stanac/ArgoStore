@@ -1,22 +1,22 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-namespace ArgoStore.Statements;
+namespace ArgoStore.Statements.Where;
 
-internal abstract class ValueStatement
+internal abstract class WhereValueStatement : WhereStatementBase
 {
-    public static ValueStatement From(Expression expression)
+    public static WhereValueStatement From(Expression expression)
     {
         if (expression is MemberExpression me && me.Member is PropertyInfo pi)
         {
             string propName = pi.Name;
-            return new PropertyStatement(propName);
+            return new WherePropertyStatement(propName);
         }
         else if (expression is ConstantExpression ce)
         {
             if (ce.Value is null)
             {
-                return new NullValueStatement();
+                return new WhereNullValueStatement();
             }
 
             throw new NotImplementedException();

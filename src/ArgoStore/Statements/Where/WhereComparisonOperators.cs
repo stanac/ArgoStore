@@ -1,9 +1,9 @@
-﻿namespace ArgoStore.Statements;
+﻿namespace ArgoStore.Statements.Where;
 
 internal enum ComparisonOperators
 {
     GreaterThan,
-    GreaterThanOrEqual, 
+    GreaterThanOrEqual,
     LessThan,
     LessThanOrEqual,
     Equal,
