@@ -33,18 +33,38 @@ internal class ArgoSession : IArgoDocumentSession
         return new ArgoCommandExecutor(_connectionString, _serializerOptions);
     }
 
-    public void Dispose()
-    {
-        // no op
-    }
-
     public void Insert<T>(T entity)
     {
-        throw new NotImplementedException();
+        DocumentMetadata meta = GetRequiredMetadata<T>();
+
+
+    }
+
+    private DocumentMetadata GetRequiredMetadata<T>()
+    {
+        return GetRequiredMetadata(typeof(T));
+    }
+
+    private DocumentMetadata GetRequiredMetadata(Type type)
+    {
+        KeyValuePair<string, DocumentMetadata>[] items = DocumentTypes.Where(x => x.Value.DocumentType == type).ToArray();
+
+        if (items.Length == 0)
+        {
+            throw new InvalidOperationException($"Metadata for document type `{type.FullName}` not registered.");
+        }
+
+        return items[0].Value;
     }
 
     public void SaveChanges()
     {
         throw new NotImplementedException();
     }
+
+    public void Dispose()
+    {
+        // no op
+    }
+
 }
