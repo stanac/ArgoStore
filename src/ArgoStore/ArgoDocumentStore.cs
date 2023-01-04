@@ -1,26 +1,35 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System.Collections.Concurrent;
+using System.Text.Json;
+using Microsoft.Data.Sqlite;
 
 namespace ArgoStore;
 
 public class ArgoDocumentStore
 {
     private readonly string _connectionString;
-    
+    private JsonSerializerOptions _serializerOptions;
+
+    private readonly ConcurrentDictionary<string, DocumentMetadata> _documents = new();
+
     public ArgoDocumentStore(string connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
 
         _connectionString = connectionString;
+
+        // TODO: set _serializerOptions to be configurable
+        _serializerOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = false,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+        };
     }
 
-    public IArgoQueryDocumentSession CreateQuerySession()
-    {
-        return new ArgoSession(_connectionString);
-    }
+    public IArgoQueryDocumentSession CreateQuerySession() => CreateQuerySession(ArgoSession.DefaultTenant);
 
     public IArgoQueryDocumentSession CreateQuerySession(string tenantId)
     {
-        return new ArgoSession(_connectionString, tenantId);
+        return new ArgoSession(_connectionString, tenantId, _documents, _serializerOptions);
     }
 
     public void RegisterDocumentType<TDocument>()
@@ -42,18 +51,18 @@ public class ArgoDocumentStore
 
     public void RegisterDocumentType(Type documentType, string documentName)
     {
-        CreateTableAsync(documentName).GetAwaiter().GetResult();
+        DocumentMetadata meta = new DocumentMetadata(documentType, documentName);
+        _documents[meta.DocumentName] = meta;
+        CreateTableAsync(meta.DocumentName).GetAwaiter().GetResult();
     }
 
     private async Task CreateTableAsync(string documentName)
     {
-        using SqliteConnection c = await GetAndOpenConnectionAsync();
-
         string[] sql =
         {
             $"""
             CREATE TABLE IF NOT EXISTS as_{documentName}   (
-                serialId BIGINT NOT NULL PRIMARY KEY AUTOINCREMENT,
+                serialId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 guidId TEXT NOT NULL UNIQUE,
                 jsonData JSON NOT NULL,
                 tenantId TEXT NOT NULL,
@@ -62,10 +71,12 @@ public class ArgoDocumentStore
             )
             """,
             $"""
-            CREATE INDEX IF NOT EXISTS as_{documentName}_tenant 
-            ON {documentName} (tenantId)
+            CREATE INDEX IF NOT EXISTS as_index_{documentName}_tenant 
+            ON as_{documentName} (tenantId)
             """
         };
+
+        using SqliteConnection c = await GetAndOpenConnectionAsync();
 
         foreach (string s in sql)
         {

@@ -2,9 +2,13 @@
 
 namespace ArgoStore.IntegrationTests;
 
-public abstract class TestDb
+public abstract class TestDb : IDisposable
 {
     public abstract SqliteConnection GetAndOpenConnection();
 
+    public abstract string ConnectionString { get; }
+
     public static TestDb CreateNew() => new OnDiskTestDb();
+
+    public abstract void Dispose();
 }

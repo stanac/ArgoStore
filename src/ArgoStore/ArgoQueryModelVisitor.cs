@@ -8,7 +8,7 @@ namespace ArgoStore;
 internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 {
     public ArgoCommandBuilder CommandBuilder { get; private set; }
-
+    
     public override void VisitQueryModel(QueryModel queryModel)
     {
         CommandBuilder = new ArgoCommandBuilder(queryModel);

@@ -6,7 +6,7 @@ namespace ArgoStore.Statements.Where;
 
 internal class WhereStatement
 {
-    private WhereStatementBase Statement { get; }
+    public WhereStatementBase Statement { get; }
 
     public WhereStatement(WhereClause clause, QueryModel model)
     {
