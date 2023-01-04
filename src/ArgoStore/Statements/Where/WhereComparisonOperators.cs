@@ -32,4 +32,9 @@ internal static class ComparisonOperatorsExtensions
                 throw new ArgumentOutOfRangeException(nameof(op), op, null);
         }
     }
+
+    public static bool IsEqualOrNotEqual(this ComparisonOperators op)
+    {
+        return op == ComparisonOperators.Equal || op == ComparisonOperators.NotEqual;
+    }
 }

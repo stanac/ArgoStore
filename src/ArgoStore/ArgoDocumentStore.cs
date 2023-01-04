@@ -61,7 +61,7 @@ public class ArgoDocumentStore
         string[] sql =
         {
             $"""
-            CREATE TABLE IF NOT EXISTS as_{documentName}   (
+            CREATE TABLE IF NOT EXISTS {documentName}   (
                 serialId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
                 guidId TEXT NOT NULL UNIQUE,
                 jsonData JSON NOT NULL,
@@ -71,8 +71,8 @@ public class ArgoDocumentStore
             )
             """,
             $"""
-            CREATE INDEX IF NOT EXISTS as_index_{documentName}_tenant 
-            ON as_{documentName} (tenantId)
+            CREATE INDEX IF NOT EXISTS ix_{documentName}_tenant 
+            ON {documentName} (tenantId)
             """
         };
 

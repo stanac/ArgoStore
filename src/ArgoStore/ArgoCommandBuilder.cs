@@ -1,5 +1,5 @@
 ﻿using System.Text;
-using System.Xml.Linq;
+using System.Text.Json;
 using ArgoStore.Statements.Select;
 using ArgoStore.Statements.Where;
 using Remotion.Linq;
@@ -12,6 +12,7 @@ internal class ArgoCommandBuilder
     private readonly QueryModel _model;
     private readonly Type _docType;
     private readonly ArgoCommandParameterCollection _params = new();
+
     private readonly List<WhereStatement> _whereStatements = new();
     private SelectStatementBase _selectStatement;
 
@@ -33,9 +34,9 @@ internal class ArgoCommandBuilder
         DocumentMetadata meta = FindDocMeta(documentTypes);
         StringBuilder sb = StringBuilderBag.Default.Get();
 
-        AddSelect(sb);
-        AddFrom(sb, meta);
-        AddWhere(sb, meta, tenantId);
+        AppendSelect(sb);
+        AppendFrom(sb, meta);
+        AppendWhere(sb, meta, tenantId);
 
         string sql = sb.ToString();
 
@@ -57,38 +58,114 @@ internal class ArgoCommandBuilder
         _selectStatement = selectStatement;
     }
 
-    private void AddSelect(StringBuilder sb)
+    private void AppendSelect(StringBuilder sb)
     {
         sb.AppendLine("SELECT jsonData");
     }
 
-    private void AddFrom(StringBuilder sb, DocumentMetadata meta)
+    private void AppendFrom(StringBuilder sb, DocumentMetadata meta)
     {
         sb.Append("FROM ").Append(meta.DocumentName);
         sb.AppendLine();
     }
 
-    private void AddWhere(StringBuilder sb, DocumentMetadata meta, string tenantId)
+    private void AppendWhere(StringBuilder sb, DocumentMetadata meta, string tenantId)
     {
         sb.Append("WHERE tenantId = @").AppendLine(_params.AddNewParameter(tenantId));
 
         foreach (WhereStatement w in _whereStatements)
         {
-            switch (w.Statement)
-            {
-                case WhereComparisonStatement wcs:
-                    sb.AppendLine($"    AND ({wcs.Left} {wcs.Operator.ToSqlOperator()} {wcs.Right})");
-                    break;
-
-                default:
-                    throw new NotSupportedException($"Not supported where statement type: `{w.GetType().FullName}`");
-            }
+            sb.Append(" AND ( ");
+            AppendWhereStatement(sb, w.Statement, meta);
+            sb.AppendLine(" ) ");
         }
     }
 
-    private string ConvertWhereStatement(WhereStatementBase statement)
+    private void AppendWhereStatement(StringBuilder sb, WhereStatementBase statement, DocumentMetadata meta)
     {
-        throw new NotImplementedException();
+        sb.Append(" ");
+        
+        switch (statement)
+        {
+            case WhereComparisonStatement wcs:
+                AppendWhereComparison(sb, wcs, meta);
+                break;
+
+            case WhereLogicalAndOrStatement wlaos:
+                AppendWhereLogicalAndOr(sb, wlaos, meta);
+                break;
+
+            case WhereParameterStatement param:
+                sb.Append(" @").Append(param.ParameterName).Append(" ");
+                break;
+            case WherePropertyStatement prop:
+                sb.Append(GetParameterExtraction(prop.PropertyName)).Append(" ");
+                break;
+                
+            default:
+                throw new ArgumentOutOfRangeException(nameof(statement));
+        }
+
+        sb.Append(" ");
+    }
+
+    private void AppendWhereComparison(StringBuilder sb, WhereComparisonStatement s, DocumentMetadata meta)
+    {
+        sb.Append(" ");
+
+        if (s.Operator.IsEqualOrNotEqual() && (s.Left is WhereNullValueStatement || s.Right is WhereNullValueStatement))
+        {
+            if (s.Left is WhereNullValueStatement && s.Right is WhereNullValueStatement)
+            {
+                sb.Append("NULL IS NULL");
+            }
+            else if (s.Left is WhereNullValueStatement)
+            {
+                AppendWhereStatement(sb, s.Right, meta);
+                sb.Append(" IS NULL");
+            }
+            else
+            {
+                AppendWhereStatement(sb, s.Left, meta);
+                sb.Append(" IS NULL");
+            }
+        }
+        else
+        {
+            AppendWhereStatement(sb, s.Left, meta);
+            sb.Append(" ").Append(s.Operator.ToSqlOperator()).Append(" ");
+            AppendWhereStatement(sb, s.Right, meta);
+        }
+
+        sb.Append(" ");
+    }
+
+    private void AppendWhereLogicalAndOr(StringBuilder sb, WhereLogicalAndOrStatement s, DocumentMetadata meta)
+    {
+        string andOr = s.IsAnd ? "AND" : "OR";
+
+        sb.Append(" (( ");
+        AppendWhereStatement(sb, s.Left, meta);
+        sb.Append(" ) ").Append(andOr).Append(" ( ");
+        AppendWhereStatement(sb, s.Right, meta);
+        sb.Append(" )) ");
+    }
+
+    private string GetParameterExtraction(string propertyName, string alias = null)
+    {
+        propertyName = ConvertPropertyCase(propertyName);
+
+        if (string.IsNullOrWhiteSpace(alias))
+        {
+            return $"json_extract(jsonData, '$.{propertyName}')";
+        }
+
+        return $"json_extract({alias}.jsonData, '$.{propertyName}')";
+    }
+
+    private string ConvertPropertyCase(string propertyName)
+    {
+        return JsonNamingPolicy.CamelCase.ConvertName(propertyName);
     }
 
     private DocumentMetadata FindDocMeta(IReadOnlyDictionary<string, DocumentMetadata> documentTypes)
