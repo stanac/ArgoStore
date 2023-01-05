@@ -1,5 +1,4 @@
 ﻿using ArgoStore.TestsCommon.Entities;
-using ArgoStore.TestsCommon.TestData;
 
 namespace ArgoStore.IntegrationTests;
 

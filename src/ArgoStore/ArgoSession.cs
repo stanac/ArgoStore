@@ -113,9 +113,13 @@ internal class ArgoSession : IArgoDocumentSession
         }
     }
 
+    public void DiscardChanges()
+    {
+        _crudOps.Clear();
+    }
+    
     public void Dispose()
     {
-        // no op
+        DiscardChanges();
     }
-
 }

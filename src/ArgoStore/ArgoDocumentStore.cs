@@ -31,9 +31,9 @@ public class ArgoDocumentStore
         return new ArgoSession(_connectionString, tenantId, _documents, _serializerOptions);
     }
 
-    public IArgoQueryDocumentSession CreateQuerySession() => CreateQuerySession(ArgoSession.DefaultTenant);
+    public IArgoQueryDocumentSession OpenQuerySession() => OpenQuerySession(ArgoSession.DefaultTenant);
 
-    public IArgoQueryDocumentSession CreateQuerySession(string tenantId)
+    public IArgoQueryDocumentSession OpenQuerySession(string tenantId)
     {
         return new ArgoSession(_connectionString, tenantId, _documents, _serializerOptions);
     }
