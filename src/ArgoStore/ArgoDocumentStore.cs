@@ -24,9 +24,9 @@ public class ArgoDocumentStore
         };
     }
 
-    public IArgoDocumentSession CreateSession() => CreateSession(ArgoSession.DefaultTenant);
+    public IArgoDocumentSession OpenSession() => OpenSession(ArgoSession.DefaultTenant);
 
-    public IArgoDocumentSession CreateSession(string tenantId)
+    public IArgoDocumentSession OpenSession(string tenantId)
     {
         return new ArgoSession(_connectionString, tenantId, _documents, _serializerOptions);
     }
