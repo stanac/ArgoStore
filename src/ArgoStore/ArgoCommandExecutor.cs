@@ -24,7 +24,7 @@ internal class ArgoCommandExecutor
                 throw new NotImplementedException();
             
             case ArgoCommandTypes.Count:
-            case ArgoCommandTypes.CountLong:
+            case ArgoCommandTypes.LongCount:
                 return ExecuteCount(command);
                 
             case ArgoCommandTypes.ToList:

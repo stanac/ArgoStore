@@ -51,7 +51,7 @@ internal class ArgoCommandBuilder
         if (_selectStatement is SelectCountStatement c)
         {
             cmdType = c.CountLong
-                ? ArgoCommandTypes.CountLong
+                ? ArgoCommandTypes.LongCount
                 : ArgoCommandTypes.Count;
         }
 
