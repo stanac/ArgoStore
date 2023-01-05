@@ -7,6 +7,15 @@ internal class InsertOperation : CrudOperation
 {
     public InsertOperation(DocumentMetadata meta, object document, string tenantId) : base(meta, document, tenantId)
     {
+        if (meta.IsKeyPropertyString)
+        {
+            var key = meta.GetPrimaryKeyValue(document, out _);
+
+            if (key == null)
+            {
+                throw new InvalidOperationException($"Failed to insert `{meta.DocumentType.FullName}`. Primary key of type string must be set.");
+            }
+        }
     }
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)

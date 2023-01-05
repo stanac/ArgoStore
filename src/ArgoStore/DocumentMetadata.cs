@@ -116,8 +116,8 @@ internal class DocumentMetadata
 
         if (IsKeyPropertyString)
         {
-            isDefaultValue = true;
-            return null;
+            isDefaultValue = key == null;
+            return key;
         }
 
 #if DEBUG
