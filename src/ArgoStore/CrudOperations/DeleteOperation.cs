@@ -12,7 +12,7 @@ internal class DeleteOperation : CrudOperation
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object id = Meta.GetPrimaryKeyValue(Document);
+        object id = Meta.GetPrimaryKeyValue(Document, out _);
 
         string sql = Meta.IsKeyPropertyInt
             ? $"DELETE FROM {Meta.DocumentName} WHERE serialId = @id AND tenantId = @tenantId"

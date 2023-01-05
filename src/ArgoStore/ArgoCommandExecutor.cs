@@ -35,6 +35,19 @@ internal class ArgoCommandExecutor
         return result;
     }
 
+    public object ExecuteFirstOrDefault(ArgoCommand command)
+    {
+        using SqliteConnection con = CreateAndOpenConnection();
+        using SqliteCommand cmd = command.ToSqliteCommand();
+        cmd.Connection = con;
+
+        string json = cmd.ExecuteScalar() as string;
+
+        if (json == null) return null;
+
+        return JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions);
+    }
+
     public void ExecuteInTransaction(IReadOnlyList<CrudOperation> ops, JsonSerializerOptions serializerOptions)
     {
         if (!ops.Any())

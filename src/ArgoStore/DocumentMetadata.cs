@@ -23,6 +23,7 @@ internal class DocumentMetadata
     public bool IsKeyPropertyInt { get; }
     public bool IsKeyPropertyString { get; }
     public bool IsKeyPropertyGuid { get; }
+    public Type KeyPropertyType => _keyProperty.PropertyType;
 
     public DocumentMetadata(Type documentType)
     {

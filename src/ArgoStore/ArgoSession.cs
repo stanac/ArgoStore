@@ -31,12 +31,55 @@ internal class ArgoSession : IArgoDocumentSession
         return new ArgoStoreQueryable<T>(this);
     }
 
+    public T GetById<T>(object id) where T: class, new()
+    {
+        if (id is null)
+        {
+            throw new ArgumentNullException(nameof(id));
+        }
+
+        DocumentMetadata meta = GetRequiredMetadata<T>();
+
+        if (id.GetType() != meta.KeyPropertyType)
+        {
+            throw new InvalidOperationException($"Expected id to be of type `{meta.KeyPropertyType.FullName}` but got `{id.GetType().FullName}`.");
+        }
+
+        string pkName = meta.IsKeyPropertyInt
+            ? "serialId"
+            : "stringId";
+
+        string sql = $"""
+                SELECT jsonData 
+                FROM {meta.DocumentName}
+                WHERE {pkName} = @key
+                AND tenantId = @tenantId
+            """;
+
+        ArgoCommandParameterCollection parameters = new ();
+
+        parameters.AddWithName("key", id);
+        parameters.AddWithName("tenantId", TenantId);
+
+        ArgoCommand cmd = new ArgoCommand(sql, parameters, ArgoCommandTypes.FirstOrDefault, typeof(T));
+
+        ArgoCommandExecutor exec = CreateExecutor();
+        object result = exec.ExecuteFirstOrDefault(cmd);
+
+        if (result == null)
+        {
+            return null;
+        }
+
+        return (T) result;
+    }
+
     internal ArgoCommandExecutor CreateExecutor()
     {
         return new ArgoCommandExecutor(_connectionString, _serializerOptions);
     }
 
-    public void Insert<T>(T entity)
+    public void Insert<T>(T entity) where T: class, new()
     {
         DocumentMetadata meta = GetRequiredMetadata<T>();
 

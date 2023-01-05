@@ -16,6 +16,11 @@ public class ArgoCommandParameterCollection : IEnumerable<ArgoCommandParameter>
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    public void AddWithName(string name, object value)
+    {
+        _parameters[name] = value;
+    }
+
     public string AddNewParameter(object value)
     {
         string name = $"p{_parameters.Count + 1}";

@@ -18,7 +18,7 @@ public class ArgoCommand
         CommandType = commandType;
         ResultingType = resultingType;
     }
-
+    
     public SqliteCommand ToSqliteCommand()
     {
         var cmd = new SqliteCommand(Sql);
