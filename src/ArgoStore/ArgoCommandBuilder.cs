@@ -16,6 +16,8 @@ internal class ArgoCommandBuilder
     private readonly List<WhereStatement> _whereStatements = new();
     private SelectStatementBase _selectStatement;
 
+    public bool IsSelectCount => _selectStatement is SelectCountStatement;
+
     public string ItemName { get; set; }
 
     public ArgoCommandBuilder(QueryModel model)
@@ -44,15 +46,24 @@ internal class ArgoCommandBuilder
 
         QueryModel m = _model;
 
+        ArgoCommandTypes cmdType = ArgoCommandTypes.ToList;
+
+        if (_selectStatement is SelectCountStatement c)
+        {
+            cmdType = c.CountLong
+                ? ArgoCommandTypes.CountLong
+                : ArgoCommandTypes.Count;
+        }
+
         // TODO: set command type
-        return new ArgoCommand(sql, _params, ArgoCommandTypes.ToList, meta.DocumentType);
+        return new ArgoCommand(sql, _params, cmdType, meta.DocumentType);
     }
 
-    public void AddWhereClause(WhereClause whereClause, QueryModel queryModel)
+    public void AddWhereClause(WhereClause whereClause)
     {
-        _whereStatements.Add(new WhereStatement(whereClause, queryModel));
+        _whereStatements.Add(new WhereStatement(whereClause));
     }
-
+    
     public void SetSelectStatement(SelectStatementBase selectStatement)
     {
         _selectStatement = selectStatement;
@@ -60,7 +71,14 @@ internal class ArgoCommandBuilder
 
     private void AppendSelect(StringBuilder sb)
     {
-        sb.AppendLine("SELECT jsonData");
+        if (_selectStatement is SelectCountStatement)
+        {
+            sb.Append("SELECT COUNT (1)");
+        }
+        else
+        {
+            sb.AppendLine("SELECT jsonData");
+        }
     }
 
     private void AppendFrom(StringBuilder sb, DocumentMetadata meta)

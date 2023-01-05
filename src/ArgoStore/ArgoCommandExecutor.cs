@@ -16,6 +16,31 @@ internal class ArgoCommandExecutor
         _serializerOptions = serializerOptions;
     }
 
+    public object Execute(ArgoCommand command)
+    {
+        switch (command.CommandType)
+        {
+            case ArgoCommandTypes.NonQuery:
+                throw new NotImplementedException();
+            
+            case ArgoCommandTypes.Count:
+            case ArgoCommandTypes.CountLong:
+                return ExecuteCount(command);
+                
+            case ArgoCommandTypes.ToList:
+                return ExecuteToList(command);
+                
+            case ArgoCommandTypes.Single:
+            case ArgoCommandTypes.SingleOrDefault:
+            case ArgoCommandTypes.First:
+            case ArgoCommandTypes.FirstOrDefault:
+                throw new NotImplementedException();
+                
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
     public object ExecuteToList(ArgoCommand command)
     {
         using SqliteConnection con = CreateAndOpenConnection();
@@ -46,6 +71,28 @@ internal class ArgoCommandExecutor
         if (json == null) return null;
 
         return JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions);
+    }
+
+    public object ExecuteCount(ArgoCommand command)
+    {
+        using SqliteConnection con = CreateAndOpenConnection();
+        using SqliteCommand cmd = command.ToSqliteCommand();
+        cmd.Connection = con;
+
+        object result = cmd.ExecuteScalar() 
+                        ?? throw new InvalidOperationException("Unexpected null result on ExecuteCount(ArgoCommand command)");
+
+        long ret;
+
+        if (result is int i) ret = i;
+        else ret = (long)result;
+
+        if (command.CommandType == ArgoCommandTypes.Count)
+        {
+            return (int) ret;
+        }
+
+        return ret;
     }
 
     public void ExecuteInTransaction(IReadOnlyList<CrudOperation> ops, JsonSerializerOptions serializerOptions)

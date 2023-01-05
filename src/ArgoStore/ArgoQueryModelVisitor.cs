@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using ArgoStore.Statements.Select;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.ResultOperators;
 // ReSharper disable RedundantOverriddenMember
 
 namespace ArgoStore;
@@ -17,7 +19,7 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 
     public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
     {
-        CommandBuilder.AddWhereClause(whereClause, queryModel);
+        CommandBuilder.AddWhereClause(whereClause);
         base.VisitWhereClause(whereClause, queryModel, index);
     }
 
@@ -69,6 +71,15 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 
     public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
     {
+        if (resultOperator is CountResultOperator)
+        {
+            CommandBuilder.SetSelectStatement(new SelectCountStatement());
+        }
+        else if (resultOperator is LongCountResultOperator)
+        {
+            CommandBuilder.SetSelectStatement(new SelectCountStatement(true));
+        }
+
         base.VisitResultOperator(resultOperator, queryModel, index);
     }
 

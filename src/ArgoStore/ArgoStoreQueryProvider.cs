@@ -33,9 +33,7 @@ internal class ArgoStoreQueryProvider : IQueryProvider
         ArgoCommand cmd = v.CommandBuilder.Build(_session.DocumentTypes, _session.TenantId);
 
         ArgoCommandExecutor exec = _session.CreateExecutor();
-        return (TResult)exec.ExecuteToList(cmd);
-
-        throw new NotImplementedException();
+        return (TResult)exec.Execute(cmd);
     }
 
     internal ArgoQueryModelVisitor VisitAndBuild(Expression expression)
