@@ -11,7 +11,7 @@ internal class ArgoSession : IArgoDocumentSession
     private readonly JsonSerializerOptions _serializerOptions;
     internal const string DefaultTenant = "DEFAULT";
 
-    private readonly List<CrudOperationBase> _crudOps = new();
+    private readonly List<CrudOperation> _crudOps = new();
 
     public ArgoSession(string connectionString, IReadOnlyDictionary<string, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
         : this(connectionString, DefaultTenant, documentTypes, serializerOptions)
@@ -40,7 +40,7 @@ internal class ArgoSession : IArgoDocumentSession
     {
         DocumentMetadata meta = GetRequiredMetadata<T>();
 
-        _crudOps.Add(new CrudOperationInsert(meta, entity, TenantId));
+        _crudOps.Add(new InsertOperation(meta, entity, TenantId));
     }
 
     private DocumentMetadata GetRequiredMetadata<T>()

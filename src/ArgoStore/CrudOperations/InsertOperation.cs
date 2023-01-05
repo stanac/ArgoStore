@@ -3,9 +3,9 @@ using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.CrudOperations;
 
-internal class CrudOperationInsert : CrudOperationBase
+internal class InsertOperation : CrudOperation
 {
-    public CrudOperationInsert(DocumentMetadata meta, object document, string tenantId) : base(meta, document, tenantId)
+    public InsertOperation(DocumentMetadata meta, object document, string tenantId) : base(meta, document, tenantId)
     {
     }
 

@@ -35,7 +35,7 @@ internal class ArgoCommandExecutor
         return result;
     }
 
-    public void ExecuteInTransaction(IReadOnlyList<CrudOperationBase> ops, JsonSerializerOptions serializerOptions)
+    public void ExecuteInTransaction(IReadOnlyList<CrudOperation> ops, JsonSerializerOptions serializerOptions)
     {
         if (!ops.Any())
         {
@@ -45,7 +45,7 @@ internal class ArgoCommandExecutor
         using SqliteConnection con = CreateAndOpenConnection();
         using SqliteTransaction tr = con.BeginTransaction();
 
-        foreach (CrudOperationBase op in ops)
+        foreach (CrudOperation op in ops)
         {
             ExecuteOperation(op, tr, serializerOptions);
         }
@@ -54,7 +54,7 @@ internal class ArgoCommandExecutor
         con.Close();
     }
 
-    private void ExecuteOperation(CrudOperationBase op, SqliteTransaction tr, JsonSerializerOptions serializerOptions)
+    private void ExecuteOperation(CrudOperation op, SqliteTransaction tr, JsonSerializerOptions serializerOptions)
     {
         SqliteCommand cmd = op.CreateCommand(serializerOptions);
         cmd.Connection = tr.Connection;

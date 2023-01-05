@@ -3,13 +3,13 @@ using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.CrudOperations;
 
-internal abstract class CrudOperationBase
+internal abstract class CrudOperation
 {
     public object Document { get; }
     public string TenantId { get; }
     public DocumentMetadata Meta { get; }
 
-    protected CrudOperationBase(DocumentMetadata meta, object document, string tenantId)
+    protected CrudOperation(DocumentMetadata meta, object document, string tenantId)
     {
         Document = document;
         TenantId = tenantId;

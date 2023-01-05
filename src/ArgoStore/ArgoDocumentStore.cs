@@ -80,6 +80,15 @@ public class ArgoDocumentStore
             CREATE INDEX IF NOT EXISTS ix_{documentName}_tenant 
             ON {documentName} (tenantId)
             """
+            /*,
+            $"""
+            CREATE INDEX IF NOT EXISTS ix_{documentName}_createdAt
+            ON {documentName} (createdAt)
+            """,
+            $"""
+            CREATE INDEX IF NOT EXISTS ix_{documentName}_updatedAt
+            ON {documentName} (updatedAt)
+            """*/
         };
 
         using SqliteConnection c = await GetAndOpenConnectionAsync();

@@ -91,6 +91,64 @@ internal class DocumentMetadata
 
         return keyProp;
     }
+    
+    public object GetPrimaryKeyValue(object doc, out bool isDefaultValue)
+    {
+        if (doc == null) throw new ArgumentNullException(nameof(doc));
+
+#if DEBUG
+        if (doc.GetType() != DocumentType)
+        {
+            throw new InvalidOperationException(
+                $"Document of type `{doc.GetType().FullName}` not expected. Expected `{DocumentType.FullName}`"
+            );
+        }
+#endif
+
+        object key = _keyProperty.GetValue(doc);
+        
+        if (IsKeyPropertyGuid)
+        {
+            isDefaultValue = (Guid)key == default;
+            return key;
+        }
+
+        if (IsKeyPropertyString)
+        {
+            isDefaultValue = true;
+            return null;
+        }
+
+#if DEBUG
+        if (!IsKeyPropertyInt)
+        {
+            throw new InvalidOperationException("Expected key property to be integer");
+        }
+#endif
+
+        if (_keyProperty.PropertyType == typeof(int))
+        {
+            isDefaultValue = (int)key == 0;
+        }
+        else if (_keyProperty.PropertyType == typeof(long))
+        {
+            isDefaultValue = (long)key == 0;
+        }
+        else if (_keyProperty.PropertyType == typeof(uint))
+        {
+            isDefaultValue = (uint)key == 0;
+        }
+        else if (_keyProperty.PropertyType == typeof(ulong))
+        {
+            isDefaultValue = (ulong)key == 0;
+        }
+        else
+        {
+            throw new InvalidOperationException("Unreachable code");
+        }
+
+        return key;
+    }
 
     public object SetIfNeededAndGetPrimaryKeyValue(object doc, out bool shouldBeInserted)
     {
