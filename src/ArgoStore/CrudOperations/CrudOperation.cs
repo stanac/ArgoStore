@@ -7,13 +7,13 @@ internal abstract class CrudOperation
 {
     public object Document { get; }
     public string TenantId { get; }
-    public DocumentMetadata Meta { get; }
+    public DocumentMetadata Metadata { get; }
 
-    protected CrudOperation(DocumentMetadata meta, object document, string tenantId)
+    protected CrudOperation(DocumentMetadata metadata, object document, string tenantId)
     {
         Document = document;
         TenantId = tenantId;
-        Meta = meta;
+        Metadata = metadata;
     }
 
     public abstract SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions);

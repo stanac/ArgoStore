@@ -24,6 +24,7 @@ internal class DocumentMetadata
     public bool IsKeyPropertyString { get; }
     public bool IsKeyPropertyGuid { get; }
     public Type KeyPropertyType => _keyProperty.PropertyType;
+    public string KeyPropertyName => _keyProperty.Name;
 
     public DocumentMetadata(Type documentType)
     {
@@ -149,6 +150,11 @@ internal class DocumentMetadata
         }
 
         return key;
+    }
+
+    public void SetKey(object document, object key)
+    {
+        _keyProperty.SetValue(document, key);
     }
 
     public object SetIfNeededAndGetPrimaryKeyValue(object doc, out bool shouldBeInserted)

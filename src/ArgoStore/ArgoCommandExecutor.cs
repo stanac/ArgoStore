@@ -119,6 +119,83 @@ internal class ArgoCommandExecutor
         SqliteCommand cmd = op.CreateCommand(serializerOptions);
         cmd.Connection = tr.Connection;
         cmd.Transaction = tr;
+
+        if (op is InsertOperation && op.Metadata.IsKeyPropertyInt)
+        {
+            ExecuteInsert(tr, op, cmd);
+        }
+        else
+        {
+            cmd.ExecuteNonQuery();
+        }
+    }
+
+    private void ExecuteInsert(SqliteTransaction tr, CrudOperation op, SqliteCommand cmd)
+    {
+        object serialId = cmd.ExecuteScalar();
+
+        if (serialId is int i)
+        {
+            if (op.Metadata.KeyPropertyType == typeof(int))
+            {
+                op.Metadata.SetKey(op.Document, i);
+            }
+            else if (op.Metadata.KeyPropertyType == typeof(uint))
+            {
+                op.Metadata.SetKey(op.Document, (uint)i);
+            }
+            else if (op.Metadata.KeyPropertyType == typeof(long))
+            {
+                op.Metadata.SetKey(op.Document, (long)i);
+            }
+            else if (op.Metadata.KeyPropertyType == typeof(uint))
+            {
+                op.Metadata.SetKey(op.Document, (uint)i);
+            }
+            else if (op.Metadata.KeyPropertyType == typeof(ulong))
+            {
+                op.Metadata.SetKey(op.Document, (ulong)i);
+            }
+        }
+        else if (serialId is long l)
+        {
+            if (op.Metadata.KeyPropertyType == typeof(int))
+            {
+                op.Metadata.SetKey(op.Document, (int)l);
+            }
+            else if (op.Metadata.KeyPropertyType == typeof(uint))
+            {
+                op.Metadata.SetKey(op.Document, (uint)l);
+            }
+            else if (op.Metadata.KeyPropertyType == typeof(long))
+            {
+                op.Metadata.SetKey(op.Document, l);
+            }
+            else if (op.Metadata.KeyPropertyType == typeof(uint))
+            {
+                op.Metadata.SetKey(op.Document, (uint)l);
+            }
+            else if (op.Metadata.KeyPropertyType == typeof(ulong))
+            {
+                op.Metadata.SetKey(op.Document, (ulong)l);
+            }
+        }
+
+        UpdateDocumentSerialIdAfterSerialInsert(tr, op.Metadata, serialId);
+    }
+
+    private void UpdateDocumentSerialIdAfterSerialInsert(SqliteTransaction tr, DocumentMetadata meta, object serialId)
+    {
+        string propName = ConvertPropertyName(meta.KeyPropertyName);
+
+        string sql = $"""
+            UPDATE {meta.DocumentName}
+            SET jsonData = json_set(jsonData, '$.{propName}', {serialId})
+            """ ;
+
+        SqliteCommand cmd = tr.Connection!.CreateCommand();
+        cmd.CommandText = sql;
+        cmd.Transaction = tr;
         cmd.ExecuteNonQuery();
     }
     
@@ -128,5 +205,11 @@ internal class ArgoCommandExecutor
         c.Open();
 
         return c;
+    }
+
+    private static string ConvertPropertyName(string propertyName)
+    {
+        propertyName = JsonNamingPolicy.CamelCase.ConvertName(propertyName);
+        return propertyName.Replace("'", "''");
     }
 }

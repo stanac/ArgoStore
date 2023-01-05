@@ -105,4 +105,97 @@ public class InsertTests : IntegrationTestBase
 
         person.Should().BeEquivalentTo(toInsert);
     }
+
+    [Fact]
+    public void InsertWithInt64PkSet_Inserts_DoesNotChangeId()
+    {
+        PersonPkInt64 toInsert = PersonPkInt64.Create();
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        s.Insert(toInsert);
+        s.SaveChanges();
+
+        PersonPkInt64 person = s.GetById<PersonPkInt64>(toInsert.Id);
+
+        person.Should().BeEquivalentTo(toInsert);
+    }
+
+    [Fact]
+    public void InsertWithInt64PkNotSet_Inserts_ChangesId()
+    {
+        PersonPkInt64 toInsert = PersonPkInt64.Create();
+        toInsert.Id = 0;
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        s.Insert(toInsert);
+        s.SaveChanges();
+
+        PersonPkInt64 person = s.GetById<PersonPkInt64>(toInsert.Id);
+
+        person.Should().BeEquivalentTo(toInsert);
+    }
+
+    [Fact]
+    public void InsertWithUInt32PkSet_Inserts_DoesNotChangeId()
+    {
+        PersonPkUInt32 toInsert = PersonPkUInt32.Create();
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        s.Insert(toInsert);
+        s.SaveChanges();
+
+        PersonPkUInt32 person = s.GetById<PersonPkUInt32>(toInsert.Id);
+
+        person.Should().BeEquivalentTo(toInsert);
+    }
+
+    [Fact]
+    public void InsertWithUInt32PkNotSet_Inserts_ChangesId()
+    {
+        PersonPkUInt32 toInsert = PersonPkUInt32.Create();
+        toInsert.Id = 0;
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        s.Insert(toInsert);
+        s.SaveChanges();
+
+        PersonPkUInt32 person = s.GetById<PersonPkUInt32>(toInsert.Id);
+
+        person.Should().BeEquivalentTo(toInsert);
+    }
+
+    [Fact]
+    public void InsertWithUInt64PkSet_Inserts_DoesNotChangeId()
+    {
+        PersonPkUInt64 toInsert = PersonPkUInt64.Create();
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        s.Insert(toInsert);
+        s.SaveChanges();
+
+        PersonPkUInt64 person = s.GetById<PersonPkUInt64>(toInsert.Id);
+
+        person.Should().BeEquivalentTo(toInsert);
+    }
+
+    [Fact]
+    public void InsertWithUInt64PkNotSet_Inserts_ChangesId()
+    {
+        PersonPkUInt64 toInsert = PersonPkUInt64.Create();
+        toInsert.Id = 0;
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        s.Insert(toInsert);
+        s.SaveChanges();
+
+        PersonPkUInt64 person = s.GetById<PersonPkUInt64>(toInsert.Id);
+
+        person.Should().BeEquivalentTo(toInsert);
+    }
 }

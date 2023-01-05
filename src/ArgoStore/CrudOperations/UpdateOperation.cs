@@ -5,16 +5,16 @@ namespace ArgoStore.CrudOperations;
 
 internal class UpdateOperation : CrudOperation
 {
-    public UpdateOperation(DocumentMetadata meta, object document, string tenantId) 
-        : base(meta, document, tenantId)
+    public UpdateOperation(DocumentMetadata metadata, object document, string tenantId) 
+        : base(metadata, document, tenantId)
     {
     }
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object key = Meta.GetPrimaryKeyValue(Document, out _);
+        object key = Metadata.GetPrimaryKeyValue(Document, out _);
 
-        string pkName = Meta.IsKeyPropertyInt
+        string pkName = Metadata.IsKeyPropertyInt
             ? "serialId"
             : "stringId";
 
@@ -23,7 +23,7 @@ internal class UpdateOperation : CrudOperation
         string jsonData = JsonSerializer.Serialize(Document, jsonSerializerOptions);
 
         string sql = $"""
-                UPDATE {Meta.DocumentName}
+                UPDATE {Metadata.DocumentName}
                 SET
                     jsonData = @jsonData,
                     updatedAt = @updatedAt

@@ -5,37 +5,39 @@ namespace ArgoStore.CrudOperations;
 
 internal class InsertOperation : CrudOperation
 {
-    public InsertOperation(DocumentMetadata meta, object document, string tenantId) : base(meta, document, tenantId)
+    public InsertOperation(DocumentMetadata metadata, object document, string tenantId) : base(metadata, document, tenantId)
     {
-        if (meta.IsKeyPropertyString)
+        if (metadata.IsKeyPropertyString)
         {
-            var key = meta.GetPrimaryKeyValue(document, out _);
+            var key = metadata.GetPrimaryKeyValue(document, out _);
 
             if (key == null)
             {
-                throw new InvalidOperationException($"Failed to insert `{meta.DocumentType.FullName}`. Primary key of type string must be set.");
+                throw new InvalidOperationException($"Failed to insert `{metadata.DocumentType.FullName}`. Primary key of type string must be set.");
             }
         }
     }
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object key = Meta.SetIfNeededAndGetPrimaryKeyValue(Document, out bool insertKey);
+        object key = Metadata.SetIfNeededAndGetPrimaryKeyValue(Document, out bool insertKey);
 
-        object guidId = Meta.IsKeyPropertyInt
+        object guidId = Metadata.IsKeyPropertyInt
             ? Guid.NewGuid().ToString()
             : key;
 
-        insertKey = insertKey && Meta.IsKeyPropertyInt;
+        insertKey = insertKey && Metadata.IsKeyPropertyInt;
 
         string sql = insertKey 
             ? $"""
-                INSERT INTO {Meta.DocumentName} (serialId, stringId, jsonData, tenantId, createdAt)
-                VALUES (@serialId, @guidId, @jsonData, @tenantId, @createdAt)
+                INSERT INTO {Metadata.DocumentName} (serialId, stringId, jsonData, tenantId, createdAt)
+                VALUES (@serialId, @guidId, json(@jsonData), @tenantId, @createdAt)
+                RETURNING serialId
               """
             : $"""
-                INSERT INTO {Meta.DocumentName} (stringId, jsonData, tenantId, createdAt)
-                VALUES (@guidId, @jsonData, @tenantId, @createdAt)
+                INSERT INTO {Metadata.DocumentName} (stringId, jsonData, tenantId, createdAt)
+                VALUES (@guidId, json(@jsonData), @tenantId, @createdAt)
+                RETURNING serialId
               """;
 
         SqliteCommand cmd = new SqliteCommand(sql);

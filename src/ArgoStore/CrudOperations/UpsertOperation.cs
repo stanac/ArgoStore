@@ -5,18 +5,18 @@ namespace ArgoStore.CrudOperations;
 
 internal class UpsertOperation : CrudOperation
 {
-    public UpsertOperation(DocumentMetadata meta, object document, string tenantId)
-        : base(meta, document, tenantId)
+    public UpsertOperation(DocumentMetadata metadata, object document, string tenantId)
+        : base(metadata, document, tenantId)
     {
     }
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object key = Meta.GetPrimaryKeyValue(Document, out bool isDefaultKey);
+        object key = Metadata.GetPrimaryKeyValue(Document, out bool isDefaultKey);
 
         throw new NotImplementedException();
         
-        string pkName = Meta.IsKeyPropertyInt
+        string pkName = Metadata.IsKeyPropertyInt
             ? "serialId"
             : "stringId";
 
