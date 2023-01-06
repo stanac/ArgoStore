@@ -1,4 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
+using ArgoStore.TestsCommon.TestData;
+using Microsoft.Data.Sqlite;
+// ReSharper disable AccessToDisposedClosure
 
 namespace ArgoStore.IntegrationTests;
 
@@ -196,5 +199,23 @@ public class InsertTests : IntegrationTestBase
         PersonPkUInt64 person = s.GetById<PersonPkUInt64>(toInsert.Id);
 
         person.Should().BeEquivalentTo(toInsert);
+    }
+
+    [Fact]
+    public void InsertPkString_WithExistingId_ThrowsException()
+    {
+        UseFileDb();
+
+        Person p = PersonTestData.GetPersonTestData().First();
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        s.Insert(p);
+        s.SaveChanges();
+
+        s.Insert(p);
+        Action a = () => s.SaveChanges();
+        
+        a.Should().Throw<SqliteException>();
     }
 }

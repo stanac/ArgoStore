@@ -26,12 +26,19 @@ internal class OnDiskTestDb : TestDb
 
     public override void Dispose()
     {
-        if (File.Exists(FilePath))
+        for (int i = 0; i < 10; i++)
         {
-            for (int i = 0; i < 10; i++)
+            if (File.Exists(FilePath))
             {
                 SqliteConnection.ClearAllPools();
-                File.Delete(FilePath);
+                try
+                {
+                    File.Delete(FilePath);
+                }
+                catch
+                {
+                    // no op
+                }
             }
         }
     }

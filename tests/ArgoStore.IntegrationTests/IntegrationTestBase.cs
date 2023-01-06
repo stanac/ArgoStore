@@ -5,15 +5,14 @@ namespace ArgoStore.IntegrationTests;
 
 public class IntegrationTestBase : IDisposable
 {
-    protected TestDb TestDb { get; } = TestDb.CreateNew();
-    protected ArgoDocumentStore Store { get; }
+    protected TestDb TestDb { get; private set; } = TestDb.CreateNew();
+    protected ArgoDocumentStore Store { get; private set; }
 
     public IntegrationTestBase()
     {
-        Store = new ArgoDocumentStore(TestDb.ConnectionString);
-        Store.RegisterDocumentType<Person>();
+        Initialize();
     }
-
+    
     protected void AddTestPerson()
     {
         using IArgoDocumentSession s = Store.OpenSession();
@@ -30,8 +29,22 @@ public class IntegrationTestBase : IDisposable
         s.SaveChanges();
     }
 
+    protected void UseFileDb()
+    {
+        Dispose();
+
+        TestDb = new OnDiskTestDb();
+        Initialize();
+    }
+    
     public void Dispose()
     {
         TestDb.Dispose();
+    }
+
+    private void Initialize()
+    {
+        Store = new ArgoDocumentStore(TestDb.ConnectionString);
+        Store.RegisterDocumentType<Person>();
     }
 }

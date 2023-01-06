@@ -77,12 +77,12 @@ public class ArgoDocumentStore
             )
             """,
             $"""
-                CREATE INDEX IF NOT EXISTS ux_{documentName}_tenant_stringId
+                CREATE UNIQUE INDEX IF NOT EXISTS ux_{documentName}_tenant_stringId
                 ON {documentName} (tenantId, stringId)
             """,
             $"""
-            CREATE INDEX IF NOT EXISTS ix_{documentName}_tenant 
-            ON {documentName} (tenantId)
+                CREATE INDEX IF NOT EXISTS ix_{documentName}_tenant 
+                ON {documentName} (tenantId)
             """ /*,
             $"""
             CREATE INDEX IF NOT EXISTS ix_{documentName}_createdAt
