@@ -87,6 +87,10 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         {
             CommandBuilder.SetSelectStatement(new FirstSingleMaybeDefaultStatement(false, sro.ReturnDefaultWhenEmpty));
         }
+        else if (resultOperator is LastResultOperator)
+        {
+            throw new NotSupportedException("Linq methods Last and LastOrDefault are not supported.");
+        }
         
         base.VisitResultOperator(resultOperator, queryModel, index);
     }
