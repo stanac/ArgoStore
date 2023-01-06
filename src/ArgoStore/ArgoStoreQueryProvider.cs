@@ -1,5 +1,6 @@
 ﻿using Remotion.Linq;
 using System.Linq.Expressions;
+using ArgoStore.Statements.Select;
 
 namespace ArgoStore;
 
@@ -33,9 +34,11 @@ internal class ArgoStoreQueryProvider : IQueryProvider
         ArgoCommand cmd = v.CommandBuilder.Build(_session.DocumentTypes, _session.TenantId);
 
         ArgoCommandExecutor exec = _session.CreateExecutor();
-        return (TResult)exec.Execute(cmd);
+        TResult result = (TResult)exec.Execute(cmd);
+        
+        return result;
     }
-
+    
     internal ArgoQueryModelVisitor VisitAndBuild(Expression expression)
     {
         QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);

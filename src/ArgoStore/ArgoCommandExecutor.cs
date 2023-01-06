@@ -30,12 +30,14 @@ internal class ArgoCommandExecutor
             case ArgoCommandTypes.ToList:
                 return ExecuteToList(command);
                 
-            case ArgoCommandTypes.Single:
-            case ArgoCommandTypes.SingleOrDefault:
             case ArgoCommandTypes.First:
             case ArgoCommandTypes.FirstOrDefault:
-                throw new NotImplementedException();
-                
+                return ExecuteFirstOrDefault(command);
+
+            case ArgoCommandTypes.Single:
+            case ArgoCommandTypes.SingleOrDefault:
+                return ExecuteSingleOrDefault(command);
+            
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -68,9 +70,42 @@ internal class ArgoCommandExecutor
 
         string json = cmd.ExecuteScalar() as string;
 
-        if (json == null) return null;
+        if (json == null)
+        {
+            if (command.CommandType == ArgoCommandTypes.First)
+            {
+                throw new InvalidOperationException("Collection is empty");
+            }
 
+            return null;
+        }
+        
         return JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions);
+    }
+
+    public object ExecuteSingleOrDefault(ArgoCommand command)
+    {
+        object result = ExecuteFirstOrDefault(command);
+
+        if (result is null && command.CommandType == ArgoCommandTypes.SingleOrDefault)
+        {
+            return null;
+        }
+
+        ArgoCommand countCommand = command.ConvertToLongCount(2);
+        long count = (long)ExecuteCount(countCommand);
+
+        if (count > 1)
+        {
+            throw new InvalidOperationException("More than one item found in collection.");
+        }
+
+        if (count == 0 && command.CommandType == ArgoCommandTypes.Single)
+        {
+            throw new InvalidOperationException("No item found in collection.");
+        }
+
+        return result;
     }
 
     public object ExecuteCount(ArgoCommand command)
@@ -191,7 +226,7 @@ internal class ArgoCommandExecutor
         string sql = $"""
             UPDATE {meta.DocumentName}
             SET jsonData = json_set(jsonData, '$.{propName}', {serialId})
-            """ ;
+            """;
 
         SqliteCommand cmd = tr.Connection!.CreateCommand();
         cmd.CommandText = sql;

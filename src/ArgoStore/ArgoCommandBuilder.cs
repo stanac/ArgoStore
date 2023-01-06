@@ -12,11 +12,13 @@ internal class ArgoCommandBuilder
     private readonly QueryModel _model;
     private readonly Type _docType;
     private readonly ArgoCommandParameterCollection _params = new();
+    
+    public DocumentMetadata Metadata { get; private set; }
+    public List<WhereStatement> WhereStatements = new();
+    public SelectStatementBase SelectStatement { get; private set; }
 
-    private readonly List<WhereStatement> _whereStatements = new();
-    private SelectStatementBase _selectStatement;
-
-    public bool IsSelectCount => _selectStatement is SelectCountStatement;
+    public bool IsSelectCount => SelectStatement is SelectCountStatement;
+    public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
 
     public string ItemName { get; set; }
 
@@ -33,12 +35,13 @@ internal class ArgoCommandBuilder
 
     public ArgoCommand Build(IReadOnlyDictionary<string, DocumentMetadata> documentTypes, string tenantId)
     {
-        DocumentMetadata meta = FindDocMeta(documentTypes);
+        Metadata = FindDocMeta(documentTypes);
         StringBuilder sb = StringBuilderBag.Default.Get();
 
         AppendSelect(sb);
-        AppendFrom(sb, meta);
-        AppendWhere(sb, meta, tenantId);
+        AppendFrom(sb);
+        AppendWhere(sb, tenantId);
+        AppendLimit(sb);
 
         string sql = sb.ToString();
 
@@ -48,30 +51,45 @@ internal class ArgoCommandBuilder
 
         ArgoCommandTypes cmdType = ArgoCommandTypes.ToList;
 
-        if (_selectStatement is SelectCountStatement c)
+        if (SelectStatement is SelectCountStatement c)
         {
             cmdType = c.CountLong
                 ? ArgoCommandTypes.LongCount
                 : ArgoCommandTypes.Count;
         }
+        else if (SelectStatement is FirstSingleMaybeDefaultStatement f)
+        {
+            if (f.IsFirst)
+            {
+                cmdType = f.IsDefault
+                    ? ArgoCommandTypes.FirstOrDefault
+                    : ArgoCommandTypes.First;
+            }
+            else
+            {
+                cmdType = f.IsDefault
+                    ? ArgoCommandTypes.SingleOrDefault
+                    : ArgoCommandTypes.Single;
+            }
+        }
 
         // TODO: set command type
-        return new ArgoCommand(sql, _params, cmdType, meta.DocumentType);
+        return new ArgoCommand(sql, _params, cmdType, Metadata.DocumentType);
     }
 
     public void AddWhereClause(WhereClause whereClause)
     {
-        _whereStatements.Add(new WhereStatement(whereClause));
+        WhereStatements.Add(new WhereStatement(whereClause));
     }
     
     public void SetSelectStatement(SelectStatementBase selectStatement)
     {
-        _selectStatement = selectStatement;
+        SelectStatement = selectStatement;
     }
 
     private void AppendSelect(StringBuilder sb)
     {
-        if (_selectStatement is SelectCountStatement)
+        if (SelectStatement is SelectCountStatement)
         {
             sb.Append("SELECT COUNT (1)");
         }
@@ -81,36 +99,36 @@ internal class ArgoCommandBuilder
         }
     }
 
-    private void AppendFrom(StringBuilder sb, DocumentMetadata meta)
+    private void AppendFrom(StringBuilder sb)
     {
-        sb.Append("FROM ").Append(meta.DocumentName);
+        sb.Append("FROM ").Append(Metadata.DocumentName);
         sb.AppendLine();
     }
 
-    private void AppendWhere(StringBuilder sb, DocumentMetadata meta, string tenantId)
+    private void AppendWhere(StringBuilder sb, string tenantId)
     {
         sb.Append("WHERE tenantId = @").AppendLine(_params.AddNewParameter(tenantId));
 
-        foreach (WhereStatement w in _whereStatements)
+        foreach (WhereStatement w in WhereStatements)
         {
             sb.Append("AND (");
-            AppendWhereStatement(sb, w.Statement, meta);
+            AppendWhereStatement(sb, w.Statement);
             sb.AppendLine(")");
         }
     }
 
-    private void AppendWhereStatement(StringBuilder sb, WhereStatementBase statement, DocumentMetadata meta)
+    private void AppendWhereStatement(StringBuilder sb, WhereStatementBase statement)
     {
         sb.Append(" ");
         
         switch (statement)
         {
             case WhereComparisonStatement wcs:
-                AppendWhereComparison(sb, wcs, meta);
+                AppendWhereComparison(sb, wcs);
                 break;
 
             case WhereLogicalAndOrStatement wlaos:
-                AppendWhereLogicalAndOr(sb, wlaos, meta);
+                AppendWhereLogicalAndOr(sb, wlaos);
                 break;
 
             case WhereParameterStatement param:
@@ -127,7 +145,7 @@ internal class ArgoCommandBuilder
         sb.Append(" ");
     }
 
-    private void AppendWhereComparison(StringBuilder sb, WhereComparisonStatement s, DocumentMetadata meta)
+    private void AppendWhereComparison(StringBuilder sb, WhereComparisonStatement s)
     {
         sb.Append(" ");
 
@@ -143,33 +161,33 @@ internal class ArgoCommandBuilder
             }
             else if (s.Left is WhereNullValueStatement)
             {
-                AppendWhereStatement(sb, s.Right, meta);
+                AppendWhereStatement(sb, s.Right);
                 sb.Append(" ").Append(op);
             }
             else
             {
-                AppendWhereStatement(sb, s.Left, meta);
+                AppendWhereStatement(sb, s.Left);
                 sb.Append(" ").Append(op);
             }
         }
         else
         {
-            AppendWhereStatement(sb, s.Left, meta);
+            AppendWhereStatement(sb, s.Left);
             sb.Append(" ").Append(s.Operator.ToSqlOperator()).Append(" ");
-            AppendWhereStatement(sb, s.Right, meta);
+            AppendWhereStatement(sb, s.Right);
         }
 
         sb.Append(" ");
     }
 
-    private void AppendWhereLogicalAndOr(StringBuilder sb, WhereLogicalAndOrStatement s, DocumentMetadata meta)
+    private void AppendWhereLogicalAndOr(StringBuilder sb, WhereLogicalAndOrStatement s)
     {
         string andOr = s.IsAnd ? "AND" : "OR";
 
         sb.Append(" (( ");
-        AppendWhereStatement(sb, s.Left, meta);
+        AppendWhereStatement(sb, s.Left);
         sb.Append(" ) ").Append(andOr).Append(" ( ");
-        AppendWhereStatement(sb, s.Right, meta);
+        AppendWhereStatement(sb, s.Right);
         sb.Append(" )) ");
     }
 
@@ -183,6 +201,14 @@ internal class ArgoCommandBuilder
         }
 
         return $"json_extract({alias}.jsonData, '$.{propertyName}')";
+    }
+
+    private void AppendLimit(StringBuilder sb)
+    {
+        if (IsSelectFirstOrSingle)
+        {
+            sb.Append("LIMIT 1");
+        }
     }
 
     private string ConvertPropertyCase(string propertyName)

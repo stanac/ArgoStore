@@ -79,7 +79,15 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         {
             CommandBuilder.SetSelectStatement(new SelectCountStatement(true));
         }
-
+        else if (resultOperator is FirstResultOperator fro)
+        {
+            CommandBuilder.SetSelectStatement(new FirstSingleMaybeDefaultStatement(true, fro.ReturnDefaultWhenEmpty));
+        }
+        else if (resultOperator is SingleResultOperator sro)
+        {
+            CommandBuilder.SetSelectStatement(new FirstSingleMaybeDefaultStatement(false, sro.ReturnDefaultWhenEmpty));
+        }
+        
         base.VisitResultOperator(resultOperator, queryModel, index);
     }
 

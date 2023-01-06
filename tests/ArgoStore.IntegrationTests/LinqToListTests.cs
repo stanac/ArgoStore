@@ -5,7 +5,6 @@ namespace ArgoStore.IntegrationTests;
 
 public class LinqToListTests : IntegrationTestBase
 {
-
     [Fact]
     public void NoEntity_ToList_GivesEmptyList()
     {

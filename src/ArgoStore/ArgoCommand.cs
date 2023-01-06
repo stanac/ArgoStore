@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.Sqlite;
+﻿using System.Text;
+using Microsoft.Data.Sqlite;
 
 namespace ArgoStore;
 
@@ -29,5 +30,39 @@ public class ArgoCommand
         }
 
         return cmd;
+    }
+
+    public ArgoCommand ConvertToLongCount(int? maxCount)
+    {
+        string[] lines = Sql.Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+
+        StringBuilder sb = StringBuilderBag.Default.Get();
+
+        sb.AppendLine("SELECT COUNT(1) FROM ( ");
+
+        foreach (string line in lines)
+        {
+            sb.Append("    ");
+
+            if (line.Trim().StartsWith("LIMIT"))
+            {
+                if (maxCount.HasValue)
+                {
+                    sb.AppendLine("LIMIT ").Append(maxCount);
+                }
+            }
+            else
+            {
+                sb.AppendLine(line);
+            }
+        }
+
+        sb.AppendLine(")");
+
+        string sql = sb.ToString();
+
+        StringBuilderBag.Default.Return(sb);
+
+        return new ArgoCommand(sql, Parameters, ArgoCommandTypes.LongCount, typeof(long));
     }
 }
