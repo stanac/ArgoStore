@@ -8,7 +8,7 @@ public class CountTests : IntegrationTestBase
     [Fact]
     public void Insert1_Count_Returns1()
     {
-        IArgoDocumentSession s = Store.OpenSession();
+        using IArgoDocumentSession s = Store.OpenSession();
 
         int count = s.Query<Person>().Count();
         count.Should().Be(0);
@@ -23,7 +23,7 @@ public class CountTests : IntegrationTestBase
     [Fact]
     public void Insert10_Count_Returns10()
     {
-        IArgoDocumentSession s = Store.OpenSession();
+        using IArgoDocumentSession s = Store.OpenSession();
 
         int count = s.Query<Person>().Count();
         count.Should().Be(0);
@@ -41,7 +41,7 @@ public class CountTests : IntegrationTestBase
     [Fact]
     public void Insert1_LongCount_Returns1()
     {
-        IArgoDocumentSession s = Store.OpenSession();
+        using IArgoDocumentSession s = Store.OpenSession();
 
         long count = s.Query<Person>().LongCount();
         count.Should().Be(0);
@@ -54,9 +54,9 @@ public class CountTests : IntegrationTestBase
     }
 
     [Fact]
-    public void Insert10_CountLong_Returns10()
+    public void Insert10_LongCount_Returns10()
     {
-        IArgoDocumentSession s = Store.OpenSession();
+        using IArgoDocumentSession s = Store.OpenSession();
 
         long count = s.Query<Person>().LongCount();
         count.Should().Be(0);
@@ -69,5 +69,33 @@ public class CountTests : IntegrationTestBase
 
         count = s.Query<Person>().LongCount();
         count.Should().Be(10);
+    }
+
+    [Fact]
+    public void CountWithCondition_ReturnsExpectedCount()
+    {
+        AddTestPersons();
+
+        int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.BirthYear.HasValue);
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        int count = s.Query<Person>().Count(x => x.BirthYear.HasValue);
+
+        count.Should().Be(expectedCount);
+    }
+
+    [Fact]
+    public void LongCountWithCondition_ReturnsExpectedCount()
+    {
+        AddTestPersons();
+
+        int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.BirthYear.HasValue);
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        long count = s.Query<Person>().LongCount(x => x.BirthYear.HasValue);
+
+        count.Should().Be(expectedCount);
     }
 }
