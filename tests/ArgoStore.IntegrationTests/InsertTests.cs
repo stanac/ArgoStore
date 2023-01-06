@@ -204,7 +204,7 @@ public class InsertTests : IntegrationTestBase
     [Fact]
     public void InsertPkString_WithExistingId_ThrowsException()
     {
-        UseFileDb();
+        // UseFileDb();
 
         Person p = PersonTestData.GetPersonTestData().First();
 

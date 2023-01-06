@@ -78,13 +78,8 @@ internal class ArgoSession : IArgoDocumentSession
     {
         return new ArgoCommandExecutor(_connectionString, _serializerOptions);
     }
-    
-    public void Insert<T>(params T[] entities) where T : class, new()
-    {
-        Insert(entities.AsEnumerable());
-    }
 
-    public void Insert<T>(IEnumerable<T> entities) where T : class, new()
+    public void Insert<T>(T[] entities) where T : class, new()
     {
         DocumentMetadata meta = GetRequiredMetadata<T>();
 
@@ -93,7 +88,6 @@ internal class ArgoSession : IArgoDocumentSession
             _crudOps.Add(new InsertOperation(meta, entity, TenantId));
         }
     }
-
 
     private DocumentMetadata GetRequiredMetadata<T>()
     {

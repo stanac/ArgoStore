@@ -25,7 +25,7 @@ public class IntegrationTestBase : IDisposable
     {
         using IArgoDocumentSession s = Store.OpenSession();
         
-        s.Insert(PersonTestData.GetPersonTestData());
+        s.Insert(PersonTestData.GetPersonTestData().ToArray());
         s.SaveChanges();
     }
 
