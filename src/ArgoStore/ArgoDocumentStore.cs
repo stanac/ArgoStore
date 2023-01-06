@@ -69,12 +69,16 @@ public class ArgoDocumentStore
             $"""
             CREATE TABLE IF NOT EXISTS {documentName}   (
                 serialId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                stringId TEXT NOT NULL UNIQUE,
+                stringId TEXT NOT NULL,
                 jsonData JSON NOT NULL,
                 tenantId TEXT NOT NULL,
                 createdAt BIGINT NOT NULL,
                 updatedAt BIGINT NULL
             )
+            """,
+            $"""
+                CREATE INDEX IF NOT EXISTS ux_{documentName}_tenant_stringId
+                ON {documentName} (tenantId, stringId)
             """,
             $"""
             CREATE INDEX IF NOT EXISTS ix_{documentName}_tenant 
