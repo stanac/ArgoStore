@@ -44,7 +44,7 @@ internal class ArgoCommandBuilder
 
         StringBuilderBag.Default.Return(sb);
 
-        QueryModel m = _model;
+        // QueryModel m = _model;
 
         ArgoCommandTypes cmdType = ArgoCommandTypes.ToList;
 
@@ -93,9 +93,9 @@ internal class ArgoCommandBuilder
 
         foreach (WhereStatement w in _whereStatements)
         {
-            sb.Append(" AND ( ");
+            sb.Append("AND (");
             AppendWhereStatement(sb, w.Statement, meta);
-            sb.AppendLine(" ) ");
+            sb.AppendLine(")");
         }
     }
 
@@ -133,19 +133,23 @@ internal class ArgoCommandBuilder
 
         if (s.Operator.IsEqualOrNotEqual() && (s.Left is WhereNullValueStatement || s.Right is WhereNullValueStatement))
         {
+            string op = s.Operator == ComparisonOperators.Equal
+                ? "IS NULL"
+                : "IS NOT NULL";
+
             if (s.Left is WhereNullValueStatement && s.Right is WhereNullValueStatement)
             {
-                sb.Append("NULL IS NULL");
+                sb.Append("NULL ").Append(op);
             }
             else if (s.Left is WhereNullValueStatement)
             {
                 AppendWhereStatement(sb, s.Right, meta);
-                sb.Append(" IS NULL");
+                sb.Append(" ").Append(op);
             }
             else
             {
                 AppendWhereStatement(sb, s.Left, meta);
-                sb.Append(" IS NULL");
+                sb.Append(" ").Append(op);
             }
         }
         else
