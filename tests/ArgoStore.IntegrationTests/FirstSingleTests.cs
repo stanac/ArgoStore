@@ -1,4 +1,6 @@
 ﻿using ArgoStore.TestsCommon.Entities;
+using ArgoStore.TestsCommon.TestData;
+
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable AccessToDisposedClosure
 
@@ -106,5 +108,78 @@ public class FirstSingleTests : IntegrationTestBase
 
         Action a = () => s.Query<Person>().Single();
         a.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void EmptyTable_FirstWithCondition_ThrowsException()
+    {
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        Action a = () => s.Query<Person>().First(x => x.BirthYear.HasValue);
+        a.Should().Throw<InvalidOperationException>();
+    }
+
+    [Fact]
+    public void NonEmptyTable_FirstWithCondition_ReturnsSingleItem()
+    {
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        Person[] persons = PersonTestData.GetPersonTestData().Take(2).ToArray();
+        persons[0].BirthYear = null;
+        persons[1].BirthYear = 9000;
+
+        s.Insert(persons);
+        s.SaveChanges();
+
+        Person p = s.Query<Person>().First(x => x.BirthYear.HasValue);
+        p.BirthYear.Should().HaveValue();
+    }
+
+    [Fact]
+    public void TableSingleItemMet_FirstOrDefaultWithCondition_ThrowsException()
+    {
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        Person[] persons = PersonTestData.GetPersonTestData().Take(2).ToArray();
+        persons[0].BirthYear = null;
+        persons[1].BirthYear = 9000;
+
+        s.Insert(persons);
+        s.SaveChanges();
+
+        Person p = s.Query<Person>().FirstOrDefault(x => x.BirthYear.HasValue);
+        p.BirthYear.Should().HaveValue();
+    }
+
+    [Fact]
+    public void NonEmptyTable_SingleWithCondition_ReturnsSingleItem()
+    {
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        Person[] persons = PersonTestData.GetPersonTestData().Take(2).ToArray();
+        persons[0].BirthYear = null;
+        persons[1].BirthYear = 9000;
+
+        s.Insert(persons);
+        s.SaveChanges();
+
+        Person p = s.Query<Person>().Single(x => x.BirthYear.HasValue);
+        p.BirthYear.Should().HaveValue();
+    }
+
+    [Fact]
+    public void TableSingleItemMet_SingleOrDefaultWithCondition_ThrowsException()
+    {
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        Person[] persons = PersonTestData.GetPersonTestData().Take(2).ToArray();
+        persons[0].BirthYear = null;
+        persons[1].BirthYear = 9000;
+
+        s.Insert(persons);
+        s.SaveChanges();
+
+        Person p = s.Query<Person>().SingleOrDefault(x => x.BirthYear.HasValue);
+        p.BirthYear.Should().HaveValue();
     }
 }
