@@ -52,7 +52,7 @@ public class StringMethodsTests : IntegrationTestBase
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        string name = "Paul"; // should be two names containing Paul
+        string name = "Paul";
 
         List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name)).ToList();
         p.Should().HaveCount(2);
@@ -63,7 +63,7 @@ public class StringMethodsTests : IntegrationTestBase
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        string name = "Paul"; // should be two names containing Paul
+        string name = "Paul";
 
         List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.Ordinal)).ToList();
         p.Should().HaveCount(2);
