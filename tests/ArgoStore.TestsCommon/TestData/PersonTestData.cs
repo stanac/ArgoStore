@@ -114,7 +114,7 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
         {
             yield return new Person
             {
-                Name = _names[i],
+                Name = GetName(_names[i]),
                 EmailAddress = GetEmailAddress(_names[i]),
                 BirthYear = GetBirthYear(i),
                 CakeDay = GetCakeDay(i),
@@ -125,6 +125,26 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                 Roles = GetRoles(i)
             };
         }
+    }
+
+    private static string GetName(string name)
+    {
+        if (name == "Shelly Hunt")
+        {
+            return "  Shelly Hunt  ";
+        }
+
+        if (name == "Rosalie Norman")
+        {
+            return "  Rosalie Norman";
+        }
+
+        if (name == "Katie Banks")
+        {
+            return "Katie Banks  ";
+        }
+
+        return name;
     }
 
     private static string GetEmailAddress(string name)

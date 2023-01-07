@@ -12,18 +12,17 @@ internal abstract class WhereValueStatement : WhereStatementBase
             string propName = pi.Name;
             return new WherePropertyStatement(propName);
         }
-        else if (expression is ConstantExpression ce)
+        
+        if (expression is ConstantExpression ce)
         {
             if (ce.Value is null)
             {
                 return new WhereNullValueStatement();
             }
 
-            throw new NotImplementedException();
+            return new WhereParameterStatement(ce.Value);
         }
-        else
-        {
-            throw new NotSupportedException();
-        }
+
+        throw new NotSupportedException();
     }
 }

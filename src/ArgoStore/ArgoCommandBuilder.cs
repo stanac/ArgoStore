@@ -137,23 +137,7 @@ internal class ArgoCommandBuilder
                 break;
 
             case WhereStringTransformStatement wsts:
-                if (wsts.Transform == StringTransformTypes.ToLower)
-                {
-                    sb.Append(" lower(");
-                    AppendWhereStatement(sb, wsts.Statement);
-                    sb.AppendLine(") ");
-                }
-                else if (wsts.Transform == StringTransformTypes.ToUpper)
-                {
-                    sb.Append(" upper(");
-                    AppendWhereStatement(sb, wsts.Statement);
-                    sb.AppendLine(") ");
-                }
-                else
-                {
-                    throw new NotSupportedException($"String transform type: {wsts.Transform}");
-                }
-
+                AppendWhereStringTransform(sb, wsts);
                 break;
 
             case WherePropertyStatement prop:
@@ -169,6 +153,44 @@ internal class ArgoCommandBuilder
         }
 
         sb.Append(" ");
+    }
+
+    private void AppendWhereStringTransform(StringBuilder sb, WhereStringTransformStatement wsts)
+    {
+        if (wsts.Transform == StringTransformTypes.ToLower)
+        {
+            sb.Append(" lower(");
+            AppendWhereStatement(sb, wsts.Statement);
+            sb.AppendLine(") ");
+        }
+        else if (wsts.Transform == StringTransformTypes.ToUpper)
+        {
+            sb.Append(" upper(");
+            AppendWhereStatement(sb, wsts.Statement);
+            sb.AppendLine(") ");
+        }
+        else if (wsts.Transform == StringTransformTypes.Trim)
+        {
+            sb.Append(" ltrim(rtrim(");
+            AppendWhereStatement(sb, wsts.Statement);
+            sb.AppendLine(")) ");
+        }
+        else if (wsts.Transform == StringTransformTypes.TrimEnd)
+        {
+            sb.Append(" rtrim(");
+            AppendWhereStatement(sb, wsts.Statement);
+            sb.AppendLine(") ");
+        }
+        else if (wsts.Transform == StringTransformTypes.TrimStart)
+        {
+            sb.Append(" ltrim(");
+            AppendWhereStatement(sb, wsts.Statement);
+            sb.AppendLine(") ");
+        }
+        else
+        {
+            throw new NotSupportedException($"String transform type: {wsts.Transform}");
+        }
     }
 
     private void AppendWhereComparison(StringBuilder sb, WhereComparisonStatement s)

@@ -3,5 +3,8 @@
 internal enum StringTransformTypes
 {
     ToUpper,
-    ToLower
+    ToLower,
+    Trim,
+    TrimStart,
+    TrimEnd
 }

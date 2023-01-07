@@ -4,7 +4,7 @@ using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
 
-internal class ObjectEqualsMethodCallToStatementTranslator : IWhereToStatementTranslator
+internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatementTranslator
 {
     public bool CanTranslate(Expression expression)
     {

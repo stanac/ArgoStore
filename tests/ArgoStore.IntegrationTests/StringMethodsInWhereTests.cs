@@ -3,11 +3,11 @@ using ArgoStore.TestsCommon.TestData;
 
 namespace ArgoStore.IntegrationTests;
 
-public class StringMethodsTests : IntegrationTestBase
+public class StringMethodsInWhereTests : IntegrationTestBase
 {
     private readonly IReadOnlyList<Person> _persons = PersonTestData.GetPersonTestData().ToList();
 
-    public StringMethodsTests()
+    public StringMethodsInWhereTests()
     {
         AddTestPersons();
         using IArgoDocumentSession s = Store.OpenSession();

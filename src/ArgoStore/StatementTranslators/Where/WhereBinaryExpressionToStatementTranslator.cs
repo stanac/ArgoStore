@@ -4,7 +4,7 @@ using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
 
-internal class BinaryExpressionToStatementTranslator : IWhereToStatementTranslator
+internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTranslator
 {
     public bool CanTranslate(Expression expression)
     {
@@ -14,15 +14,20 @@ internal class BinaryExpressionToStatementTranslator : IWhereToStatementTranslat
     public WhereStatementBase Translate(Expression expression)
     {
         BinaryExpression be = expression as BinaryExpression;
-        Debug.Assert(be != null, "BinaryExpression cast in " + nameof(BinaryExpressionToStatementTranslator));
+        Debug.Assert(be != null, "BinaryExpression cast in " + nameof(WhereBinaryExpressionToStatementTranslator));
 
-        var left = WhereValueStatement.From(be.Left);
-        var right = WhereValueStatement.From(be.Right);
+        
+        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left);
+        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right);
         ComparisonOperators op;
 
         if (be.NodeType is ExpressionType.NotEqual)
         {
             op = ComparisonOperators.NotEqual;
+        }
+        else if (be.NodeType is ExpressionType.Equal)
+        {
+            op = ComparisonOperators.Equal;
         }
         else
         {
