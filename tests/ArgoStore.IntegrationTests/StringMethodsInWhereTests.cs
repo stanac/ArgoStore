@@ -6,7 +6,7 @@ namespace ArgoStore.IntegrationTests;
 public class StringMethodsInWhereTests : IntegrationTestBase
 {
     private readonly IReadOnlyList<Person> _persons = PersonTestData.GetPersonTestData().ToList();
-
+    
     public StringMethodsInWhereTests()
     {
         AddTestPersons();
