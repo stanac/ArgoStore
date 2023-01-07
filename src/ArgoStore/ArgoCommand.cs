@@ -11,25 +11,42 @@ public class ArgoCommand
     public ArgoCommandParameterCollection Parameters { get; }
     public ArgoCommandTypes CommandType { get; }
     public Type ResultingType { get; }
+    public bool ContainsLikeOperator { get; }
     
-    public ArgoCommand(string sql, ArgoCommandParameterCollection parameters, ArgoCommandTypes commandType, Type resultingType)
+    public ArgoCommand(string sql, ArgoCommandParameterCollection parameters, ArgoCommandTypes commandType, Type resultingType,
+        bool containsLikeOperator = false)
     {
         Sql = sql;
         Parameters = parameters;
         CommandType = commandType;
         ResultingType = resultingType;
+        ContainsLikeOperator = containsLikeOperator;
     }
     
-    public SqliteCommand ToSqliteCommand()
+    public SqliteCommandCollection ToSqliteCommands()
     {
-        var cmd = new SqliteCommand(Sql);
+        SqliteCommand[] cmds = ContainsLikeOperator
+            ? new SqliteCommand[2]
+            : new SqliteCommand[1];
+
+        SqliteCommand cmd = new SqliteCommand(Sql);
 
         foreach (ArgoCommandParameter p in Parameters)
         {
             cmd.Parameters.AddWithValue(p.Name, p.Value);
         }
 
-        return cmd;
+        if (ContainsLikeOperator)
+        {
+            cmds[0] = new SqliteCommand("PRAGMA case_sensitive_like=ON");
+            cmds[1] = cmd;
+        }
+        else
+        {
+            cmds[0] = cmd;
+        }
+
+        return new SqliteCommandCollection(cmds);
     }
 
     public ArgoCommand ConvertToLongCount(int? maxCount)

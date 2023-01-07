@@ -46,4 +46,59 @@ public class StringMethodsTests : IntegrationTestBase
         List<Person> p = s.Query<Person>().Where(x => x.Name.Equals(_persons[0].Name, StringComparison.OrdinalIgnoreCase)).ToList();
         p.Should().HaveCount(2);
     }
+
+    [Fact]
+    public void Contains_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul"; // should be two names containing Paul
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name)).ToList();
+        p.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void ContainsCaseSensitive_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul"; // should be two names containing Paul
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.Ordinal)).ToList();
+        p.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void ContainsCaseInsensitiveCaseMatched_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul"; // should be two names containing Paul
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.Ordinal)).ToList();
+        p.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void ContainsCaseInsensitiveCaseNotMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "paul"; // should be two names containing Paul, but zero containing paul
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.Ordinal)).ToList();
+        p.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ContainsCaseInsensitiveCaseMismatched_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "paul"; // should be two names containing Paul
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().HaveCount(2);
+    }
 }

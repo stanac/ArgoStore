@@ -30,9 +30,7 @@ internal class ObjectEqualsMethodCallToStatementTranslator : IWhereToStatementTr
 
         if (mce.Arguments.Count == 2 && mce.Arguments[1] is ConstantExpression ce && ce.Value is StringComparison sc)
         {
-            bool ignoreCase = sc is StringComparison.OrdinalIgnoreCase 
-                or StringComparison.CurrentCultureIgnoreCase
-                or StringComparison.InvariantCultureIgnoreCase;
+            bool ignoreCase = !sc.IsCaseSensitive();
 
             WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object);
             WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0]);

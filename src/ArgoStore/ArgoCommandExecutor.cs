@@ -46,9 +46,11 @@ internal class ArgoCommandExecutor
     public object ExecuteToList(ArgoCommand command)
     {
         using SqliteConnection con = CreateAndOpenConnection();
-        using SqliteCommand cmd = command.ToSqliteCommand();
-        cmd.Connection = con;
+        using SqliteCommandCollection cmds = command.ToSqliteCommands();
+        cmds.Connection = con;
 
+        SqliteCommand cmd = ExecutePreCommandsAndGetCommand(cmds);
+        
         SqliteDataReader reader = cmd.ExecuteReader();
 
         IList result = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(command.ResultingType));
@@ -65,8 +67,10 @@ internal class ArgoCommandExecutor
     public object ExecuteFirstOrDefault(ArgoCommand command)
     {
         using SqliteConnection con = CreateAndOpenConnection();
-        using SqliteCommand cmd = command.ToSqliteCommand();
-        cmd.Connection = con;
+        using SqliteCommandCollection cmds = command.ToSqliteCommands();
+        cmds.Connection = con;
+
+        SqliteCommand cmd = ExecutePreCommandsAndGetCommand(cmds);
 
         string json = cmd.ExecuteScalar() as string;
 
@@ -111,8 +115,10 @@ internal class ArgoCommandExecutor
     public object ExecuteCount(ArgoCommand command)
     {
         using SqliteConnection con = CreateAndOpenConnection();
-        using SqliteCommand cmd = command.ToSqliteCommand();
-        cmd.Connection = con;
+        using SqliteCommandCollection cmds = command.ToSqliteCommands();
+        cmds.Connection = con;
+
+        SqliteCommand cmd = ExecutePreCommandsAndGetCommand(cmds);
 
         object result = cmd.ExecuteScalar() 
                         ?? throw new InvalidOperationException("Unexpected null result on ExecuteCount(ArgoCommand command)");
@@ -128,6 +134,19 @@ internal class ArgoCommandExecutor
         }
 
         return ret;
+    }
+
+    private SqliteCommand ExecutePreCommandsAndGetCommand(SqliteCommandCollection cmds)
+    {
+        if (cmds.Commands.Length > 1)
+        {
+            for (int i = 0; i < cmds.Commands.Length - 1; i++)
+            {
+                cmds.Commands[i].ExecuteNonQuery();
+            }
+        }
+
+        return cmds.Commands.Last();
     }
 
     public void ExecuteInTransaction(IReadOnlyList<CrudOperation> ops, JsonSerializerOptions serializerOptions)

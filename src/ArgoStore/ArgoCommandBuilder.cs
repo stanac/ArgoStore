@@ -10,14 +10,14 @@ namespace ArgoStore;
 
 internal class ArgoCommandBuilder
 {
-    private readonly QueryModel _model;
     private readonly Type _docType;
     private readonly ArgoCommandParameterCollection _params = new();
+    private bool _containsLikeOperator;
     
     public DocumentMetadata Metadata { get; private set; }
     public List<WhereStatement> WhereStatements = new();
     public SelectStatementBase SelectStatement { get; private set; }
-
+    
     public bool IsSelectCount => SelectStatement is SelectCountStatement;
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
 
@@ -26,7 +26,7 @@ internal class ArgoCommandBuilder
     public ArgoCommandBuilder(QueryModel model)
         : this (model.MainFromClause.ItemType)
     {
-        _model = model;
+        // _model = model;
     }
 
     public ArgoCommandBuilder(Type docType)
@@ -73,9 +73,8 @@ internal class ArgoCommandBuilder
                     : ArgoCommandTypes.Single;
             }
         }
-
-        // TODO: set command type
-        return new ArgoCommand(sql, _params, cmdType, Metadata.DocumentType);
+        
+        return new ArgoCommand(sql, _params, cmdType, Metadata.DocumentType, _containsLikeOperator);
     }
 
     public void AddWhereClause(WhereClause whereClause)
@@ -146,7 +145,9 @@ internal class ArgoCommandBuilder
                 }
                 else if (wsts.Transform == StringTransformTypes.ToUpper)
                 {
-
+                    sb.Append(" upper(");
+                    AppendWhereStatement(sb, wsts.Statement);
+                    sb.AppendLine(") ");
                 }
                 else
                 {
@@ -158,7 +159,11 @@ internal class ArgoCommandBuilder
             case WherePropertyStatement prop:
                 sb.Append(GetParameterExtraction(prop.PropertyName)).Append(" ");
                 break;
-                
+
+            case WhereStringContainsMethodCallStatement scm:
+                AppendWhereStringContains(sb, scm);
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(statement));
         }
@@ -212,6 +217,36 @@ internal class ArgoCommandBuilder
         sb.Append(" )) ");
     }
 
+    private void AppendWhereStringContains(StringBuilder sb, WhereStringContainsMethodCallStatement s)
+    {
+        _containsLikeOperator = true;
+
+        WhereStatementBase left = s.ObjectStatement;
+        WhereStatementBase right = s.SubjectStatement;
+
+        if (s.IgnoreCase)
+        {
+            left = new WhereStringTransformStatement(left, StringTransformTypes.ToLower);
+            right = new WhereStringTransformStatement(right, StringTransformTypes.ToLower);
+        }
+        
+        AppendWhereStatement(sb, left);
+
+        sb.Append(" LIKE ");
+
+        if (s.Method is StringMethods.Contains or StringMethods.EndsWith)
+        {
+            sb.Append(" '%' || ");
+        }
+
+        AppendWhereStatement(sb, right);
+
+        if (s.Method is StringMethods.Contains or StringMethods.StartsWith)
+        {
+            sb.Append(" || '%' ");
+        }
+    }
+
     private string GetParameterExtraction(string propertyName, string alias = null)
     {
         propertyName = ConvertPropertyCase(propertyName);
@@ -223,7 +258,7 @@ internal class ArgoCommandBuilder
 
         return $"json_extract({alias}.jsonData, '$.{propertyName}')";
     }
-
+    
     private void AppendLimit(StringBuilder sb)
     {
         if (IsSelectFirstOrSingle)
@@ -231,7 +266,7 @@ internal class ArgoCommandBuilder
             sb.Append("LIMIT 1");
         }
     }
-
+    
     private string ConvertPropertyCase(string propertyName)
     {
         return JsonNamingPolicy.CamelCase.ConvertName(propertyName);
