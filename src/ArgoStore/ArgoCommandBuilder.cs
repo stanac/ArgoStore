@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Select;
 using ArgoStore.Statements.Where;
 using Remotion.Linq;
@@ -132,8 +133,28 @@ internal class ArgoCommandBuilder
                 break;
 
             case WhereParameterStatement param:
-                sb.Append(" @").Append(param.ParameterName).Append(" ");
+                string paramName = _params.AddNewParameter(param.Value);
+                sb.Append(" @").Append(paramName).Append(" ");
                 break;
+
+            case WhereStringTransformStatement wsts:
+                if (wsts.Transform == StringTransformTypes.ToLower)
+                {
+                    sb.Append(" lower(");
+                    AppendWhereStatement(sb, wsts.Statement);
+                    sb.AppendLine(") ");
+                }
+                else if (wsts.Transform == StringTransformTypes.ToUpper)
+                {
+
+                }
+                else
+                {
+                    throw new NotSupportedException($"String transform type: {wsts.Transform}");
+                }
+
+                break;
+
             case WherePropertyStatement prop:
                 sb.Append(GetParameterExtraction(prop.PropertyName)).Append(" ");
                 break;

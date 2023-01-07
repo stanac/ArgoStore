@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ArgoStore.TestsCommon.Entities
 {
@@ -14,5 +15,12 @@ namespace ArgoStore.TestsCommon.Entities
         public DateTimeOffset RegistrationTime { get; set; }
         public DateTime? CakeDay { get; set; }
         public string NickName { get; set; }
+
+        public Person Copy()
+        {
+            Person p = (Person)MemberwiseClone();
+            p.Roles = Roles?.AsEnumerable().ToList();
+            return p;
+        }
     }
 }

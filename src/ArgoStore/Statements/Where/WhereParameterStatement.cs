@@ -2,10 +2,10 @@
 
 internal class WhereParameterStatement : WhereValueStatement
 {
-    public string ParameterName { get; }
+    public object Value { get; }
 
-    public WhereParameterStatement(string parameterName)
+    public WhereParameterStatement(object value)
     {
-        ParameterName = parameterName;
+        Value = value;
     }
 }

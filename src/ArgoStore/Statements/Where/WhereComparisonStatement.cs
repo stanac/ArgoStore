@@ -3,10 +3,10 @@
 internal class WhereComparisonStatement : WhereStatementBase
 {
     public ComparisonOperators Operator { get; }
-    public WhereValueStatement Left { get; }
-    public WhereValueStatement Right { get; }
+    public WhereStatementBase Left { get; }
+    public WhereStatementBase Right { get; }
 
-    public WhereComparisonStatement(WhereValueStatement left, ComparisonOperators @operator, WhereValueStatement right)
+    public WhereComparisonStatement(WhereStatementBase left, ComparisonOperators @operator, WhereStatementBase right)
     {
         Left = left;
         Operator = @operator;
