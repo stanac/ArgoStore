@@ -87,7 +87,7 @@ Santiago French
 Antoinette Huff
 Malcolm Matthews
 Leonard Roy
-Kristen Obrien
+Kristen O'brien
 Rosalie Norman
 Kayla Fitzgerald
 Brandon Conner
@@ -142,6 +142,16 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
         if (name == "Katie Banks")
         {
             return "Katie Banks  ";
+        }
+
+        if (name == "Ramona Taylor")
+        {
+            return "RAMONA TAYLOR";
+        }
+
+        if (name == "Ken Sutton")
+        {
+            return "ken sutton".ToLower();
         }
 
         return name;

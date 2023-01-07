@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ArgoStore.TestsCommon.Entities;
+﻿namespace ArgoStore.TestsCommon.Entities;
 
 public class PersonPkInt32
 {
