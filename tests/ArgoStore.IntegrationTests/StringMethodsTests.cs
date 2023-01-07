@@ -74,10 +74,32 @@ public class StringMethodsTests : IntegrationTestBase
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        string name = "Paul"; // should be two names containing Paul
+        string name = "Paul";
 
         List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.Ordinal)).ToList();
         p.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public void ContainsCaseInsensitiveNoValueMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul1";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name)).ToList();
+        p.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void ContainsCaseSensitiveNoValueMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul1";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().BeEmpty();
     }
 
     [Fact]
@@ -85,7 +107,7 @@ public class StringMethodsTests : IntegrationTestBase
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        string name = "paul"; // should be two names containing Paul, but zero containing paul
+        string name = "paul";
 
         List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.Ordinal)).ToList();
         p.Should().BeEmpty();
@@ -96,9 +118,163 @@ public class StringMethodsTests : IntegrationTestBase
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        string name = "paul"; // should be two names containing Paul
+        string name = "paul";
 
         List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
         p.Should().HaveCount(2);
+    }
+    
+    [Fact]
+    public void StartsWith_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(name)).ToList();
+        p.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void StartsWithSensitive_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(name, StringComparison.Ordinal)).ToList();
+        p.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void StartsWithInsensitiveCaseMatched_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(name, StringComparison.Ordinal)).ToList();
+        p.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void StartsWithInsensitiveNoValueMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul1";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(name)).ToList();
+        p.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void StartsWithCaseSensitiveNoValueMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Paul1";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void StartsWithCaseInsensitiveCaseNotMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "paul";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(name, StringComparison.Ordinal)).ToList();
+        p.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void StartsWithCaseInsensitiveCaseMismatched_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "paul";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.StartsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().HaveCount(1);
+    }
+
+    [Fact]
+    public void EndsWith_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Diaz";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name)).ToList();
+        p.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void EndsWithSensitive_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Diaz";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name, StringComparison.Ordinal)).ToList();
+        p.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void EndsWithInsensitiveCaseMatched_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Diaz";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name, StringComparison.Ordinal)).ToList();
+        p.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void EndsWithInsensitiveNoValueMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Dia1z";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name)).ToList();
+        p.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void EndsWithCaseSensitiveNoValueMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "Diaz1";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void EndsWithCaseInsensitiveCaseNotMatched_ReturnsEmptyCollection()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "diaz";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name, StringComparison.Ordinal)).ToList();
+        p.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void EndsWithCaseInsensitiveCaseMismatched_ReturnsCorrectItems()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        string name = "diaz";
+
+        List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
+        p.Should().HaveCount(1);
     }
 }
