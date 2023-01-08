@@ -63,4 +63,42 @@ public class SelectTests : IntegrationTestBase
             r.Birth.Should().Be(p.BirthYear);
         }
     }
+
+    [Fact]
+    public void SelectAnonymousObjectSingleProperty_ReturnsCorrectValues()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        var result = s.Query<Person>()
+            .Select(x => new { x.Points })
+            .ToList();
+        List<Person> persons = PersonTestData.GetPersonTestData().ToList();
+
+        result.Should().HaveCount(persons.Count);
+
+        foreach (var r in result)
+        {
+            Person p = persons.SingleOrDefault(x => x.Points == r.Points);
+            p.Should().NotBeNull();
+        }
+    }
+
+    [Fact]
+    public void SelectAnonymousObjectSinglePropertyRenamed_ReturnsCorrectValues()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        var result = s.Query<Person>()
+            .Select(x => new { NewPoints = x.Points })
+            .ToList();
+        List<Person> persons = PersonTestData.GetPersonTestData().ToList();
+
+        result.Should().HaveCount(persons.Count);
+
+        foreach (var r in result)
+        {
+            Person p = persons.SingleOrDefault(x => x.Points == r.NewPoints);
+            p.Should().NotBeNull();
+        }
+    }
 }
