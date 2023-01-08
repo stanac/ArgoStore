@@ -48,7 +48,6 @@ public class DistinctTests : IntegrationTestBase
         List<int> values = s.Query<Person>()
             .Where(x => x.BirthYear.HasValue)
             .Select(x => x.BirthYear.Value)
-            // .Where(x => x > 0)
             .Distinct()
             .ToList();
 
