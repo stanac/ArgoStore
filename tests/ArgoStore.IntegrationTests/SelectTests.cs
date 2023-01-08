@@ -7,7 +7,7 @@ public class SelectTests : IntegrationTestBase
 {
     public SelectTests()
     {
-        AddTestPersons();
+        InsertTestPersons();
     }
 
     [Fact]

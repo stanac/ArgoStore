@@ -22,7 +22,7 @@ public class IntegrationTestBase : IDisposable
         s.SaveChanges();
     }
 
-    protected void AddTestPersons()
+    protected void InsertTestPersons()
     {
         using IArgoDocumentSession s = Store.OpenSession();
         

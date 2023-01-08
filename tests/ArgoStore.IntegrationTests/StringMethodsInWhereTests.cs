@@ -9,7 +9,7 @@ public class StringMethodsInWhereTests : IntegrationTestBase
     
     public StringMethodsInWhereTests()
     {
-        AddTestPersons();
+        InsertTestPersons();
         using IArgoDocumentSession s = Store.OpenSession();
 
         Person p = _persons[0].Copy();

@@ -28,7 +28,7 @@ public class LinqToListTests : IntegrationTestBase
     [Fact]
     public void ToListWithCondition_GivesExpectedCount()
     {
-        AddTestPersons();
+        InsertTestPersons();
         using IArgoDocumentSession s = Store.OpenSession();
 
         int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.BirthYear.HasValue);

@@ -12,7 +12,7 @@ public class WhereStringTransformTests : IntegrationTestBase
     
     public WhereStringTransformTests()
     {
-        AddTestPersons();
+        InsertTestPersons();
     }
 
     [Fact]

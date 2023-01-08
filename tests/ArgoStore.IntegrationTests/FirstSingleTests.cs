@@ -73,7 +73,7 @@ public class FirstSingleTests : IntegrationTestBase
     {
         using IArgoDocumentSession s = Store.OpenSession();
 
-        AddTestPersons();
+        InsertTestPersons();
 
         Action a = () => s.Query<Person>().SingleOrDefault();
         a.Should().Throw<InvalidOperationException>();
@@ -104,7 +104,7 @@ public class FirstSingleTests : IntegrationTestBase
     {
         using IArgoDocumentSession s = Store.OpenSession();
 
-        AddTestPersons();
+        InsertTestPersons();
 
         Action a = () => s.Query<Person>().Single();
         a.Should().Throw<InvalidOperationException>();

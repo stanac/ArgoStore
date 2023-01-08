@@ -74,7 +74,7 @@ public class CountTests : IntegrationTestBase
     [Fact]
     public void CountWithCondition_ReturnsExpectedCount()
     {
-        AddTestPersons();
+        InsertTestPersons();
 
         int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.BirthYear.HasValue);
 
@@ -88,7 +88,7 @@ public class CountTests : IntegrationTestBase
     [Fact]
     public void LongCountWithCondition_ReturnsExpectedCount()
     {
-        AddTestPersons();
+        InsertTestPersons();
 
         int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.BirthYear.HasValue);
 
