@@ -6,6 +6,16 @@ namespace ArgoStore.StatementTranslators.Where;
 
 internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTranslator
 {
+    private static readonly ExpressionType[] _supportedExTypes =
+    {
+        ExpressionType.Equal,
+        ExpressionType.NotEqual,
+        ExpressionType.GreaterThan,
+        ExpressionType.GreaterThanOrEqual,
+        ExpressionType.LessThan,
+        ExpressionType.LessThanOrEqual
+    };
+
     public bool CanTranslate(Expression expression)
     {
         return expression is BinaryExpression;
@@ -20,14 +30,10 @@ internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTra
         WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left);
         WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right);
         ComparisonOperators op;
-
-        if (be.NodeType is ExpressionType.NotEqual)
+        
+        if (_supportedExTypes.Contains(be.NodeType))
         {
-            op = ComparisonOperators.NotEqual;
-        }
-        else if (be.NodeType is ExpressionType.Equal)
-        {
-            op = ComparisonOperators.Equal;
+            op = (ComparisonOperators)Enum.Parse(typeof(ComparisonOperators), be.NodeType.ToString());
         }
         else
         {
