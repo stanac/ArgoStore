@@ -67,8 +67,7 @@ public class DistinctTests : IntegrationTestBase
             values[i].Should().Be(expectedValues[i]);
         }
     }
-
-
+    
     [Fact]
     public void DistinctNumberOnWhereAfterSelect_GivesExpectedResults()
     {
