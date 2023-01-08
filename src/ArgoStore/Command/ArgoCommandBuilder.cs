@@ -226,6 +226,12 @@ internal class ArgoCommandBuilder
                 AppendWhereStringContains(sb, scm);
                 break;
 
+            case WhereNotStatement ns:
+                sb.Append(" NOT( ");
+                AppendWhereStatement(sb, ns.Statement);
+                sb.Append(" ) ");
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(statement));
         }
