@@ -121,6 +121,8 @@ public class SelectTests : IntegrationTestBase
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
+        // {"points":3,"isSelected":1,"value":5}
+
         var selected = s.Query<Person>()
             .Select(x => new { x.Points, IsSelected = true, Value = 5 })
             .ToList();
