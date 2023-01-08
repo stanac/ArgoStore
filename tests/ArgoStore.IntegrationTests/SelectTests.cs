@@ -1,4 +1,5 @@
 ﻿using ArgoStore.TestsCommon.Entities;
+using ArgoStore.TestsCommon.TestData;
 
 namespace ArgoStore.IntegrationTests;
 
@@ -15,8 +16,14 @@ public class SelectTests : IntegrationTestBase
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
         List<string> names = s.Query<Person>().Select(x => x.Name).ToList();
+        List<Person> persons = PersonTestData.GetPersonTestData().ToList();
 
-        names.Should().HaveCountGreaterThan(90);
+        names.Should().HaveCount(persons.Count);
+
+        foreach (Person p in persons)
+        {
+            names.Should().Contain(p.Name);
+        }
     }
 
     [Fact]
