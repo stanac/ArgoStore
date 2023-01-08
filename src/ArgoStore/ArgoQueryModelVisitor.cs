@@ -102,6 +102,8 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 
     public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
     {
+        CommandBuilder.SetSelectStatement(selectClause);
+
         base.VisitSelectClause(selectClause, queryModel);
     }
 }

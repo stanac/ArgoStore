@@ -55,10 +55,20 @@ internal class ArgoCommandExecutor
 
         IList result = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(command.ResultingType));
 
-        while (reader.Read())
+        if (command.IsResultingTypeJson)
         {
-            string json = reader[0] as string;
-            result.Add(JsonSerializer.Deserialize(json!, command.ResultingType, _serializerOptions));
+            while (reader.Read())
+            {
+                string json = reader[0] as string;
+                result.Add(JsonSerializer.Deserialize(json!, command.ResultingType, _serializerOptions));
+            }
+        }
+        else
+        {
+            while (reader.Read())
+            {
+                result.Add(reader[0]);
+            }
         }
 
         return result;

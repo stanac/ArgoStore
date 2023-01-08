@@ -61,7 +61,7 @@ internal class ArgoSession : IArgoDocumentSession
         parameters.AddWithName("key", id);
         parameters.AddWithName("tenantId", TenantId);
 
-        ArgoCommand cmd = new ArgoCommand(sql, parameters, ArgoCommandTypes.FirstOrDefault, typeof(T));
+        ArgoCommand cmd = new ArgoCommand(sql, parameters, ArgoCommandTypes.FirstOrDefault, typeof(T), true, false);
 
         ArgoCommandExecutor exec = CreateExecutor();
         object result = exec.ExecuteFirstOrDefault(cmd);

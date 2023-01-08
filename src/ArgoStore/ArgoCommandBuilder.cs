@@ -3,6 +3,7 @@ using System.Text.Json;
 using ArgoStore.Statements;
 using ArgoStore.Statements.Select;
 using ArgoStore.Statements.Where;
+using ArgoStore.StatementTranslators.Select;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
@@ -17,7 +18,9 @@ internal class ArgoCommandBuilder
     public DocumentMetadata Metadata { get; private set; }
     public List<WhereStatement> WhereStatements = new();
     public SelectStatementBase SelectStatement { get; private set; }
-    
+    public Type ResultingType { get; private set; }
+    public bool IsResultingTypeJson { get; private set; } = true;
+
     public bool IsSelectCount => SelectStatement is SelectCountStatement;
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
 
@@ -26,12 +29,12 @@ internal class ArgoCommandBuilder
     public ArgoCommandBuilder(QueryModel model)
         : this (model.MainFromClause.ItemType)
     {
-        // _model = model;
     }
 
     public ArgoCommandBuilder(Type docType)
     {
         _docType = docType;
+        ResultingType = docType;
     }
 
     public ArgoCommand Build(IReadOnlyDictionary<string, DocumentMetadata> documentTypes, string tenantId)
@@ -74,7 +77,7 @@ internal class ArgoCommandBuilder
             }
         }
         
-        return new ArgoCommand(sql, _params, cmdType, Metadata.DocumentType, _containsLikeOperator);
+        return new ArgoCommand(sql, _params, cmdType, ResultingType, IsResultingTypeJson, _containsLikeOperator);
     }
 
     public void AddWhereClause(WhereClause whereClause)
@@ -87,11 +90,26 @@ internal class ArgoCommandBuilder
         SelectStatement = selectStatement;
     }
 
+    public void SetSelectStatement(SelectClause selectStatement)
+    {
+        SelectStatement = SelectToStatementTranslatorStrategies.Translate(selectStatement.Selector);
+
+        if (SelectStatement is SelectPropertyStatement)
+        {
+            ResultingType = selectStatement.Selector.Type;
+            IsResultingTypeJson = false;
+        }
+    }
+
     private void AppendSelect(StringBuilder sb)
     {
         if (SelectStatement is SelectCountStatement)
         {
             sb.Append("SELECT COUNT (1)");
+        }
+        else if (SelectStatement is SelectPropertyStatement sps)
+        {
+            sb.Append("SELECT ").AppendLine(GetPropertyExtraction(sps.Name));
         }
         else
         {
@@ -141,7 +159,7 @@ internal class ArgoCommandBuilder
                 break;
 
             case WherePropertyStatement prop:
-                sb.Append(GetParameterExtraction(prop.PropertyName)).Append(" ");
+                sb.Append(GetPropertyExtraction(prop.PropertyName)).Append(" ");
                 break;
 
             case WhereStringContainsMethodCallStatement scm:
@@ -269,7 +287,7 @@ internal class ArgoCommandBuilder
         }
     }
 
-    private string GetParameterExtraction(string propertyName, string alias = null)
+    private string GetPropertyExtraction(string propertyName, string alias = null)
     {
         propertyName = ConvertPropertyCase(propertyName);
 

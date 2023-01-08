@@ -11,15 +11,17 @@ public class ArgoCommand
     public ArgoCommandParameterCollection Parameters { get; }
     public ArgoCommandTypes CommandType { get; }
     public Type ResultingType { get; }
+    public bool IsResultingTypeJson { get; }
     public bool ContainsLikeOperator { get; }
     
     public ArgoCommand(string sql, ArgoCommandParameterCollection parameters, ArgoCommandTypes commandType, Type resultingType,
-        bool containsLikeOperator = false)
+        bool isResultingTypeJson, bool containsLikeOperator)
     {
         Sql = sql;
         Parameters = parameters;
         CommandType = commandType;
         ResultingType = resultingType;
+        IsResultingTypeJson = isResultingTypeJson;
         ContainsLikeOperator = containsLikeOperator;
     }
     
@@ -80,6 +82,6 @@ public class ArgoCommand
 
         StringBuilderBag.Default.Return(sb);
 
-        return new ArgoCommand(sql, Parameters, ArgoCommandTypes.LongCount, typeof(long));
+        return new ArgoCommand(sql, Parameters, ArgoCommandTypes.LongCount, typeof(long), false, false);
     }
 }
