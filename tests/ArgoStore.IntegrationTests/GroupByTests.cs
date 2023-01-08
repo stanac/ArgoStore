@@ -1,5 +1,6 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
+// ReSharper disable AccessToDisposedClosure
 
 namespace ArgoStore.IntegrationTests;
 
