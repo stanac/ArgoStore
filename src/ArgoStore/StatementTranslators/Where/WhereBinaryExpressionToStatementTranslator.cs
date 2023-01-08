@@ -31,7 +31,7 @@ internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTra
         }
         else
         {
-            throw new NotSupportedException();
+            throw new NotSupportedException("3f173ca71821");
         }
 
         return new WhereComparisonStatement(left, op, right);

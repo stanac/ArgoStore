@@ -59,7 +59,7 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
             return new WhereComparisonStatement(left, ComparisonOperators.Equal, right);
         }
         
-        throw new NotSupportedException();
+        throw new NotSupportedException("2528bb28e858");
     }
     
 }

@@ -42,4 +42,25 @@ public class SelectTests : IntegrationTestBase
             points.Should().Contain(p.Points);
         }
     }
+
+    [Fact]
+    public void SelectAnonymousObject_ReturnsCorrectValues()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        var result = s.Query<Person>()
+            .Select(x => new { x.Name, x.Points, x.BirthYear, Birth = x.BirthYear })
+            .ToList();
+        List<Person> persons = PersonTestData.GetPersonTestData().ToList();
+
+        result.Should().HaveCount(persons.Count);
+
+        foreach (var r in result)
+        {
+            Person p = persons.Single(x => x.Name == r.Name);
+            r.BirthYear.Should().Be(p.BirthYear);
+            r.Points.Should().Be(p.Points);
+            r.Birth.Should().Be(p.BirthYear);
+        }
+    }
 }

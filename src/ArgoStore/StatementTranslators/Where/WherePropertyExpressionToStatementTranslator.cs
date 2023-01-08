@@ -20,6 +20,6 @@ internal class PropertyExpressionToStatementTranslator : IWhereToStatementTransl
             return new WherePropertyStatement(pi.Name);
         }
 
-        throw new NotSupportedException();
+        throw new NotSupportedException("f1dde3f265cb");
     }
 }

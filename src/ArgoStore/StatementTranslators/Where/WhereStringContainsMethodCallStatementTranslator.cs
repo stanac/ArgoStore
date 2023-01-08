@@ -43,6 +43,6 @@ internal class WhereStringContainsMethodCallStatementTranslator : IWhereToStatem
             return new WhereStringContainsMethodCallStatement(left, right, method, ignoreCase);
         }
 
-        throw new NotSupportedException();
+        throw new NotSupportedException("a26f50f816da");
     }
 }

@@ -99,6 +99,10 @@ internal class ArgoCommandBuilder
             ResultingType = selectStatement.Selector.Type;
             IsResultingTypeJson = false;
         }
+        else if (SelectStatement is SelectAnonymousType sat)
+        {
+            ResultingType = sat.AnonymousType;
+        }
     }
 
     private void AppendSelect(StringBuilder sb)
@@ -112,6 +116,30 @@ internal class ArgoCommandBuilder
             sb.Append("SELECT json_insert('{}', '$.value', ")
                 .Append(GetPropertyExtraction(sps.Name))
                 .AppendLine(")");
+        }
+        else if (SelectStatement is SelectAnonymousType sat)
+        {
+            sb.Append("SELECT ");
+
+            foreach (SelectPropertyStatement s in sat.SelectElements)
+            {
+                sb.Append("json_set(");
+            }
+
+            for (int i = 0; i < sat.SelectElements.Count; i++)
+            {
+                if (i == 0)
+                {
+                    sb.Append("'{}'");
+                }
+
+                sb.Append(", ");
+
+                string propName = ConvertPropertyCase(sat.SelectElements[i].ResultName);
+                sb.Append("'$.").Append(propName).Append("', ");
+                sb.Append(GetPropertyExtraction(sat.SelectElements[i].Name));
+                sb.Append(")");
+            }
         }
         else
         {
@@ -311,7 +339,7 @@ internal class ArgoCommandBuilder
     
     private string ConvertPropertyCase(string propertyName)
     {
-        return JsonNamingPolicy.CamelCase.ConvertName(propertyName);
+        return JsonNamingPolicy.CamelCase.ConvertName(propertyName).Replace("'", "''");
     }
 
     private DocumentMetadata FindDocMeta(IReadOnlyDictionary<string, DocumentMetadata> documentTypes)

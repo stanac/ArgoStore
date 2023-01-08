@@ -14,7 +14,7 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
     public IQueryable CreateQuery(Expression expression)
     {
-        throw new NotSupportedException();
+        throw new NotSupportedException("62627b8bf3c6");
     }
 
     public IQueryable<T> CreateQuery<T>(Expression expression)
@@ -24,7 +24,7 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
     public object Execute(Expression expression)
     {
-        throw new NotSupportedException();
+        throw new NotSupportedException("df53fa2a3fea");
     }
 
     public TResult Execute<TResult>(Expression expression)

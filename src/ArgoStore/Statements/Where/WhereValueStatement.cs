@@ -23,6 +23,6 @@ internal abstract class WhereValueStatement : WhereStatementBase
             return new WhereParameterStatement(ce.Value);
         }
 
-        throw new NotSupportedException();
+        throw new NotSupportedException("5f294d396056");
     }
 }
