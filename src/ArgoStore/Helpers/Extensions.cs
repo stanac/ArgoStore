@@ -5,11 +5,6 @@ namespace ArgoStore.Helpers;
 
 internal static class Extensions
 {
-    private static readonly string[] _anonymousTypePrefixes =
-    {
-        "<>", "VB$"
-    };
-
     public static bool IsCaseSensitive(this StringComparison sc)
     {
         return !(
