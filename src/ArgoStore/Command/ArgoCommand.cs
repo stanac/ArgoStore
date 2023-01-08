@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.Command;

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using ArgoStore.Helpers;
 using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 

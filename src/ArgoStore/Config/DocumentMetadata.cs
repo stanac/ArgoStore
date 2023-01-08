@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace ArgoStore;
+namespace ArgoStore.Config;
 
 internal class DocumentMetadata
 {
@@ -63,7 +63,7 @@ internal class DocumentMetadata
     private PropertyInfo GetKeyProperty(Type documentType)
     {
         string name = documentType.Name;
-        string[] allowedKeyNames = {"Key", "Id", name + "Key", name + "Id"};
+        string[] allowedKeyNames = { "Key", "Id", name + "Key", name + "Id" };
 
         PropertyInfo[] keyProps = documentType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
             .Where(x => allowedKeyNames.Contains(x.Name))
@@ -93,7 +93,7 @@ internal class DocumentMetadata
 
         return keyProp;
     }
-    
+
     public object GetPrimaryKeyValue(object doc, out bool isDefaultValue)
     {
         if (doc == null) throw new ArgumentNullException(nameof(doc));
@@ -108,7 +108,7 @@ internal class DocumentMetadata
 #endif
 
         object key = _keyProperty.GetValue(doc);
-        
+
         if (IsKeyPropertyGuid)
         {
             isDefaultValue = (Guid)key == default;
@@ -264,7 +264,7 @@ internal class DocumentMetadata
         }
 
         documentName = (documentName ?? documentType.Name).Trim();
-        
+
         if (documentName.Length == 0) ThrowName("It cannot be 0 length.");
         if (documentName.Any(c => c > 127)) ThrowName("It cannot contain non ASCII chars.");
         if (documentName.Any(char.IsWhiteSpace)) ThrowName("It cannot contain white-space.");

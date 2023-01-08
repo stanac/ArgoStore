@@ -1,8 +1,9 @@
 ﻿using System.Text.Json;
 using ArgoStore.Command;
+using ArgoStore.Config;
 using ArgoStore.CrudOperations;
 
-namespace ArgoStore;
+namespace ArgoStore.Implementations;
 
 internal class ArgoSession : IArgoDocumentSession
 {
@@ -32,7 +33,7 @@ internal class ArgoSession : IArgoDocumentSession
         return new ArgoStoreQueryable<T>(this);
     }
 
-    public T GetById<T>(object id) where T: class, new()
+    public T GetById<T>(object id) where T : class, new()
     {
         if (id is null)
         {
@@ -57,7 +58,7 @@ internal class ArgoSession : IArgoDocumentSession
                 AND tenantId = @tenantId
             """;
 
-        ArgoCommandParameterCollection parameters = new ();
+        ArgoCommandParameterCollection parameters = new();
 
         parameters.AddWithName("key", id);
         parameters.AddWithName("tenantId", TenantId);
@@ -72,7 +73,7 @@ internal class ArgoSession : IArgoDocumentSession
             return null;
         }
 
-        return (T) result;
+        return (T)result;
     }
 
     internal ArgoCommandExecutor CreateExecutor()
@@ -121,7 +122,7 @@ internal class ArgoSession : IArgoDocumentSession
     {
         _crudOps.Clear();
     }
-    
+
     public void Dispose()
     {
         DiscardChanges();

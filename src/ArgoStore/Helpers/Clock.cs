@@ -1,4 +1,4 @@
-﻿namespace ArgoStore;
+﻿namespace ArgoStore.Helpers;
 
 internal class Clock : IClock
 {

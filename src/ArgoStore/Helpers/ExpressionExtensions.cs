@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace ArgoStore;
+namespace ArgoStore.Helpers;
 
 internal static class ExpressionExtensions
 {

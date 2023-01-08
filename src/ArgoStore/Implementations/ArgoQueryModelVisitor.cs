@@ -6,12 +6,12 @@ using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
 // ReSharper disable RedundantOverriddenMember
 
-namespace ArgoStore;
+namespace ArgoStore.Implementations;
 
 internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 {
     public ArgoCommandBuilder CommandBuilder { get; private set; }
-    
+
     public override void VisitQueryModel(QueryModel queryModel)
     {
         CommandBuilder = new ArgoCommandBuilder(queryModel);
@@ -92,7 +92,7 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         {
             throw new NotSupportedException("Linq methods Last and LastOrDefault are not supported.");
         }
-        
+
         base.VisitResultOperator(resultOperator, queryModel, index);
     }
 

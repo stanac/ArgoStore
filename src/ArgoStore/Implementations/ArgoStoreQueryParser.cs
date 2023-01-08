@@ -5,7 +5,7 @@ using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
-namespace ArgoStore;
+namespace ArgoStore.Implementations;
 
 internal class ArgoStoreQueryParser : IQueryParser
 {
@@ -15,7 +15,7 @@ internal class ArgoStoreQueryParser : IQueryParser
     {
         CompoundExpressionTreeProcessor proc = ExpressionTreeParser.CreateDefaultProcessor(ExpressionTransformerRegistry.CreateDefault());
         MethodInfoBasedNodeTypeRegistry reg = MethodInfoBasedNodeTypeRegistry.CreateFromRelinqAssembly();
-        
+
         ExpressionTreeParser expressionTreeParser = new ExpressionTreeParser(reg, proc);
         _parser = new QueryParser(expressionTreeParser);
     }

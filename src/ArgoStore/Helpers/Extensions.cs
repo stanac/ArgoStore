@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 
-namespace ArgoStore;
+namespace ArgoStore.Helpers;
 
 internal static class Extensions
 {

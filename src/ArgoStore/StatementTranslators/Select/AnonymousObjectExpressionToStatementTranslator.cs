@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using ArgoStore.Helpers;
 using ArgoStore.Statements.Select;
 
 namespace ArgoStore.StatementTranslators.Select;

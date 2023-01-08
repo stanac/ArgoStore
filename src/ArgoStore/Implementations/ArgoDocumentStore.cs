@@ -1,8 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
+using ArgoStore.Config;
 using Microsoft.Data.Sqlite;
 
-namespace ArgoStore;
+namespace ArgoStore.Implementations;
 
 public class ArgoDocumentStore
 {
@@ -16,7 +17,7 @@ public class ArgoDocumentStore
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
 
         _connectionString = connectionString;
-        
+
         _serializerOptions = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = false,

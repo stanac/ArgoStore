@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 
-namespace ArgoStore;
+namespace ArgoStore.Command;
 
 public class SqliteCommandCollection : IDisposable
 {

@@ -1,6 +1,6 @@
 ﻿using Remotion.Linq;
 
-namespace ArgoStore;
+namespace ArgoStore.Implementations;
 
 internal class ArgoStoreQueryExecutor : IQueryExecutor
 {

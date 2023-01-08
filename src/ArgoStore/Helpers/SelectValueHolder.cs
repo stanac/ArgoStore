@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace ArgoStore;
+namespace ArgoStore.Helpers;
 
 internal abstract class SelectValueHolder
 {

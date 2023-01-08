@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using ArgoStore.Command;
 
-namespace ArgoStore;
+namespace ArgoStore.Implementations;
 
 internal class ArgoStoreQueryProvider : IQueryProvider
 {
@@ -35,10 +35,10 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
         ArgoCommandExecutor exec = _session.CreateExecutor();
         TResult result = (TResult)exec.Execute(cmd);
-        
+
         return result;
     }
-    
+
     internal ArgoQueryModelVisitor VisitAndBuild(Expression expression)
     {
         QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);
