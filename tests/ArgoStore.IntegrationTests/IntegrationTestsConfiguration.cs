@@ -4,8 +4,8 @@ public class IntegrationTestsConfiguration
 {
     public IntegrationTestsConfiguration()
     {
-        string ramDiskPath = Environment.GetEnvironmentVariable("ram_disk_db_test_dir");
-        string permaDiskPath = Environment.GetEnvironmentVariable("db_tests_dir");
+        string ramDiskPath = Environment.GetEnvironmentVariable("argotestdir");
+        string permaDiskPath = Environment.GetEnvironmentVariable("argotestdir");
 
         try
         {
