@@ -117,6 +117,7 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                 Name = GetName(_names[i]),
                 EmailAddress = GetEmailAddress(_names[i]),
                 BirthYear = GetBirthYear(i),
+                Points = i + 3,
                 CakeDay = GetCakeDay(i),
                 EmailConfirmed = i % 2 == 0,
                 Id = GetIdGuid(i),

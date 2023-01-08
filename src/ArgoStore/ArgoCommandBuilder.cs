@@ -109,7 +109,9 @@ internal class ArgoCommandBuilder
         }
         else if (SelectStatement is SelectPropertyStatement sps)
         {
-            sb.Append("SELECT ").AppendLine(GetPropertyExtraction(sps.Name));
+            sb.Append("SELECT json_insert('{}', '$.value', ")
+                .Append(GetPropertyExtraction(sps.Name))
+                .AppendLine(")");
         }
         else
         {

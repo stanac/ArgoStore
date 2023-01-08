@@ -67,13 +67,15 @@ internal class ArgoCommandExecutor
         {
             while (reader.Read())
             {
-                result.Add(reader[0]);
+                string json = reader[0] as string;
+                SelectValueHolder valueHolder = SelectValueHolder.ParseFromJson(json, command.ResultingType, _serializerOptions);
+                result.Add(valueHolder.GetValue());
             }
         }
 
         return result;
     }
-
+    
     public object ExecuteFirstOrDefault(ArgoCommand command)
     {
         using SqliteConnection con = CreateAndOpenConnection();

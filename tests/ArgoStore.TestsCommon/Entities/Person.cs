@@ -9,6 +9,7 @@ namespace ArgoStore.TestsCommon.Entities
         public Guid Id { get; set; }
         public string Name { get; set; }
         public int? BirthYear { get; set; }
+        public int Points { get; set; }
         public string EmailAddress { get; set; }
         public bool EmailConfirmed { get; set; }
         public List<string> Roles { get; set; }

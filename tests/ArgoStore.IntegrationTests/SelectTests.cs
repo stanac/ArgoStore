@@ -29,6 +29,17 @@ public class SelectTests : IntegrationTestBase
     [Fact]
     public void SelectIntPropertyToList_ReturnsPropertyList()
     {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
+        List<int> points = s.Query<Person>().Select(x => x.Points).ToList();
+
+        List<Person> persons = PersonTestData.GetPersonTestData().ToList();
+
+        points.Should().HaveCount(persons.Count);
+
+        foreach (Person p in persons)
+        {
+            points.Should().Contain(p.Points);
+        }
     }
 }
