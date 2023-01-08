@@ -14,7 +14,7 @@ public class IntegrationTestBase : IDisposable
         Initialize();
     }
     
-    protected void AddTestPerson()
+    protected void InsertSingleTestPerson()
     {
         using IArgoDocumentSession s = Store.OpenSession();
 

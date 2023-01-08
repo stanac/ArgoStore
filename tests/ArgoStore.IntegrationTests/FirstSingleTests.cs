@@ -22,7 +22,7 @@ public class FirstSingleTests : IntegrationTestBase
     {
         using IArgoDocumentSession s = Store.OpenSession();
 
-        AddTestPerson();
+        InsertSingleTestPerson();
 
         Person p = s.Query<Person>().FirstOrDefault();
         p.Should().NotBeNull();
@@ -42,7 +42,7 @@ public class FirstSingleTests : IntegrationTestBase
     {
         using IArgoDocumentSession s = Store.OpenSession();
 
-        AddTestPerson();
+        InsertSingleTestPerson();
 
         Person p = s.Query<Person>().First();
         p.Should().NotBeNull();
@@ -62,7 +62,7 @@ public class FirstSingleTests : IntegrationTestBase
     {
         using IArgoDocumentSession s = Store.OpenSession();
 
-        AddTestPerson();
+        InsertSingleTestPerson();
 
         Person p = s.Query<Person>().SingleOrDefault();
         p.Should().NotBeNull();
@@ -93,7 +93,7 @@ public class FirstSingleTests : IntegrationTestBase
     {
         using IArgoDocumentSession s = Store.OpenSession();
 
-        AddTestPerson();
+        InsertSingleTestPerson();
 
         Person p = s.Query<Person>().Single();
         p.Should().NotBeNull();
