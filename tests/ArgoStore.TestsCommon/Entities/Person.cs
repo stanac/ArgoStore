@@ -17,6 +17,7 @@ namespace ArgoStore.TestsCommon.Entities
         public List<string> Roles { get; set; }
         public DateTimeOffset RegistrationTime { get; set; }
         public DateTime? CakeDay { get; set; }
+        public PersonTypes Type { get; set; }
         public string NickName { get; set; }
 
         public Person Copy()

@@ -125,7 +125,8 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                 Id = GetIdGuid(i),
                 NickName = _names[i].Split(' ')[0],
                 RegistrationTime = GetRegistrationTime(i),
-                Roles = GetRoles(i)
+                Roles = GetRoles(i),
+                Type = (PersonTypes)(i % 3)
             };
         }
     }
