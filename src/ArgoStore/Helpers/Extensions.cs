@@ -16,8 +16,7 @@ internal static class Extensions
 
     public static bool IsAnonymousType(this Type type)
     {
-        return type.IsGenericType
-               && type.Name.Contains("AnonymousType")
+        return type.Name.Contains("AnonymousType")
                && type.Namespace == null
                && type.IsSealed
                && type.GetCustomAttribute<CompilerGeneratedAttribute>() != null;

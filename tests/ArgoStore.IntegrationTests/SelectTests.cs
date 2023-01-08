@@ -1,5 +1,6 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
+// ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace ArgoStore.IntegrationTests;
 
@@ -100,5 +101,25 @@ public class SelectTests : IntegrationTestBase
             Person p = persons.SingleOrDefault(x => x.Points == r.NewPoints);
             p.Should().NotBeNull();
         }
+    }
+
+    [Fact]
+    public void SelectAnonymousEmptyObject_ThrowsException()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        Action a = () => s.Query<Person>()
+            .Select(x => new { })
+            .ToList();
+
+        a.Should().Throw<NotSupportedException>();
+    }
+
+    [Fact]
+    public void SelectAnonymousObjectWithConstants_ReturnsExpected()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        var selected = s.Query<Person>().Select(x => new { x.Points, IsSelected = true, Value = 5 }).ToList();
     }
 }
