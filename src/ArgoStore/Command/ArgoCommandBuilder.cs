@@ -123,7 +123,7 @@ internal class ArgoCommandBuilder
         {
             sb.Append("SELECT ");
 
-            foreach (SelectPropertyStatement s in sat.SelectElements)
+            foreach (SelectValueStatement s in sat.SelectElements)
             {
                 sb.Append("json_set(");
             }
@@ -139,8 +139,18 @@ internal class ArgoCommandBuilder
 
                 string propName = ConvertPropertyCase(sat.SelectElements[i].ResultName);
                 sb.Append("'$.").Append(propName).Append("', ");
-                sb.Append(GetPropertyExtraction(sat.SelectElements[i].Name));
-                sb.Append(")");
+
+                if (sat.SelectElements[i] is SelectPropertyStatement sps1)
+                {
+                    sb.Append(GetPropertyExtraction(sps1.Name));
+                }
+                else if (sat.SelectElements[i] is SelectParameterStatement sps2)
+                {
+                    string paramName = _params.AddNewParameter(sps2.Value);
+                    sb.Append("@").Append(paramName);
+                }
+
+                sb.AppendLine(")");
             }
         }
         else

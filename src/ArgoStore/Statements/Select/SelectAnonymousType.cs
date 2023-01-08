@@ -3,9 +3,9 @@
 internal class SelectAnonymousType : SelectStatementBase
 {
     public Type AnonymousType { get; }
-    public List<SelectPropertyStatement> SelectElements { get; }
+    public List<SelectValueStatement> SelectElements { get; }
 
-    public SelectAnonymousType(Type anonymousType, List<SelectPropertyStatement> selectElements)
+    public SelectAnonymousType(Type anonymousType, List<SelectValueStatement> selectElements)
     {
         AnonymousType = anonymousType;
         SelectElements = selectElements;

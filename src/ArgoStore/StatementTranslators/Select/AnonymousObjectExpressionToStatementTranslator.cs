@@ -16,7 +16,7 @@ internal class AnonymousObjectExpressionToStatementTranslator : ISelectStatement
     {
         NewExpression ne = (NewExpression)expression;
 
-        List<SelectPropertyStatement> selectStatementElements = new List<SelectPropertyStatement>();
+        List<SelectValueStatement> selectStatementElements = new List<SelectValueStatement>();
 
         for (var i = 0; i < ne.Arguments.Count; i++)
         {
@@ -25,14 +25,10 @@ internal class AnonymousObjectExpressionToStatementTranslator : ISelectStatement
 
             SelectStatementBase selectElement = SelectToStatementTranslatorStrategies.Translate(e);
 
-            if (selectElement is SelectPropertyStatement sps)
+            if (selectElement is SelectValueStatement sv)
             {
-                if (sps.Name != m.Name)
-                {
-                    sps.ResultName = m.Name;
-                }
-
-                selectStatementElements.Add(sps);
+                sv.SetResultName(m.Name);
+                selectStatementElements.Add(sv);
             }
             else
             {

@@ -1,6 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
+// ReSharper disable AccessToDisposedClosure
 
 namespace ArgoStore.IntegrationTests;
 
@@ -120,6 +121,12 @@ public class SelectTests : IntegrationTestBase
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        var selected = s.Query<Person>().Select(x => new { x.Points, IsSelected = true, Value = 5 }).ToList();
+        var selected = s.Query<Person>()
+            .Select(x => new { x.Points, IsSelected = true, Value = 5 })
+            .ToList();
+
+        List<Person> persons = PersonTestData.GetPersonTestData().ToList();
+        selected.Should().HaveCount(persons.Count);
+
     }
 }

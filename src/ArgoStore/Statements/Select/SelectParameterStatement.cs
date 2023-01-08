@@ -1,15 +1,14 @@
 ﻿namespace ArgoStore.Statements.Select;
 
-internal class SelectPropertyStatement : SelectValueStatement
+internal class SelectParameterStatement : SelectValueStatement
 {
     private string _resultName;
-    public string Name { get; }
+    public object Value { get; }
     public override string ResultName => _resultName;
 
-    public SelectPropertyStatement(string name)
+    public SelectParameterStatement(object value)
     {
-        Name = name;
-        _resultName = name;
+        Value = value;
     }
 
     public override void SetResultName(string name)
