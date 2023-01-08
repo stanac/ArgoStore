@@ -1,4 +1,5 @@
 ﻿using ArgoStore.TestsCommon.Entities;
+using ArgoStore.TestsCommon.TestData;
 
 namespace ArgoStore.IntegrationTests;
 
@@ -37,5 +38,34 @@ public class DistinctTests : IntegrationTestBase
         string[] sValues = values.Select(x => $"{x.NumberOfPorts} {x.OddNumberOfPorts}").ToArray();
 
         sValues.Distinct().Count().Should().Be(sValues.Length);
+    }
+
+    [Fact]
+    public void DistinctNumberOnWhere_GivesExpectedResults()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        List<int> values = s.Query<Person>()
+            .Where(x => x.BirthYear.HasValue)
+            .Select(x => x.BirthYear.Value)
+            // .Where(x => x > 0)
+            .Distinct()
+            .ToList();
+
+        values = values.OrderBy(x => x).ToList();
+
+        List<int> expectedValues = PersonTestData.GetPersonTestData()
+            .Where(x => x.BirthYear.HasValue)
+            .Select(x => x.BirthYear.Value)
+            .Distinct()
+            .OrderBy(x => x)
+            .ToList();
+
+        values.Should().HaveCount(expectedValues.Count);
+
+        for (int i = 0; i < values.Count; i++)
+        {
+            values[i].Should().Be(expectedValues[i]);
+        }
     }
 }

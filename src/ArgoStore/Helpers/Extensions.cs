@@ -21,4 +21,10 @@ internal static class Extensions
                && type.IsSealed
                && type.GetCustomAttribute<CompilerGeneratedAttribute>() != null;
     }
+
+    public static bool IsNullableType(this Type type)
+    {
+        return type.IsGenericType
+               && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+    }
 }
