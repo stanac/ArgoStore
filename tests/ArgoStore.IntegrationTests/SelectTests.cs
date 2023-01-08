@@ -130,5 +130,12 @@ public class SelectTests : IntegrationTestBase
         List<Person> persons = PersonTestData.GetPersonTestData().ToList();
         selected.Should().HaveCount(persons.Count);
 
+        foreach (var r in selected)
+        {
+            Person p = persons.SingleOrDefault(x => x.Points == r.Points);
+
+            r.Value.Should().Be(5);
+            r.IsSelected.Should().BeTrue();
+        }
     }
 }

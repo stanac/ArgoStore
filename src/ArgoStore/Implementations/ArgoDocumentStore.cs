@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
 using ArgoStore.Config;
+using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.Implementations;
@@ -23,6 +24,8 @@ public class ArgoDocumentStore
             PropertyNameCaseInsensitive = false,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
+
+        _serializerOptions.Converters.Add(new IntToBoolJsonSerializerConverterFactory());
     }
 
     public IArgoDocumentSession OpenSession() => OpenSession(ArgoSession.DefaultTenant);
