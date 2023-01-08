@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using ArgoStore.Command;
 using ArgoStore.Statements.Select;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;

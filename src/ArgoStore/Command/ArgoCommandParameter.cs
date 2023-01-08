@@ -1,4 +1,4 @@
-﻿namespace ArgoStore;
+﻿namespace ArgoStore.Command;
 
 public class ArgoCommandParameter
 {

@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using Microsoft.Data.Sqlite;
 
-namespace ArgoStore;
+namespace ArgoStore.Command;
 
 public class ArgoCommand
 {
@@ -13,7 +13,7 @@ public class ArgoCommand
     public Type ResultingType { get; }
     public bool IsResultingTypeJson { get; }
     public bool ContainsLikeOperator { get; }
-    
+
     public ArgoCommand(string sql, ArgoCommandParameterCollection parameters, ArgoCommandTypes commandType, Type resultingType,
         bool isResultingTypeJson, bool containsLikeOperator)
     {
@@ -24,7 +24,7 @@ public class ArgoCommand
         IsResultingTypeJson = isResultingTypeJson;
         ContainsLikeOperator = containsLikeOperator;
     }
-    
+
     public SqliteCommandCollection ToSqliteCommands()
     {
         SqliteCommand[] cmds = ContainsLikeOperator

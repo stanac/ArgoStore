@@ -1,11 +1,11 @@
 ﻿using System.Collections;
 
-namespace ArgoStore;
+namespace ArgoStore.Command;
 
 public class ArgoCommandParameterCollection : IEnumerable<ArgoCommandParameter>
 {
     private readonly Dictionary<string, object> _parameters = new();
-    
+
     public IEnumerator<ArgoCommandParameter> GetEnumerator()
     {
         foreach (KeyValuePair<string, object> pair in _parameters)

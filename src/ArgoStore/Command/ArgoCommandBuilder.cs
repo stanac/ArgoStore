@@ -7,14 +7,14 @@ using ArgoStore.StatementTranslators.Select;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
-namespace ArgoStore;
+namespace ArgoStore.Command;
 
 internal class ArgoCommandBuilder
 {
     private readonly Type _docType;
     private readonly ArgoCommandParameterCollection _params = new();
     private bool _containsLikeOperator;
-    
+
     public DocumentMetadata Metadata { get; private set; }
     public List<WhereStatement> WhereStatements = new();
     public SelectStatementBase SelectStatement { get; private set; }
@@ -27,7 +27,7 @@ internal class ArgoCommandBuilder
     public string ItemName { get; set; }
 
     public ArgoCommandBuilder(QueryModel model)
-        : this (model.MainFromClause.ItemType)
+        : this(model.MainFromClause.ItemType)
     {
     }
 
@@ -76,7 +76,7 @@ internal class ArgoCommandBuilder
                     : ArgoCommandTypes.Single;
             }
         }
-        
+
         return new ArgoCommand(sql, _params, cmdType, ResultingType, IsResultingTypeJson, _containsLikeOperator);
     }
 
@@ -84,7 +84,7 @@ internal class ArgoCommandBuilder
     {
         WhereStatements.Add(new WhereStatement(whereClause));
     }
-    
+
     public void SetSelectStatement(SelectStatementBase selectStatement)
     {
         SelectStatement = selectStatement;
@@ -168,7 +168,7 @@ internal class ArgoCommandBuilder
     private void AppendWhereStatement(StringBuilder sb, WhereStatementBase statement)
     {
         sb.Append(" ");
-        
+
         switch (statement)
         {
             case WhereComparisonStatement wcs:
@@ -299,7 +299,7 @@ internal class ArgoCommandBuilder
             left = new WhereStringTransformStatement(left, StringTransformTypes.ToLower);
             right = new WhereStringTransformStatement(right, StringTransformTypes.ToLower);
         }
-        
+
         AppendWhereStatement(sb, left);
 
         sb.Append(" LIKE ");
@@ -328,7 +328,7 @@ internal class ArgoCommandBuilder
 
         return $"json_extract({alias}.jsonData, '$.{propertyName}')";
     }
-    
+
     private void AppendLimit(StringBuilder sb)
     {
         if (IsSelectFirstOrSingle)
@@ -336,7 +336,7 @@ internal class ArgoCommandBuilder
             sb.Append("LIMIT 1");
         }
     }
-    
+
     private string ConvertPropertyCase(string propertyName)
     {
         return JsonNamingPolicy.CamelCase.ConvertName(propertyName).Replace("'", "''");

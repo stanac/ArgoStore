@@ -3,7 +3,7 @@ using System.Text.Json;
 using ArgoStore.CrudOperations;
 using Microsoft.Data.Sqlite;
 
-namespace ArgoStore;
+namespace ArgoStore.Command;
 
 internal class ArgoCommandExecutor
 {
@@ -22,14 +22,14 @@ internal class ArgoCommandExecutor
         {
             case ArgoCommandTypes.NonQuery:
                 throw new NotImplementedException();
-            
+
             case ArgoCommandTypes.Count:
             case ArgoCommandTypes.LongCount:
                 return ExecuteCount(command);
-                
+
             case ArgoCommandTypes.ToList:
                 return ExecuteToList(command);
-                
+
             case ArgoCommandTypes.First:
             case ArgoCommandTypes.FirstOrDefault:
                 return ExecuteFirstOrDefault(command);
@@ -37,7 +37,7 @@ internal class ArgoCommandExecutor
             case ArgoCommandTypes.Single:
             case ArgoCommandTypes.SingleOrDefault:
                 return ExecuteSingleOrDefault(command);
-            
+
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -50,7 +50,7 @@ internal class ArgoCommandExecutor
         cmds.Connection = con;
 
         SqliteCommand cmd = ExecutePreCommandsAndGetCommand(cmds);
-        
+
         SqliteDataReader reader = cmd.ExecuteReader();
 
         IList result = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(command.ResultingType));
@@ -75,7 +75,7 @@ internal class ArgoCommandExecutor
 
         return result;
     }
-    
+
     public object ExecuteFirstOrDefault(ArgoCommand command)
     {
         using SqliteConnection con = CreateAndOpenConnection();
@@ -95,7 +95,7 @@ internal class ArgoCommandExecutor
 
             return null;
         }
-        
+
         return JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions);
     }
 
@@ -132,7 +132,7 @@ internal class ArgoCommandExecutor
 
         SqliteCommand cmd = ExecutePreCommandsAndGetCommand(cmds);
 
-        object result = cmd.ExecuteScalar() 
+        object result = cmd.ExecuteScalar()
                         ?? throw new InvalidOperationException("Unexpected null result on ExecuteCount(ArgoCommand command)");
 
         long ret;
@@ -142,7 +142,7 @@ internal class ArgoCommandExecutor
 
         if (command.CommandType == ArgoCommandTypes.Count)
         {
-            return (int) ret;
+            return (int)ret;
         }
 
         return ret;
@@ -264,7 +264,7 @@ internal class ArgoCommandExecutor
         cmd.Transaction = tr;
         cmd.ExecuteNonQuery();
     }
-    
+
     private SqliteConnection CreateAndOpenConnection()
     {
         SqliteConnection c = new SqliteConnection(_connectionString);

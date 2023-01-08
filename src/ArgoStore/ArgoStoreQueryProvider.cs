@@ -1,5 +1,6 @@
 ﻿using Remotion.Linq;
 using System.Linq.Expressions;
+using ArgoStore.Command;
 
 namespace ArgoStore;
 
