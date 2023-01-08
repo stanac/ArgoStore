@@ -92,6 +92,10 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         {
             throw new NotSupportedException("Linq methods Last and LastOrDefault are not supported.");
         }
+        else if (resultOperator is GroupResultOperator)
+        {
+            throw new NotSupportedException("Grouping is not supported in current version.");
+        }
         else if (resultOperator is DistinctResultOperator)
         {
             CommandBuilder.SetIsDistinct(true);
