@@ -133,6 +133,7 @@ public class SelectTests : IntegrationTestBase
         foreach (var r in selected)
         {
             Person p = persons.SingleOrDefault(x => x.Points == r.Points);
+            p.Should().NotBeNull();
 
             r.Value.Should().Be(5);
             r.IsSelected.Should().BeTrue();
