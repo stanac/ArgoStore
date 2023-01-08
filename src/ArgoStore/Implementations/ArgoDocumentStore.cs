@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ArgoStore.Config;
 using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;
@@ -26,6 +27,7 @@ public class ArgoDocumentStore
         };
 
         _serializerOptions.Converters.Add(new IntToBoolJsonSerializerConverterFactory());
+        _serializerOptions.Converters.Add(new JsonStringEnumConverter());
     }
 
     public IArgoDocumentSession OpenSession() => OpenSession(ArgoSession.DefaultTenant);

@@ -22,6 +22,7 @@ internal class ArgoCommandBuilder
     public SelectStatementBase SelectStatement { get; private set; }
     public Type ResultingType { get; private set; }
     public bool IsResultingTypeJson { get; private set; } = true;
+    public bool IsDistinct { get; private set; }
 
     public bool IsSelectCount => SelectStatement is SelectCountStatement;
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
@@ -37,6 +38,11 @@ internal class ArgoCommandBuilder
     {
         _docType = docType;
         ResultingType = docType;
+    }
+
+    public void SetIsDistinct(bool value)
+    {
+        IsDistinct = true;
     }
 
     public ArgoCommand Build(IReadOnlyDictionary<string, DocumentMetadata> documentTypes, string tenantId)
@@ -115,13 +121,25 @@ internal class ArgoCommandBuilder
         }
         else if (SelectStatement is SelectPropertyStatement sps)
         {
-            sb.Append("SELECT json_insert('{}', '$.value', ")
+            sb.Append("SELECT ");
+
+            if (IsDistinct)
+            {
+                sb.Append("DISTINCT ");
+            }
+
+            sb.Append("json_insert('{}', '$.value', ")
                 .Append(GetPropertyExtraction(sps.Name))
                 .AppendLine(")");
         }
         else if (SelectStatement is SelectAnonymousType sat)
         {
             sb.Append("SELECT ");
+
+            if (IsDistinct)
+            {
+                sb.Append("DISTINCT ");
+            }
 
             foreach (SelectValueStatement s in sat.SelectElements)
             {
@@ -365,4 +383,5 @@ internal class ArgoCommandBuilder
 
         return types[0].Value;
     }
+
 }
