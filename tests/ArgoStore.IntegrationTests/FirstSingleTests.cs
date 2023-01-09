@@ -18,7 +18,7 @@ public class FirstSingleTests : IntegrationTestBase
     }
 
     [Fact]
-    public void NonEmptyTable_FirstOrDefault_ReturnsEntity()
+    public void NonEmptyTable_FirstOrDefault_ReturnsDocument()
     {
         using IArgoDocumentSession s = Store.OpenSession();
 
@@ -38,7 +38,7 @@ public class FirstSingleTests : IntegrationTestBase
     }
 
     [Fact]
-    public void NonEmptyTable_First_ReturnsEntity()
+    public void NonEmptyTable_First_ReturnsDocument()
     {
         using IArgoDocumentSession s = Store.OpenSession();
 

@@ -7,7 +7,7 @@ namespace ArgoStore.CrudOperations;
 
 internal class InsertOperation : CrudOperation
 {
-    public InsertOperation(DocumentMetadata metadata, object document, string tenantId) : base(metadata, document, tenantId)
+    public InsertOperation(DocumentMetadata metadata, object document, string tenantId) : base(metadata, document, tenantId, null)
     {
         if (metadata.IsKeyPropertyString)
         {

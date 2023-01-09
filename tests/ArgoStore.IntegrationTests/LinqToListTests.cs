@@ -6,7 +6,7 @@ namespace ArgoStore.IntegrationTests;
 public class LinqToListTests : IntegrationTestBase
 {
     [Fact]
-    public void NoEntity_ToList_GivesEmptyList()
+    public void NoDocuments_ToList_GivesEmptyList()
     {
         IArgoDocumentSession s = Store.OpenSession();
         
@@ -15,7 +15,7 @@ public class LinqToListTests : IntegrationTestBase
     }
 
     [Fact]
-    public void SingleEntity_ToList_GivesListWithOfOne()
+    public void SingleDocument_ToList_GivesListWithOfOne()
     {
         using IArgoDocumentSession s = Store.OpenSession();
         s.Insert(PersonTestData.GetPersonTestData().First());

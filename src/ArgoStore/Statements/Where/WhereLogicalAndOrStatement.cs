@@ -3,11 +3,11 @@
 internal class WhereLogicalAndOrStatement : WhereStatementBase
 {
     public bool IsAnd { get; }
-    public WhereComparisonStatement Left { get; }
-    public WhereComparisonStatement Right { get; }
+    public WhereStatementBase Left { get; }
+    public WhereStatementBase Right { get; }
     public bool IsOr => !IsAnd;
 
-    public WhereLogicalAndOrStatement(bool isAnd, WhereComparisonStatement left, WhereComparisonStatement right)
+    public WhereLogicalAndOrStatement(bool isAnd, WhereStatementBase left, WhereStatementBase right)
     {
         IsAnd = isAnd;
         Left = left;

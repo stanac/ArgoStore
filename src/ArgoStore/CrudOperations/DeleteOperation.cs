@@ -6,18 +6,20 @@ namespace ArgoStore.CrudOperations;
 
 internal class DeleteOperation : CrudOperation
 {
-    public DeleteOperation(DocumentMetadata metadata, object document, string tenantId) 
-        : base(metadata, document, tenantId)
+    public DeleteOperation(DocumentMetadata metadata, object document, string tenantId, object documentId)
+        : base(metadata, document, tenantId, documentId)
     {
     }
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object id = Metadata.GetPrimaryKeyValue(Document, out _);
+        object id = DocumentId ?? Metadata.GetPrimaryKeyValue(Document, out _);
 
-        string sql = Metadata.IsKeyPropertyInt
-            ? $"DELETE FROM {Metadata.DocumentName} WHERE serialId = @id AND tenantId = @tenantId"
-            : $"DELETE FROM {Metadata.DocumentName} WHERE stringId = @id AND tenantId = @tenantId";
+        string idPropName = Metadata.IsKeyPropertyInt
+            ? "serialId"
+            : "stringId";
+
+        string sql = $"DELETE FROM {Metadata.DocumentName} WHERE {idPropName} = @id AND tenantId = @tenantId";
 
         SqliteCommand cmd = new SqliteCommand(sql);
         cmd.Parameters.AddWithValue("id", id);

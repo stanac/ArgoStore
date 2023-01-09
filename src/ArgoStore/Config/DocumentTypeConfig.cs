@@ -2,7 +2,7 @@
 
 internal class DocumentTypeConfig
 {
-    public DocumentTypeConfig(Type entityName)
+    public DocumentTypeConfig(Type documentName)
     {
 
     }

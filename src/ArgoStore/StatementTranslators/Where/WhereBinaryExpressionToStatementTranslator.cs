@@ -18,7 +18,7 @@ internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTra
 
     public bool CanTranslate(Expression expression)
     {
-        return expression is BinaryExpression;
+        return expression is BinaryExpression && _supportedExTypes.Contains(expression.NodeType);
     }
 
     public WhereStatementBase Translate(Expression expression)

@@ -8,7 +8,7 @@ namespace ArgoStore.CrudOperations;
 internal class UpdateOperation : CrudOperation
 {
     public UpdateOperation(DocumentMetadata metadata, object document, string tenantId) 
-        : base(metadata, document, tenantId)
+        : base(metadata, document, tenantId, null)
     {
     }
 

@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Linq.Expressions;
+using System.Text.Json;
 using ArgoStore.Command;
 using ArgoStore.Config;
 using ArgoStore.CrudOperations;
@@ -81,31 +82,71 @@ internal class ArgoSession : IArgoDocumentSession
         return new ArgoCommandExecutor(_connectionString, _serializerOptions);
     }
 
-    public void Insert<T>(T[] entities) where T : class, new()
+    public void Insert<T>(T[] documents) where T : class, new()
     {
         DocumentMetadata meta = GetRequiredMetadata<T>();
 
-        foreach (T entity in entities)
+        foreach (T doc in documents)
         {
-            _crudOps.Add(new InsertOperation(meta, entity, TenantId));
+            _crudOps.Add(new InsertOperation(meta, doc, TenantId));
+        }
+    }
+    
+    public void DeleteById<T>(params object[] documentIds)
+    {
+        if (documentIds == null) throw new ArgumentNullException(nameof(documentIds));
+
+        if (documentIds.Any(x => x is null))
+        {
+            throw new ArgumentException("Array contains null value", nameof(documentIds));
+        }
+
+        if (documentIds.Length == 0)
+        {
+            return;
+        }
+        
+        DocumentMetadata meta = GetRequiredMetadata<T>();
+
+        Type idType = GetValidateSingleDocumentIdsType(documentIds);
+
+        if (idType != meta.KeyPropertyType)
+        {
+            throw new ArgumentException(
+                $"Expected document id to be of type `{meta.KeyPropertyType.FullName}` but got `{idType.FullName}`", 
+                nameof(documentIds)
+                );
+        }
+
+        foreach (object documentId in documentIds)
+        {
+            _crudOps.Add(new DeleteOperation(meta, null, TenantId, documentId));
         }
     }
 
-    private DocumentMetadata GetRequiredMetadata<T>()
+    public void Delete(params object[] document)
     {
-        return GetRequiredMetadata(typeof(T));
-    }
-
-    private DocumentMetadata GetRequiredMetadata(Type type)
-    {
-        KeyValuePair<string, DocumentMetadata>[] items = DocumentTypes.Where(x => x.Value.DocumentType == type).ToArray();
-
-        if (items.Length == 0)
+        if (document == null) throw new ArgumentNullException(nameof(document));
+        if (document.Any(x => x is null))
         {
-            throw new InvalidOperationException($"Metadata for document type `{type.FullName}` not registered.");
+            throw new ArgumentException("Collection cannot contain null", nameof(document));
         }
 
-        return items[0].Value;
+        foreach (object o in document)
+        {
+            DeleteInner(o);
+        }
+    }
+    
+    public void DeleteWhere<T>(Expression<Func<T, bool>> predicate)
+        where T : class, new()
+    {
+        List<T> items = Query<T>().Where(predicate).ToList();
+
+        foreach (T item in items)
+        {
+            DeleteInner(item);
+        }
     }
 
     public void SaveChanges()
@@ -127,4 +168,48 @@ internal class ArgoSession : IArgoDocumentSession
     {
         DiscardChanges();
     }
+
+    private void DeleteInner(object document)
+    {
+        if (document == null) throw new ArgumentNullException(nameof(document));
+
+        DocumentMetadata meta = GetRequiredMetadata(document.GetType());
+
+        _crudOps.Add(new DeleteOperation(meta, document, TenantId, null));
+    }
+
+    private DocumentMetadata GetRequiredMetadata<T>()
+    {
+        return GetRequiredMetadata(typeof(T));
+    }
+
+    private DocumentMetadata GetRequiredMetadata(Type type)
+    {
+        KeyValuePair<string, DocumentMetadata>[] items = DocumentTypes.Where(x => x.Value.DocumentType == type).ToArray();
+
+        if (items.Length == 0)
+        {
+            throw new InvalidOperationException($"Metadata for document type `{type.FullName}` not registered.");
+        }
+
+        return items[0].Value;
+    }
+
+    private Type GetValidateSingleDocumentIdsType(object[] documentIds)
+    {
+        Type[] types = new Type[documentIds.Length];
+
+        for (int i = 0; i < documentIds.Length; i++)
+        {
+            types[i] = documentIds[i].GetType();
+        }
+
+        if (types.Distinct().Count() != 1)
+        {
+            throw new ArgumentException("Expected values to be of same type.", nameof(documentIds));
+        }
+
+        return types[0];
+    }
+
 }
