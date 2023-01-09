@@ -60,40 +60,11 @@ internal class DocumentMetadata
         }
     }
 
-    private PropertyInfo GetKeyProperty(Type documentType)
+    public DocumentMetadata(Type documentType, string pkPropertyName, string documentTableName, List<DocumentIndexMetadata> indexes)
     {
-        string name = documentType.Name;
-        string[] allowedKeyNames = { "Key", "Id", name + "Key", name + "Id" };
 
-        PropertyInfo[] keyProps = documentType.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-            .Where(x => allowedKeyNames.Contains(x.Name))
-            .ToArray();
-
-        string allowedJoined = $"For document of type `{documentType.FullName}` following keys are checked: `" + string.Join("`, `", allowedKeyNames) + "`.";
-
-        if (keyProps.Length == 0)
-        {
-            throw new InvalidOperationException("Failed to find primary keys property. " + allowedJoined);
-        }
-
-        if (keyProps.Length > 1)
-        {
-            throw new InvalidOperationException("Multiple primary keys properties found. " + allowedJoined);
-        }
-
-        var keyProp = keyProps[0];
-
-        if (!_allowedKeyTypes.Contains(keyProp.PropertyType))
-        {
-            throw new InvalidOperationException(
-                $"For document of type `{documentType.FullName}` primary key property " +
-                $"`{keyProp.Name}` is of type `{keyProp.PropertyType.FullName}` which is not supported. " +
-                $"Supported types for primary key property are: {AllowedPrimaryKeyTypeNames}.");
-        }
-
-        return keyProp;
     }
-
+    
     public object GetPrimaryKeyValue(object doc, out bool isDefaultValue)
     {
         if (doc == null) throw new ArgumentNullException(nameof(doc));
@@ -241,6 +212,39 @@ internal class DocumentMetadata
         }
 
         return pk;
+    }
+
+    internal static PropertyInfo GetKeyProperty(Type entityType)
+    {
+        PropertyInfo[] props = entityType.GetProperties();
+
+        List<string> expectedKeyPropertyNames = new()
+        {
+            "Id",
+            "Key",
+            entityType.Name + "Id",
+            entityType.Name + "Key"
+        };
+
+        List<PropertyInfo> prop = props.Where(x => x.CanRead && x.CanWrite && expectedKeyPropertyNames.Contains(x.Name)).ToList();
+
+        if (prop.Count == 1)
+        {
+            return prop[0];
+        }
+
+        string expectedNames = "`" + string.Join("`, `", expectedKeyPropertyNames) + "`";
+
+        if (prop.Count == 0)
+        {
+            throw new InvalidOperationException(
+                "Cannot find public property with public getter and setter to use as primary key " +
+                $"for `{entityType.Name}`, looked for {expectedNames}.");
+        }
+
+        throw new InvalidOperationException(
+            "Found multiple public properties with public getter and setter to use as primary key " +
+            $"for `{entityType.Name}`, looked for {expectedNames}.");
     }
 
     private static void EnsureTypeIsValid(Type documentType, string documentName)
