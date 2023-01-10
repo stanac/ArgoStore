@@ -16,7 +16,7 @@ internal abstract class DocumentConfiguration
     {
         string pkProperty = GetPrimaryKey();
         List<DocumentIndexMetadata> indexes = GetIndexes().ToList();
-        return new DocumentMetadata(DocumentType, DocumentName, pkProperty, indexes);
+        return new DocumentMetadata(DocumentType, pkProperty, DocumentName, indexes);
     }
 
     private string GetPrimaryKey()

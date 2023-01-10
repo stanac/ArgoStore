@@ -9,22 +9,22 @@ namespace ArgoStore.Implementations;
 internal class ArgoSession : IArgoDocumentSession
 {
     public string TenantId { get; }
-    public IReadOnlyDictionary<string, DocumentMetadata> DocumentTypes { get; }
+    public IReadOnlyDictionary<Type, DocumentMetadata> DocumentTypesMetaMap { get; }
     private readonly string _connectionString;
     private readonly JsonSerializerOptions _serializerOptions;
     internal const string DefaultTenant = "DEFAULT";
 
     private readonly List<CrudOperation> _crudOps = new();
 
-    public ArgoSession(string connectionString, IReadOnlyDictionary<string, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
+    public ArgoSession(string connectionString, IReadOnlyDictionary<Type, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
         : this(connectionString, DefaultTenant, documentTypes, serializerOptions)
     {
     }
 
-    public ArgoSession(string connectionString, string tenantId, IReadOnlyDictionary<string, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
+    public ArgoSession(string connectionString, string tenantId, IReadOnlyDictionary<Type, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
     {
         TenantId = tenantId;
-        DocumentTypes = documentTypes ?? throw new ArgumentNullException(nameof(documentTypes));
+        DocumentTypesMetaMap = documentTypes ?? throw new ArgumentNullException(nameof(documentTypes));
         _connectionString = connectionString;
         _serializerOptions = serializerOptions;
     }
@@ -185,14 +185,12 @@ internal class ArgoSession : IArgoDocumentSession
 
     private DocumentMetadata GetRequiredMetadata(Type type)
     {
-        KeyValuePair<string, DocumentMetadata>[] items = DocumentTypes.Where(x => x.Value.DocumentType == type).ToArray();
-
-        if (items.Length == 0)
+        if (DocumentTypesMetaMap.TryGetValue(type, out DocumentMetadata meta))
         {
-            throw new InvalidOperationException($"Metadata for document type `{type.FullName}` not registered.");
+            return meta;
         }
 
-        return items[0].Value;
+        throw new InvalidOperationException($"Type `{type.FullName}` is not registered.");
     }
 
     private Type GetValidateSingleDocumentIdsType(object[] documentIds)

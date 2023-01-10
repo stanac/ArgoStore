@@ -1,8 +1,6 @@
-﻿using ArgoStore.Implementations;
+﻿namespace ArgoStore.Config;
 
-namespace ArgoStore.Config;
-
-internal class DocumentStoreConfiguration
+internal class DocumentStoreConfiguration : IArgoStoreConfiguration
 {
     private string _connectionString;
     private bool _createNonConfiguredEntities;
@@ -12,6 +10,11 @@ internal class DocumentStoreConfiguration
     {
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
         _connectionString = connectionString;
+    }
+
+    public IDocumentConfiguration<TDocument> Document<TDocument>() where TDocument : class, new()
+    {
+        throw new NotImplementedException();
     }
 
     public void CreateNotConfiguredEntities(bool createNonConfiguredEntities)
@@ -41,8 +44,7 @@ internal class DocumentStoreConfiguration
         Dictionary<Type, DocumentMetadata> meta = CreateMetadata();
 
         return new ArgoStoreConfiguration(
-            _connectionString, _createNonConfiguredEntities,
-            meta, ArgoSession.DefaultTenant
+            _connectionString, _createNonConfiguredEntities, meta
         );
     }
 

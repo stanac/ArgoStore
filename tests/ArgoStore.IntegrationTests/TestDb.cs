@@ -9,7 +9,7 @@ public abstract class TestDb : IDisposable
     public abstract string ConnectionString { get; }
 
     public static TestDb CreateNew() => 
-     //   new OnDiskTestDb();
+        // new OnDiskTestDb();
         new InMemoryTestDb();
 
     public abstract void Dispose();

@@ -6,7 +6,7 @@ namespace ArgoStore;
 /// Configuration for specific Entity
 /// </summary>
 /// <typeparam name="TDocument">Entity type</typeparam>
-internal interface IDocumentConfiguration<TDocument> where TDocument : class, new()
+public interface IDocumentConfiguration<TDocument> where TDocument : class, new()
 {
     /// <summary>
     /// Sets primary key

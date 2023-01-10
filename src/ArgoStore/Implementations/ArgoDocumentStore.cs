@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using ArgoStore.Config;
 using ArgoStore.Helpers;
-using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.Implementations;
 
@@ -11,109 +10,78 @@ public class ArgoDocumentStore
 {
     private readonly string _connectionString;
     private readonly JsonSerializerOptions _serializerOptions;
-
-    private readonly ConcurrentDictionary<string, DocumentMetadata> _documents = new();
+    private readonly SqlDataDefinitionExecutor _ddExec;
+    private readonly ConcurrentDictionary<Type, DocumentMetadata> _docTypeMetaMap = new();
 
     public ArgoDocumentStore(string connectionString)
     {
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
 
         _connectionString = connectionString;
+        _ddExec = new SqlDataDefinitionExecutor(_connectionString);
 
-        _serializerOptions = new JsonSerializerOptions
+        _serializerOptions = CreateJsonSerializerOptions();
+    }
+
+    public ArgoDocumentStore(Action<IArgoStoreConfiguration> configure)
+    {
+        if (configure == null) throw new ArgumentNullException(nameof(configure));
+
+        DocumentStoreConfiguration config = new DocumentStoreConfiguration();
+        configure(config);
+
+        ArgoStoreConfiguration c = config.CreateConfiguration();
+
+        _connectionString = c.ConnectionString;
+        _ddExec = new SqlDataDefinitionExecutor(_connectionString);
+
+        foreach (KeyValuePair<Type, DocumentMetadata> pair in _docTypeMetaMap)
         {
-            PropertyNameCaseInsensitive = false,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-
-        _serializerOptions.Converters.Add(new IntToBoolJsonSerializerConverterFactory());
-        _serializerOptions.Converters.Add(new JsonStringEnumConverter());
+            _ddExec.CreateDocumentObjects(pair.Value);
+        }
     }
 
     public IArgoDocumentSession OpenSession() => OpenSession(ArgoSession.DefaultTenant);
 
     public IArgoDocumentSession OpenSession(string tenantId)
     {
-        return new ArgoSession(_connectionString, tenantId, _documents, _serializerOptions);
+        return new ArgoSession(_connectionString, tenantId, _docTypeMetaMap, _serializerOptions);
     }
 
     public IArgoQueryDocumentSession OpenQuerySession() => OpenQuerySession(ArgoSession.DefaultTenant);
 
     public IArgoQueryDocumentSession OpenQuerySession(string tenantId)
     {
-        return new ArgoSession(_connectionString, tenantId, _documents, _serializerOptions);
+        return new ArgoSession(_connectionString, tenantId, _docTypeMetaMap, _serializerOptions);
     }
 
-    public void RegisterDocumentType<TDocument>()
-        where TDocument : class, new()
+    public void RegisterDocumentType<T>() where T : class, new()
     {
-        RegisterDocumentType<TDocument>(typeof(TDocument).Name);
+        RegisterDocumentType<T>(_ => {});
     }
 
-    public void RegisterDocumentType<TDocument>(string documentName)
-        where TDocument : class, new()
+    public void RegisterDocumentType<T>(Action<IDocumentConfiguration<T>> configure) where T : class, new()
     {
-        RegisterDocumentType(typeof(TDocument), documentName);
+        if (configure == null) throw new ArgumentNullException(nameof(configure));
+
+        DocumentConfiguration<T> c = new DocumentConfiguration<T>();
+        configure(c);
+        DocumentMetadata meta = c.CreateMetadata();
+        _ddExec.CreateDocumentObjects(meta);
+        _docTypeMetaMap[typeof(T)] = meta;
     }
 
-    public void RegisterDocumentType(Type documentType)
+    private static JsonSerializerOptions CreateJsonSerializerOptions()
     {
-        RegisterDocumentType(documentType, documentType.Name);
-    }
-
-    public void RegisterDocumentType(Type documentType, string documentName)
-    {
-        DocumentMetadata meta = new DocumentMetadata(documentType, documentName);
-        _documents[meta.DocumentName] = meta;
-        CreateTableAsync(meta.DocumentName).GetAwaiter().GetResult();
-    }
-
-    private async Task CreateTableAsync(string documentName)
-    {
-        string[] sql =
+        JsonSerializerOptions opt = new JsonSerializerOptions
         {
-            $"""
-            CREATE TABLE IF NOT EXISTS {documentName}   (
-                serialId INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                stringId TEXT NOT NULL,
-                jsonData JSON NOT NULL,
-                tenantId TEXT NOT NULL,
-                createdAt BIGINT NOT NULL,
-                updatedAt BIGINT NULL
-            )
-            """,
-            $"""
-                CREATE UNIQUE INDEX IF NOT EXISTS ux_{documentName}_tenant_stringId
-                ON {documentName} (tenantId, stringId)
-            """,
-            $"""
-                CREATE INDEX IF NOT EXISTS ix_{documentName}_tenant 
-                ON {documentName} (tenantId)
-            """ /*,
-            $"""
-            CREATE INDEX IF NOT EXISTS ix_{documentName}_createdAt
-            ON {documentName} (createdAt)
-            """,
-            $"""
-            CREATE INDEX IF NOT EXISTS ix_{documentName}_updatedAt
-            ON {documentName} (updatedAt)
-            """*/
+            PropertyNameCaseInsensitive = false,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        using SqliteConnection c = await GetAndOpenConnectionAsync();
+        opt.Converters.Add(new IntToBoolJsonSerializerConverterFactory());
+        opt.Converters.Add(new JsonStringEnumConverter());
 
-        foreach (string s in sql)
-        {
-            SqliteCommand cmd = c.CreateCommand();
-            cmd.CommandText = s;
-            await cmd.ExecuteNonQueryAsync();
-        }
-    }
-
-    private async Task<SqliteConnection> GetAndOpenConnectionAsync()
-    {
-        SqliteConnection c = new SqliteConnection(_connectionString);
-        await c.OpenAsync();
-        return c;
+        return opt;
     }
 }

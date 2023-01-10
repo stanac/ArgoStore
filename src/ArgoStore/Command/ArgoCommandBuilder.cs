@@ -45,7 +45,7 @@ internal class ArgoCommandBuilder
         IsDistinct = true;
     }
 
-    public ArgoCommand Build(IReadOnlyDictionary<string, DocumentMetadata> documentTypes, string tenantId)
+    public ArgoCommand Build(IReadOnlyDictionary<Type, DocumentMetadata> documentTypes, string tenantId)
     {
         Metadata = FindDocMeta(documentTypes);
         StringBuilder sb = StringBuilderBag.Default.Get();
@@ -141,7 +141,8 @@ internal class ArgoCommandBuilder
                 sb.Append("DISTINCT ");
             }
 
-            foreach (SelectValueStatement s in sat.SelectElements)
+
+            for (int i = 0; i < sat.SelectElements.Count; i++)
             {
                 sb.Append("json_set(");
             }
@@ -378,16 +379,14 @@ internal class ArgoCommandBuilder
         return JsonNamingPolicy.CamelCase.ConvertName(propertyName).Replace("'", "''");
     }
 
-    private DocumentMetadata FindDocMeta(IReadOnlyDictionary<string, DocumentMetadata> documentTypes)
+    private DocumentMetadata FindDocMeta(IReadOnlyDictionary<Type, DocumentMetadata> documentTypeMetaMap)
     {
-        KeyValuePair<string, DocumentMetadata>[] types = documentTypes.Where(x => x.Value.DocumentType == _docType).ToArray();
-
-        if (types.Length == 0)
+        if (documentTypeMetaMap.TryGetValue(_docType, out DocumentMetadata meta))
         {
-            throw new InvalidOperationException($"Document metadata for type `{_docType.FullName}` is not registered.");
+            return meta;
         }
 
-        return types[0].Value;
+        throw new InvalidOperationException($"Document metadata for type `{_docType.FullName}` is not registered.");
     }
 
 }

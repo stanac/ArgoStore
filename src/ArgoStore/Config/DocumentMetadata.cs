@@ -4,6 +4,8 @@ namespace ArgoStore.Config;
 
 internal class DocumentMetadata
 {
+    private readonly List<DocumentIndexMetadata> _indexes;
+
     private static readonly Type[] _allowedKeyTypes =
     {
         typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(string), typeof(Guid)
@@ -25,44 +27,27 @@ internal class DocumentMetadata
     public bool IsKeyPropertyGuid { get; }
     public Type KeyPropertyType => _keyProperty.PropertyType;
     public string KeyPropertyName => _keyProperty.Name;
-
-    public DocumentMetadata(Type documentType)
-    {
-        DocumentType = documentType ?? throw new ArgumentNullException(nameof(documentType));
-        EnsureTypeIsValid(documentType, null);
-        DocumentName = documentType.Name.Trim();
-
-        _keyProperty = GetKeyProperty(documentType);
-        IsKeyPropertyInt = _intTypes.Contains(_keyProperty.PropertyType);
-
-        if (!IsKeyPropertyInt)
-        {
-            IsKeyPropertyGuid = _keyProperty.PropertyType == typeof(Guid);
-            IsKeyPropertyString = !IsKeyPropertyGuid;
-        }
-    }
-
-    public DocumentMetadata(Type documentType, string documentName)
-    {
-        if (string.IsNullOrWhiteSpace(documentName)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(documentName));
-        DocumentType = documentType ?? throw new ArgumentNullException(nameof(documentType));
-        DocumentName = documentName.Trim();
-        EnsureTypeIsValid(documentType, DocumentName);
-
-        // todo: MAKE IT DRY
-        _keyProperty = GetKeyProperty(documentType);
-        IsKeyPropertyInt = _intTypes.Contains(_keyProperty.PropertyType);
-
-        if (!IsKeyPropertyInt)
-        {
-            IsKeyPropertyGuid = _keyProperty.PropertyType == typeof(Guid);
-            IsKeyPropertyString = !IsKeyPropertyGuid;
-        }
-    }
-
+    
     public DocumentMetadata(Type documentType, string pkPropertyName, string documentTableName, List<DocumentIndexMetadata> indexes)
     {
+        if (string.IsNullOrWhiteSpace(pkPropertyName)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(pkPropertyName));
+        if (string.IsNullOrWhiteSpace(documentTableName)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(documentTableName));
 
+        DocumentType = documentType ?? throw new ArgumentNullException(nameof(documentType));
+        _indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
+        DocumentName = documentTableName;
+        _keyProperty = documentType.GetProperty(pkPropertyName, BindingFlags.Public | BindingFlags.Instance)
+            ?? throw new InvalidOperationException($"Failed to find identity property `{pkPropertyName}` on type `{documentType.FullName}`.");
+
+        EnsureTypeIsValid(documentType, documentTableName);
+
+        IsKeyPropertyInt = _intTypes.Contains(_keyProperty.PropertyType);
+
+        if (!IsKeyPropertyInt)
+        {
+            IsKeyPropertyGuid = _keyProperty.PropertyType == typeof(Guid);
+            IsKeyPropertyString = !IsKeyPropertyGuid;
+        }
     }
     
     public object GetPrimaryKeyValue(object doc, out bool isDefaultValue)
