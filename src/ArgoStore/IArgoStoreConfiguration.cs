@@ -1,9 +1,8 @@
-﻿using System.Linq.Expressions;
-
-namespace ArgoStore;
+﻿namespace ArgoStore;
 
 public interface IArgoStoreConfiguration
 {
     void ConnectionString(string connectionString);
-    IDocumentConfiguration<TDocument> Document<TDocument>() where TDocument : class, new();
+    IDocumentConfiguration<TDocument> RegisterDocument<TDocument>() where TDocument : class, new();
+    IDocumentConfiguration<TDocument> RegisterDocument<TDocument>(Action<IDocumentConfiguration<TDocument>> configure) where TDocument : class, new();
 }

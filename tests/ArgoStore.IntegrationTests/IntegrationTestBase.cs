@@ -46,6 +46,6 @@ public class IntegrationTestBase : IDisposable
     private void Initialize()
     {
         Store = new ArgoDocumentStore(TestDb.ConnectionString);
-        Store.RegisterDocumentType<Person>();
+        Store.RegisterDocument<Person>();
     }
 }

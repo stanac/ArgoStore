@@ -6,7 +6,7 @@ using ArgoStore.Helpers;
 
 namespace ArgoStore.Implementations;
 
-public class ArgoDocumentStore
+public class ArgoDocumentStore : IArgoDocumentStore
 {
     private readonly string _connectionString;
     private readonly JsonSerializerOptions _serializerOptions;
@@ -55,12 +55,12 @@ public class ArgoDocumentStore
         return new ArgoSession(_connectionString, tenantId, _docTypeMetaMap, _serializerOptions);
     }
 
-    public void RegisterDocumentType<T>() where T : class, new()
+    public void RegisterDocument<T>() where T : class, new()
     {
-        RegisterDocumentType<T>(_ => {});
+        RegisterDocument<T>(_ => {});
     }
 
-    public void RegisterDocumentType<T>(Action<IDocumentConfiguration<T>> configure) where T : class, new()
+    public void RegisterDocument<T>(Action<IDocumentConfiguration<T>> configure) where T : class, new()
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 

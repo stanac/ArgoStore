@@ -9,12 +9,12 @@ public class InsertTests : IntegrationTestBase
 {
     public InsertTests()
     {
-        Store.RegisterDocumentType<PersonPkGuid>();
-        Store.RegisterDocumentType<PersonPkString>();
-        Store.RegisterDocumentType<PersonPkInt32>();
-        Store.RegisterDocumentType<PersonPkUInt32>();
-        Store.RegisterDocumentType<PersonPkInt64>();
-        Store.RegisterDocumentType<PersonPkUInt64>();
+        Store.RegisterDocument<PersonPkGuid>();
+        Store.RegisterDocument<PersonPkString>();
+        Store.RegisterDocument<PersonPkInt32>();
+        Store.RegisterDocument<PersonPkUInt32>();
+        Store.RegisterDocument<PersonPkInt64>();
+        Store.RegisterDocument<PersonPkUInt64>();
     }
 
     [Fact]

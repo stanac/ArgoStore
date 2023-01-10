@@ -13,12 +13,12 @@ public class GetByIdTests : IntegrationTestBase
 
     public GetByIdTests()
     {
-        Store.RegisterDocumentType<PersonPkGuid>();
-        Store.RegisterDocumentType<PersonPkString>();
-        Store.RegisterDocumentType<PersonPkInt32>();
-        Store.RegisterDocumentType<PersonPkUInt32>();
-        Store.RegisterDocumentType<PersonPkInt64>();
-        Store.RegisterDocumentType<PersonPkUInt64>();
+        Store.RegisterDocument<PersonPkGuid>();
+        Store.RegisterDocument<PersonPkString>();
+        Store.RegisterDocument<PersonPkInt32>();
+        Store.RegisterDocument<PersonPkUInt32>();
+        Store.RegisterDocument<PersonPkInt64>();
+        Store.RegisterDocument<PersonPkUInt64>();
 
         using IArgoDocumentSession s = Store.OpenSession();
 

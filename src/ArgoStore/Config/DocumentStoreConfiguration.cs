@@ -1,9 +1,10 @@
-﻿namespace ArgoStore.Config;
+﻿using ArgoStore.Implementations;
+
+namespace ArgoStore.Config;
 
 internal class DocumentStoreConfiguration : IArgoStoreConfiguration
 {
     private string _connectionString;
-    private bool _createNonConfiguredEntities;
     private readonly Dictionary<Type, DocumentConfiguration> _entityConfigs = new();
 
     public void ConnectionString(string connectionString)
@@ -12,31 +13,26 @@ internal class DocumentStoreConfiguration : IArgoStoreConfiguration
         _connectionString = connectionString;
     }
 
-    public IDocumentConfiguration<TDocument> Document<TDocument>() where TDocument : class, new()
+    public IDocumentConfiguration<TDocument> RegisterDocument<TDocument>() where TDocument : class, new()
     {
-        throw new NotImplementedException();
+        return RegisterDocument<TDocument>(_ => {});
     }
 
-    public void CreateNotConfiguredEntities(bool createNonConfiguredEntities)
+    public IDocumentConfiguration<TDocument> RegisterDocument<TDocument>(Action<IDocumentConfiguration<TDocument>> configure) where TDocument : class, new()
     {
-        _createNonConfiguredEntities = createNonConfiguredEntities;
-    }
-
-    public IDocumentConfiguration<TEntity> Entity<TEntity>() where TEntity : class, new()
-    {
-        Type entityType = typeof(TEntity);
+        Type entityType = typeof(TDocument);
 
         if (_entityConfigs.ContainsKey(entityType))
         {
             throw new InvalidOperationException($"Entity {entityType.Name} is already configured");
         }
 
-        DocumentConfiguration<TEntity> DocumentConfiguration = new DocumentConfiguration<TEntity>();
+        DocumentConfiguration<TDocument> DocumentConfiguration = new DocumentConfiguration<TDocument>();
 
         _entityConfigs[entityType] = DocumentConfiguration;
         return DocumentConfiguration;
     }
-
+    
     public ArgoStoreConfiguration CreateConfiguration()
     {
         EnsureValid();
@@ -44,7 +40,7 @@ internal class DocumentStoreConfiguration : IArgoStoreConfiguration
         Dictionary<Type, DocumentMetadata> meta = CreateMetadata();
 
         return new ArgoStoreConfiguration(
-            _connectionString, _createNonConfiguredEntities, meta
+            _connectionString, meta
         );
     }
 
