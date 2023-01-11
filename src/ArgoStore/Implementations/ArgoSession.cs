@@ -23,10 +23,14 @@ internal class ArgoSession : IArgoDocumentSession
 
     public ArgoSession(string connectionString, string tenantId, IReadOnlyDictionary<Type, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
     {
+        if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
+        if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
+
         TenantId = tenantId;
         DocumentTypesMetaMap = documentTypes ?? throw new ArgumentNullException(nameof(documentTypes));
         _connectionString = connectionString;
-        _serializerOptions = serializerOptions;
+        _serializerOptions = serializerOptions ?? throw new ArgumentNullException(nameof(serializerOptions));
     }
 
     public IArgoStoreQueryable<T> Query<T>() where T : class, new()

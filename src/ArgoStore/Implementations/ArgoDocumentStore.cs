@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml.Linq;
 using ArgoStore.Config;
 using ArgoStore.Helpers;
 
@@ -14,13 +15,8 @@ public class ArgoDocumentStore : IArgoDocumentStore
     private readonly ConcurrentDictionary<Type, DocumentMetadata> _docTypeMetaMap = new();
 
     public ArgoDocumentStore(string connectionString)
+        : this(ConfigureDefault(connectionString))
     {
-        if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
-
-        _connectionString = connectionString;
-        _ddExec = new SqlDataDefinitionExecutor(_connectionString);
-
-        _serializerOptions = CreateJsonSerializerOptions();
     }
 
     public ArgoDocumentStore(Action<IArgoStoreConfiguration> configure)
@@ -36,6 +32,7 @@ public class ArgoDocumentStore : IArgoDocumentStore
         _ddExec = new SqlDataDefinitionExecutor(_connectionString);
 
         _docTypeMetaMap = new ConcurrentDictionary<Type, DocumentMetadata>(c.DocumentMeta);
+        _serializerOptions = CreateJsonSerializerOptions();
 
         foreach (KeyValuePair<Type, DocumentMetadata> pair in _docTypeMetaMap)
         {
@@ -85,5 +82,15 @@ public class ArgoDocumentStore : IArgoDocumentStore
         opt.Converters.Add(new JsonStringEnumConverter());
 
         return opt;
+    }
+
+    private static Action<IArgoStoreConfiguration> ConfigureDefault(string connectionString)
+    {
+        if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
+
+        return c =>
+        {
+            c.ConnectionString(connectionString);
+        };
     }
 }

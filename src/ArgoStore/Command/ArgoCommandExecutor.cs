@@ -198,6 +198,10 @@ internal class ArgoCommandExecutor
 
     private void ExecuteOperation(CrudOperation op, SqliteTransaction tr, JsonSerializerOptions serializerOptions)
     {
+        if (op == null) throw new ArgumentNullException(nameof(op));
+        if (tr == null) throw new ArgumentNullException(nameof(tr));
+        if (serializerOptions == null) throw new ArgumentNullException(nameof(serializerOptions));
+
         SqliteCommand cmd = op.CreateCommand(serializerOptions);
         cmd.Connection = tr.Connection;
         cmd.Transaction = tr;

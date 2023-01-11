@@ -22,6 +22,8 @@ internal class InsertOperation : CrudOperation
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
+        if (jsonSerializerOptions == null) throw new ArgumentNullException(nameof(jsonSerializerOptions));
+
         object key = Metadata.SetIfNeededAndGetPrimaryKeyValue(Document, out bool insertKey);
 
         object guidId = Metadata.IsKeyPropertyInt

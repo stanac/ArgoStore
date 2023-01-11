@@ -35,15 +35,18 @@ static class Program
         // INSERT
         using IArgoDocumentSession session = store.OpenSession();
 
-        session.Insert(new Person
+        if (!session.Query<Person>().Any())
         {
-            Id = Guid.NewGuid(), // does not have to be set for Guid Id
-            Name = "Someone",
-            EmailAddress = "someone@example.com",
-            PhoneNumber = "00 00 0000000"
-        });
-        session.SaveChanges();
-
+            session.Insert(new Person
+            {
+                Id = Guid.NewGuid(), // does not have to be set for Guid Id
+                Name = "Someone",
+                EmailAddress = "someone@example.com",
+                PhoneNumber = "00 00 0000000"
+            });
+            session.SaveChanges();
+        }
+        
         // QUERY
         using IArgoQueryDocumentSession querySession = store.OpenQuerySession(); // read-only session
         Person person = querySession.Query<Person>().First(x => x.Name.Contains("one"));
@@ -54,7 +57,7 @@ static class Program
     {
         return "c:\\temp\\test1.sqlite";
 
-        string tempDir = Path.GetTempPath();
-        return Path.Combine(tempDir, $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.sqlite");
+        //string tempDir = Path.GetTempPath();
+        //return Path.Combine(tempDir, $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.sqlite");
     }
 }
