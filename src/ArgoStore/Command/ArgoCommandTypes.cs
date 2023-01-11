@@ -9,7 +9,8 @@ public enum ArgoCommandTypes
     Single,
     SingleOrDefault,
     First,
-    FirstOrDefault
+    FirstOrDefault,
+    Any
 }
 
 public static class ArgoCommandTypesExtensions

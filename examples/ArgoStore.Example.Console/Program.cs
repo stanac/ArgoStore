@@ -52,7 +52,7 @@ static class Program
 
     private static string GetDbFilePath()
     {
-        // return "c:\\temp\\test1.sqlite";
+        return "c:\\temp\\test1.sqlite";
 
         string tempDir = Path.GetTempPath();
         return Path.Combine(tempDir, $"{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}.sqlite");

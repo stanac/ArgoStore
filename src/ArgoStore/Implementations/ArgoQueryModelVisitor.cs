@@ -100,6 +100,10 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         {
             CommandBuilder.SetIsDistinct(true);
         }
+        else if (resultOperator is AnyResultOperator)
+        {
+            CommandBuilder.SetSelectStatement(new SelectAnyStatement());
+        }
 
         base.VisitResultOperator(resultOperator, queryModel, index);
     }
@@ -111,7 +115,7 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 
     public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
     {
-        CommandBuilder.SetSelectStatement(selectClause);
+        CommandBuilder.SetSelectClause(selectClause);
 
         base.VisitSelectClause(selectClause, queryModel);
     }

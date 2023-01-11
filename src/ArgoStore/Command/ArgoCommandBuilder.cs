@@ -26,6 +26,7 @@ internal class ArgoCommandBuilder
 
     public bool IsSelectCount => SelectStatement is SelectCountStatement;
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
+    public bool IsSelectAny => SelectStatement is SelectAnyStatement;
 
     public string ItemName { get; set; }
 
@@ -84,6 +85,10 @@ internal class ArgoCommandBuilder
                     : ArgoCommandTypes.Single;
             }
         }
+        else if (SelectStatement is SelectAnyStatement)
+        {
+            cmdType = ArgoCommandTypes.Any;
+        }
 
         return new ArgoCommand(sql, _params, cmdType, ResultingType, IsResultingTypeJson, _containsLikeOperator);
     }
@@ -96,9 +101,14 @@ internal class ArgoCommandBuilder
     public void SetSelectStatement(SelectStatementBase selectStatement)
     {
         SelectStatement = selectStatement;
+
+        if (selectStatement is SelectAnyStatement)
+        {
+            ResultingType = typeof(bool);
+        }
     }
 
-    public void SetSelectStatement(SelectClause selectStatement)
+    public void SetSelectClause(SelectClause selectStatement)
     {
         SelectStatement = SelectToStatementTranslatorStrategies.Translate(selectStatement.Selector);
 
@@ -171,6 +181,10 @@ internal class ArgoCommandBuilder
 
                 sb.AppendLine(")");
             }
+        }
+        else if (SelectStatement is SelectAnyStatement)
+        {
+            sb.Append("SELECT COUNT (1)");
         }
         else
         {
@@ -368,7 +382,7 @@ internal class ArgoCommandBuilder
 
     private void AppendLimit(StringBuilder sb)
     {
-        if (IsSelectFirstOrSingle)
+        if (IsSelectFirstOrSingle || IsSelectAny)
         {
             sb.Append("LIMIT 1");
         }

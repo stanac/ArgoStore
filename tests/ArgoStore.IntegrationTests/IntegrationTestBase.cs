@@ -22,6 +22,11 @@ public class IntegrationTestBase : IDisposable
         s.SaveChanges();
     }
 
+    protected Person SingleTestPerson()
+    {
+        return PersonTestData.GetPersonTestData().First();
+    }
+
     protected void InsertTestPersons()
     {
         using IArgoDocumentSession s = Store.OpenSession();

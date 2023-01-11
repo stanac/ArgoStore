@@ -40,6 +40,9 @@ internal class ArgoCommandExecutor
             case ArgoCommandTypes.SingleOrDefault:
                 return ExecuteSingleOrDefault(command);
 
+            case ArgoCommandTypes.Any:
+                return ExecuteAny(command);
+
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -148,6 +151,17 @@ internal class ArgoCommandExecutor
         }
 
         return ret;
+    }
+
+    public object ExecuteAny(ArgoCommand command)
+    {
+        object result = ExecuteCount(command);
+
+        int value = 0;
+        if (result is int i) value = i;
+        else value = (int)(long) result;
+
+        return value == 1;
     }
 
     private SqliteCommand ExecutePreCommandsAndGetCommand(SqliteCommandCollection cmds)
