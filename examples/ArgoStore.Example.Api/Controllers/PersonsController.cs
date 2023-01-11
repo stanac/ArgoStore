@@ -7,9 +7,9 @@ namespace ArgoStore.Example.Api.Controllers;
 [Route("/api/[controller]")]
 public class PersonsController : ControllerBase
 {
-    private readonly IDocumentSession _session;
+    private readonly IArgoDocumentSession _session;
 
-    public PersonsController(IDocumentSession session)
+    public PersonsController(IArgoDocumentSession session)
     {
         _session = session;
     }
@@ -62,7 +62,8 @@ public class PersonsController : ControllerBase
             }
         }
         
-        _session.InsertOrUpdate(person);
+        // TODO : uncomment when exists
+        // _session.InsertOrUpdate(person);
         _session.SaveChanges();
 
         return Ok(person);
