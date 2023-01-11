@@ -157,7 +157,7 @@ internal class ArgoCommandExecutor
     {
         object result = ExecuteCount(command);
 
-        int value = 0;
+        int value;
         if (result is int i) value = i;
         else value = (int)(long) result;
 
