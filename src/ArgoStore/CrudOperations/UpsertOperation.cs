@@ -16,7 +16,13 @@ internal class UpsertOperation : CrudOperation
     {
         object key = Metadata.GetPrimaryKeyValue(Document, out bool isDefaultKey);
 
-        throw new NotImplementedException();
+        if (isDefaultKey)
+        {
+            if (!Metadata.IsKeyPropertyInt)
+            {
+                Metadata.SetIfNeededAndGetPrimaryKeyValue(Document, out _);
+            }
+        }
         
         string pkName = Metadata.IsKeyPropertyInt
             ? "serialId"

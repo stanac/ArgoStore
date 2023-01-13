@@ -100,6 +100,16 @@ internal class ArgoSession : IArgoDocumentSession
             _crudOps.Add(new UpdateOperation(meta, doc, TenantId));
         }
     }
+    
+    public void Upsert<T>(T[] documents) where T : class, new()
+    {
+        DocumentMetadata meta = GetRequiredMetadata<T>();
+
+        foreach (T doc in documents)
+        {
+            _crudOps.Add(new UpsertOperation(meta, doc, TenantId));
+        }
+    }
 
     public void DeleteById<T>(params object[] documentIds)
     {
