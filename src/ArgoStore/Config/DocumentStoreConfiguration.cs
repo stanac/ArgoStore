@@ -4,7 +4,7 @@ namespace ArgoStore.Config;
 
 internal class DocumentStoreConfiguration : IArgoStoreConfiguration
 {
-    private string _connectionString;
+    private string? _connectionString;
     private readonly Dictionary<Type, DocumentConfiguration> _entityConfigs = new();
 
     public void ConnectionString(string connectionString)
@@ -40,7 +40,7 @@ internal class DocumentStoreConfiguration : IArgoStoreConfiguration
         Dictionary<Type, DocumentMetadata> meta = CreateMetadata();
 
         return new ArgoStoreConfiguration(
-            _connectionString, meta
+            _connectionString!, meta
         );
     }
 

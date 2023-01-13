@@ -18,7 +18,7 @@ internal class ArgoCommandExecutor
         _serializerOptions = serializerOptions;
     }
 
-    public object Execute(ArgoCommand command)
+    public object? Execute(ArgoCommand command)
     {
         switch (command.CommandType)
         {
@@ -58,21 +58,21 @@ internal class ArgoCommandExecutor
 
         SqliteDataReader reader = cmd.ExecuteReader();
 
-        IList result = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(command.ResultingType));
+        IList result = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(command.ResultingType))!;
 
         if (command.IsResultingTypeJson)
         {
             while (reader.Read())
             {
-                string json = reader[0] as string;
-                result.Add(JsonSerializer.Deserialize(json!, command.ResultingType, _serializerOptions));
+                string json = (string) reader[0];
+                result.Add(JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions));
             }
         }
         else
         {
             while (reader.Read())
             {
-                string json = reader[0] as string;
+                string json = (string)reader[0];
                 SelectValueHolder valueHolder = SelectValueHolder.ParseFromJson(json, command.ResultingType, _serializerOptions);
                 result.Add(valueHolder.GetValue());
             }
@@ -81,7 +81,7 @@ internal class ArgoCommandExecutor
         return result;
     }
 
-    public object ExecuteFirstOrDefault(ArgoCommand command)
+    public object? ExecuteFirstOrDefault(ArgoCommand command)
     {
         using SqliteConnection con = CreateAndOpenConnection();
         using SqliteCommandCollection cmds = command.ToSqliteCommands();
@@ -89,7 +89,7 @@ internal class ArgoCommandExecutor
 
         SqliteCommand cmd = ExecutePreCommandsAndGetCommand(cmds);
 
-        string json = cmd.ExecuteScalar() as string;
+        string? json = cmd.ExecuteScalar() as string;
 
         if (json == null)
         {
@@ -104,9 +104,9 @@ internal class ArgoCommandExecutor
         return JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions);
     }
 
-    public object ExecuteSingleOrDefault(ArgoCommand command)
+    public object? ExecuteSingleOrDefault(ArgoCommand command)
     {
-        object result = ExecuteFirstOrDefault(command);
+        object? result = ExecuteFirstOrDefault(command);
 
         if (result is null && command.CommandType == ArgoCommandTypes.SingleOrDefault)
         {
@@ -226,52 +226,52 @@ internal class ArgoCommandExecutor
 
     private void ExecuteInsert(SqliteTransaction tr, CrudOperation op, SqliteCommand cmd)
     {
-        object serialId = cmd.ExecuteScalar();
+        object serialId = cmd.ExecuteScalar() ?? throw new InvalidOperationException("Insert failed");
 
         if (serialId is int i)
         {
             if (op.Metadata.KeyPropertyType == typeof(int))
             {
-                op.Metadata.SetKey(op.Document, i);
+                op.Metadata.SetKey(op.Document!, i);
             }
             else if (op.Metadata.KeyPropertyType == typeof(uint))
             {
-                op.Metadata.SetKey(op.Document, (uint)i);
+                op.Metadata.SetKey(op.Document!, (uint)i);
             }
             else if (op.Metadata.KeyPropertyType == typeof(long))
             {
-                op.Metadata.SetKey(op.Document, (long)i);
+                op.Metadata.SetKey(op.Document!, (long)i);
             }
             else if (op.Metadata.KeyPropertyType == typeof(uint))
             {
-                op.Metadata.SetKey(op.Document, (uint)i);
+                op.Metadata.SetKey(op.Document!, (uint)i);
             }
             else if (op.Metadata.KeyPropertyType == typeof(ulong))
             {
-                op.Metadata.SetKey(op.Document, (ulong)i);
+                op.Metadata.SetKey(op.Document!, (ulong)i);
             }
         }
         else if (serialId is long l)
         {
             if (op.Metadata.KeyPropertyType == typeof(int))
             {
-                op.Metadata.SetKey(op.Document, (int)l);
+                op.Metadata.SetKey(op.Document!, (int)l);
             }
             else if (op.Metadata.KeyPropertyType == typeof(uint))
             {
-                op.Metadata.SetKey(op.Document, (uint)l);
+                op.Metadata.SetKey(op.Document!, (uint)l);
             }
             else if (op.Metadata.KeyPropertyType == typeof(long))
             {
-                op.Metadata.SetKey(op.Document, l);
+                op.Metadata.SetKey(op.Document!, l);
             }
             else if (op.Metadata.KeyPropertyType == typeof(uint))
             {
-                op.Metadata.SetKey(op.Document, (uint)l);
+                op.Metadata.SetKey(op.Document!, (uint)l);
             }
             else if (op.Metadata.KeyPropertyType == typeof(ulong))
             {
-                op.Metadata.SetKey(op.Document, (ulong)l);
+                op.Metadata.SetKey(op.Document!, (ulong)l);
             }
         }
 

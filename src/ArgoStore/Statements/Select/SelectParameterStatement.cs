@@ -2,9 +2,9 @@
 
 internal class SelectParameterStatement : SelectValueStatement
 {
-    private string _resultName;
+    private string? _resultName;
     public object Value { get; }
-    public override string ResultName => _resultName;
+    public override string? ResultName => _resultName;
 
     public SelectParameterStatement(object value)
     {

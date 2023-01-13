@@ -24,7 +24,7 @@ internal class WhereStringContainsMethodCallStatementTranslator : IWhereToStatem
 
         if (e.Arguments.Count == 1)
         {
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(e.Object);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(e.Object!);
             WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(e.Arguments[0]);
 
             StringMethods method = (StringMethods)Enum.Parse(typeof(StringMethods), e.Method.Name);
@@ -34,7 +34,7 @@ internal class WhereStringContainsMethodCallStatementTranslator : IWhereToStatem
 
         if (e.Arguments.Count == 2 && e.Arguments[1] is ConstantExpression ce && ce.Value is StringComparison sc)
         {
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(e.Object);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(e.Object!);
             WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(e.Arguments[0]);
 
             StringMethods method = (StringMethods)Enum.Parse(typeof(StringMethods), e.Method.Name);

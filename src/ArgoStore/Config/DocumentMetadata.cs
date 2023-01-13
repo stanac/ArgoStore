@@ -4,18 +4,11 @@ namespace ArgoStore.Config;
 
 internal class DocumentMetadata
 {
-    private static readonly Type[] _allowedKeyTypes =
-    {
-        typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(string), typeof(Guid)
-    };
-
     private static readonly Type[] _intTypes =
     {
         typeof(int), typeof(uint), typeof(long), typeof(ulong)
     };
-
-    private const string AllowedPrimaryKeyTypeNames = "`int32`, `uint32`, `int64`, `uint64`, `string`, `Guid`";
-
+    
     private readonly PropertyInfo _keyProperty;
 
     public Type DocumentType { get; }
@@ -49,7 +42,7 @@ internal class DocumentMetadata
         }
     }
     
-    public object GetPrimaryKeyValue(object doc, out bool isDefaultValue)
+    public object? GetPrimaryKeyValue(object doc, out bool isDefaultValue)
     {
         if (doc == null) throw new ArgumentNullException(nameof(doc));
 
@@ -62,11 +55,11 @@ internal class DocumentMetadata
         }
 #endif
 
-        object key = _keyProperty.GetValue(doc);
+        object? key = _keyProperty.GetValue(doc);
 
         if (IsKeyPropertyGuid)
         {
-            isDefaultValue = (Guid)key == default;
+            isDefaultValue = (key is Guid ? (Guid) key : default) == default;
             return key;
         }
 
@@ -83,21 +76,23 @@ internal class DocumentMetadata
         }
 #endif
 
+        object setKey = key ?? throw new InvalidOperationException("Unexpected null value");
+
         if (_keyProperty.PropertyType == typeof(int))
         {
-            isDefaultValue = (int)key == 0;
+            isDefaultValue = (int)setKey == 0;
         }
         else if (_keyProperty.PropertyType == typeof(long))
         {
-            isDefaultValue = (long)key == 0;
+            isDefaultValue = (long)setKey == 0;
         }
         else if (_keyProperty.PropertyType == typeof(uint))
         {
-            isDefaultValue = (uint)key == 0;
+            isDefaultValue = (uint)setKey == 0;
         }
         else if (_keyProperty.PropertyType == typeof(ulong))
         {
-            isDefaultValue = (ulong)key == 0;
+            isDefaultValue = (ulong)setKey == 0;
         }
         else
         {
@@ -125,9 +120,9 @@ internal class DocumentMetadata
         }
 #endif
 
-        object pk = _keyProperty.GetValue(doc);
+        object? pk = _keyProperty.GetValue(doc);
 
-        if (IsKeyPropertyGuid)
+        if (IsKeyPropertyGuid && pk != null)
         {
             shouldBeInserted = true;
 
@@ -148,7 +143,7 @@ internal class DocumentMetadata
         {
             shouldBeInserted = true;
 
-            string s = (string)pk;
+            string? s = pk as string;
 
             if (s == null)
             {
@@ -167,6 +162,10 @@ internal class DocumentMetadata
                 );
         }
 #endif
+        if (pk is null)
+        {
+            throw new InvalidOperationException("PK expected to be set");
+        }
 
         if (_keyProperty.PropertyType == typeof(int))
         {
@@ -246,6 +245,7 @@ internal class DocumentMetadata
         if (!documentType.IsClass) ThrowType("It must be a class.");
         if (documentType.IsGenericType) ThrowType("It cannot be a generic class.");
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (documentName is null)
         {
             if (documentType.IsSpecialName) ThrowType("It cannot have a special name. Alternatively provide a document name.");

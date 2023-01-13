@@ -37,7 +37,7 @@ internal static class Extensions
             return false;
         }
 
-        MethodInfo getter = pi.GetMethod;
+        MethodInfo? getter = pi.GetMethod;
 
         if (getter == null) return false;
 
@@ -53,7 +53,7 @@ internal static class Extensions
             return false;
         }
 
-        MethodInfo setter = pi.SetMethod;
+        MethodInfo? setter = pi.SetMethod;
 
         if (setter == null) return false;
 

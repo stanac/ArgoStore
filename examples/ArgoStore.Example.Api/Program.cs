@@ -1,5 +1,4 @@
 using ArgoStore.Example.Api.Models;
-using ArgoStore.Implementations;
 
 namespace ArgoStore.Example.Api
 {

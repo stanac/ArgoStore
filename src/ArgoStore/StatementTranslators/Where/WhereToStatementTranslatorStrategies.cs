@@ -10,7 +10,7 @@ internal static class WhereToStatementTranslatorStrategies
 
     public static WhereStatementBase Translate(Expression expression)
     {
-        IWhereToStatementTranslator t = _translators.FirstOrDefault(x => x.CanTranslate(expression));
+        IWhereToStatementTranslator? t = _translators.FirstOrDefault(x => x.CanTranslate(expression));
 
         if (t == null)
         {

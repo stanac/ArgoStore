@@ -14,13 +14,13 @@ internal class UpsertOperation : CrudOperation
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object key = Metadata.GetPrimaryKeyValue(Document, out bool isDefaultKey);
+        object? key = Metadata.GetPrimaryKeyValue(Document!, out bool isDefaultKey);
 
         if (isDefaultKey)
         {
             if (!Metadata.IsKeyPropertyInt)
             {
-                Metadata.SetIfNeededAndGetPrimaryKeyValue(Document, out _);
+                Metadata.SetIfNeededAndGetPrimaryKeyValue(Document!, out _);
             }
         }
         

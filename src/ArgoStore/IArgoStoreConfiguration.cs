@@ -1,4 +1,7 @@
-﻿namespace ArgoStore;
+﻿using System.Diagnostics.CodeAnalysis;
+// ReSharper disable RedundantNullableFlowAttribute
+
+namespace ArgoStore;
 
 /// <summary>
 /// Argo Document Store Configuration
@@ -9,7 +12,7 @@ public interface IArgoStoreConfiguration
     /// Sets connection string for store
     /// </summary>
     /// <param name="connectionString">SQLite connection string</param>
-    void ConnectionString(string connectionString);
+    void ConnectionString([DisallowNull] string connectionString);
 
     /// <summary>
     /// Registers document type without any additional options
@@ -23,5 +26,5 @@ public interface IArgoStoreConfiguration
     /// </summary>
     /// <typeparam name="TDocument">Document type</typeparam>
     /// <returns>Same instance of <see cref="IDocumentConfiguration{TDocument}"/></returns>
-    IDocumentConfiguration<TDocument> RegisterDocument<TDocument>(Action<IDocumentConfiguration<TDocument>> configure) where TDocument : class, new();
+    IDocumentConfiguration<TDocument> RegisterDocument<TDocument>([DisallowNull] Action<IDocumentConfiguration<TDocument>> configure) where TDocument : class, new();
 }

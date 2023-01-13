@@ -1,5 +1,4 @@
 ﻿using ArgoStore;
-using ArgoStore.Implementations;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

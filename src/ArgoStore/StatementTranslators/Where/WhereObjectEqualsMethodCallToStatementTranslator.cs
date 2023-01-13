@@ -23,7 +23,7 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
 
         if (mce.Arguments.Count == 1)
         {
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!);
             WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0]);
 
             return new WhereComparisonStatement(left, ComparisonOperators.Equal, right);
@@ -33,7 +33,7 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
         {
             bool ignoreCase = !sc.IsCaseSensitive();
 
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!);
             WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0]);
 
             if (ignoreCase)

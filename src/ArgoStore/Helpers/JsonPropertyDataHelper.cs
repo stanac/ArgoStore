@@ -6,7 +6,7 @@ internal static class JsonPropertyDataHelper
 {
     public static string ExtractProperty(string propertyName) => ExtractProperty(propertyName, null);
 
-    public static string ExtractProperty(string propertyName, string alias)
+    public static string ExtractProperty(string propertyName, string? alias)
     {
         if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(propertyName));
 

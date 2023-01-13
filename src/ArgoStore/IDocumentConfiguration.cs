@@ -1,4 +1,6 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
+// ReSharper disable RedundantNullableFlowAttribute
 
 namespace ArgoStore;
 
@@ -19,7 +21,7 @@ public interface IDocumentConfiguration<TDocument> where TDocument : class, new(
     /// <typeparam name="TProperty">Entity type</typeparam>
     /// <param name="selector">Lambda expression to select a single property as primary key</param>
     /// <returns>Same instance of IDocumentConfiguration</returns>
-    IDocumentConfiguration<TDocument> PrimaryKey<TProperty>(Expression<Func<TDocument, TProperty>> selector);
+    IDocumentConfiguration<TDocument> PrimaryKey<TProperty>([DisallowNull] Expression<Func<TDocument, TProperty>> selector);
 
     /// <summary>
     /// Sets unique index
@@ -33,7 +35,7 @@ public interface IDocumentConfiguration<TDocument> where TDocument : class, new(
     /// <typeparam name="TProperty">Entity type</typeparam>
     /// <param name="selector">Lambda expression to select a single property as index or new anonymous object with multiple properties</param>
     /// <returns>Same instance of IDocumentConfiguration</returns>
-    IDocumentConfiguration<TDocument> UniqueIndex<TProperty>(Expression<Func<TDocument, TProperty>> selector);
+    IDocumentConfiguration<TDocument> UniqueIndex<TProperty>([DisallowNull] Expression<Func<TDocument, TProperty>> selector);
 
     /// <summary>
     /// Sets non unique index
@@ -47,12 +49,12 @@ public interface IDocumentConfiguration<TDocument> where TDocument : class, new(
     /// <typeparam name="TProperty">Entity type</typeparam>
     /// <param name="selector">Lambda expression to select a single property as index or new anonymous object with multiple properties</param>
     /// <returns>Same instance of IDocumentConfiguration</returns>
-    IDocumentConfiguration<TDocument> NonUniqueIndex<TProperty>(Expression<Func<TDocument, TProperty>> selector);
+    IDocumentConfiguration<TDocument> NonUniqueIndex<TProperty>([DisallowNull] Expression<Func<TDocument, TProperty>> selector);
 
     /// <summary>
     /// Sets name of table to use
     /// </summary>
     /// <param name="tableName">Name of table to use for document type</param>
     /// <returns>Same instance of IDocumentConfiguration</returns>
-    IDocumentConfiguration<TDocument> TableName(string tableName);
+    IDocumentConfiguration<TDocument> TableName([DisallowNull] string tableName);
 }

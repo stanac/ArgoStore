@@ -24,7 +24,7 @@ internal class InsertOperation : CrudOperation
     {
         if (jsonSerializerOptions == null) throw new ArgumentNullException(nameof(jsonSerializerOptions));
 
-        object key = Metadata.SetIfNeededAndGetPrimaryKeyValue(Document, out bool insertKey);
+        object key = Metadata.SetIfNeededAndGetPrimaryKeyValue(Document!, out bool insertKey);
 
         object guidId = Metadata.IsKeyPropertyInt
             ? Guid.NewGuid().ToString()

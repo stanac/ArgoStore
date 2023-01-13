@@ -12,6 +12,11 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 {
     public ArgoCommandBuilder CommandBuilder { get; private set; }
 
+    public ArgoQueryModelVisitor(QueryModel queryModel)
+    {
+        CommandBuilder = new ArgoCommandBuilder(queryModel);
+    }
+
     public override void VisitQueryModel(QueryModel queryModel)
     {
         CommandBuilder = new ArgoCommandBuilder(queryModel);

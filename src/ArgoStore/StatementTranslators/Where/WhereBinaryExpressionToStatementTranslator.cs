@@ -23,7 +23,7 @@ internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTra
 
     public WhereStatementBase Translate(Expression expression)
     {
-        BinaryExpression be = expression as BinaryExpression;
+        BinaryExpression be = (BinaryExpression) expression;
         Debug.Assert(be != null, "BinaryExpression cast in " + nameof(WhereBinaryExpressionToStatementTranslator));
 
         

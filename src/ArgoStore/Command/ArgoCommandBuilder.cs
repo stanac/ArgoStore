@@ -16,9 +16,9 @@ internal class ArgoCommandBuilder
     private readonly ArgoCommandParameterCollection _params = new();
     private bool _containsLikeOperator;
 
-    public DocumentMetadata Metadata { get; private set; }
+    public DocumentMetadata? Metadata { get; private set; }
     public List<WhereStatement> WhereStatements = new();
-    public SelectStatementBase SelectStatement { get; private set; }
+    public SelectStatementBase? SelectStatement { get; private set; }
     public Type ResultingType { get; private set; }
     public bool IsResultingTypeJson { get; private set; } = true;
     public bool IsDistinct { get; private set; }
@@ -27,7 +27,7 @@ internal class ArgoCommandBuilder
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
     public bool IsSelectAny => SelectStatement is SelectAnyStatement;
 
-    public string ItemName { get; set; }
+    public string? ItemName { get; set; }
 
     public ArgoCommandBuilder(QueryModel model)
         : this(model.MainFromClause.ItemType)
@@ -165,7 +165,7 @@ internal class ArgoCommandBuilder
 
                 sb.Append(", ");
 
-                string propName = JsonPropertyDataHelper.ConvertPropertyNameCase(sat.SelectElements[i].ResultName);
+                string propName = JsonPropertyDataHelper.ConvertPropertyNameCase(sat.SelectElements[i].ResultName!);
                 sb.Append("'$.").Append(propName).Append("', ");
 
                 if (sat.SelectElements[i] is SelectPropertyStatement sps1)
@@ -193,7 +193,7 @@ internal class ArgoCommandBuilder
 
     private void AppendFrom(StringBuilder sb)
     {
-        sb.Append("FROM ").Append(Metadata.DocumentName);
+        sb.Append("FROM ").Append(Metadata!.DocumentName);
         sb.AppendLine();
     }
 
@@ -377,7 +377,7 @@ internal class ArgoCommandBuilder
     
     private DocumentMetadata FindDocMeta(IReadOnlyDictionary<Type, DocumentMetadata> documentTypeMetaMap)
     {
-        if (documentTypeMetaMap.TryGetValue(_docType, out DocumentMetadata meta))
+        if (documentTypeMetaMap.TryGetValue(_docType, out DocumentMetadata? meta))
         {
             return meta;
         }

@@ -38,7 +38,7 @@ internal class ArgoSession : IArgoDocumentSession
         return new ArgoStoreQueryable<T>(this);
     }
 
-    public T GetById<T>(object id) where T : class, new()
+    public T? GetById<T>(object id) where T : class, new()
     {
         if (id is null)
         {
@@ -71,7 +71,7 @@ internal class ArgoSession : IArgoDocumentSession
         ArgoCommand cmd = new ArgoCommand(sql, parameters, ArgoCommandTypes.FirstOrDefault, typeof(T), true, false);
 
         ArgoCommandExecutor exec = CreateExecutor();
-        object result = exec.ExecuteFirstOrDefault(cmd);
+        object? result = exec.ExecuteFirstOrDefault(cmd);
 
         if (result == null)
         {
@@ -115,6 +115,7 @@ internal class ArgoSession : IArgoDocumentSession
     {
         if (documentIds == null) throw new ArgumentNullException(nameof(documentIds));
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (documentIds.Any(x => x is null))
         {
             throw new ArgumentException("Array contains null value", nameof(documentIds));
@@ -146,6 +147,7 @@ internal class ArgoSession : IArgoDocumentSession
     public void Delete(params object[] document)
     {
         if (document == null) throw new ArgumentNullException(nameof(document));
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (document.Any(x => x is null))
         {
             throw new ArgumentException("Collection cannot contain null", nameof(document));
@@ -209,7 +211,7 @@ internal class ArgoSession : IArgoDocumentSession
 
     private DocumentMetadata GetRequiredMetadata(Type type)
     {
-        if (DocumentTypesMetaMap.TryGetValue(type, out DocumentMetadata meta))
+        if (DocumentTypesMetaMap.TryGetValue(type, out DocumentMetadata? meta))
         {
             return meta;
         }

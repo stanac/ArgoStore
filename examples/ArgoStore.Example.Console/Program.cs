@@ -1,7 +1,7 @@
-﻿using ArgoStore.Implementations;
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
+using ArgoStore;
 
 namespace ArgoStore.Example.Console;
 

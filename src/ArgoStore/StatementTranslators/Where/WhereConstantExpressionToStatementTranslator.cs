@@ -13,7 +13,7 @@ internal class WhereConstantExpressionToStatementTranslator : IWhereToStatementT
 
     public WhereStatementBase Translate(Expression expression)
     {
-        ConstantExpression ce = expression as ConstantExpression;
+        ConstantExpression ce = (ConstantExpression)expression;
 
         Debug.Assert(ce != null, "Convert expression as ConstantExpression");
 

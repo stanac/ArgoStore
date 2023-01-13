@@ -24,7 +24,7 @@ internal class WhereStringMethodCallToStatementTranslator : IWhereToStatementTra
 
         StringTransformTypes type = (StringTransformTypes)Enum.Parse(typeof(StringTransformTypes), mce.Method.Name);
 
-        WhereStatementBase onObject = WhereToStatementTranslatorStrategies.Translate(mce.Object);
+        WhereStatementBase onObject = WhereToStatementTranslatorStrategies.Translate(mce.Object!);
         return new WhereStringTransformStatement(onObject, type);
     }
 }

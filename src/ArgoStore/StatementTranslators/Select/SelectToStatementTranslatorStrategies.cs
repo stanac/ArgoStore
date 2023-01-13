@@ -10,7 +10,7 @@ internal class SelectToStatementTranslatorStrategies
 
     public static SelectStatementBase Translate(Expression expression)
     {
-        ISelectStatementTranslator t = _translators.FirstOrDefault(x => x.CanTranslate(expression));
+        ISelectStatementTranslator? t = _translators.FirstOrDefault(x => x.CanTranslate(expression));
 
         if (t == null)
         {

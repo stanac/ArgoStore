@@ -15,6 +15,6 @@ internal class SelectConstantParameterExpressionTranslator : ISelectStatementTra
     {
         ConstantExpression ce = (ConstantExpression)expression;
 
-        return new SelectParameterStatement(ce.Value);
+        return new SelectParameterStatement(ce.Value!);
     }
 }

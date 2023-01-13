@@ -4,8 +4,9 @@ using System.Text.Json.Serialization;
 using System.Xml.Linq;
 using ArgoStore.Config;
 using ArgoStore.Helpers;
+using ArgoStore.Implementations;
 
-namespace ArgoStore.Implementations;
+namespace ArgoStore;
 
 public class ArgoDocumentStore : IArgoDocumentStore
 {
@@ -56,7 +57,7 @@ public class ArgoDocumentStore : IArgoDocumentStore
 
     public void RegisterDocument<T>() where T : class, new()
     {
-        RegisterDocument<T>(_ => {});
+        RegisterDocument<T>(_ => { });
     }
 
     public void RegisterDocument<T>(Action<IDocumentConfiguration<T>> configure) where T : class, new()

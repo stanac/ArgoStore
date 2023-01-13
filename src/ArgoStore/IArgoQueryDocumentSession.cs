@@ -1,4 +1,6 @@
-﻿namespace ArgoStore;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ArgoStore;
 
 /// <summary>
 /// Query (read-only) session
@@ -18,5 +20,7 @@ public interface IArgoQueryDocumentSession : IDisposable
     /// <typeparam name="T">Document type</typeparam>
     /// <param name="id">Id of document, must match in type</param>
     /// <returns>Document object if found or null</returns>
-    T GetById<T>(object id) where T : class, new();
+    // ReSharper disable once RedundantNullableFlowAttribute
+    [return: MaybeNull]T? GetById<T>(object id) where T : class, new();
+
 }

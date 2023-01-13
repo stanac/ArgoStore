@@ -21,7 +21,7 @@ internal class AnonymousObjectExpressionToStatementTranslator : ISelectStatement
         for (var i = 0; i < ne.Arguments.Count; i++)
         {
             Expression e = ne.Arguments[i];
-            MemberInfo m = ne.Members[i];
+            MemberInfo m = ne.Members![i];
 
             SelectStatementBase selectElement = SelectToStatementTranslatorStrategies.Translate(e);
 

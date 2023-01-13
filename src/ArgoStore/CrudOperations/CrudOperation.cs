@@ -6,12 +6,12 @@ namespace ArgoStore.CrudOperations;
 
 internal abstract class CrudOperation
 {
-    public object Document { get; }
+    public object? Document { get; }
     public string TenantId { get; }
     public DocumentMetadata Metadata { get; }
-    public object DocumentId { get; }
+    public object? DocumentId { get; }
 
-    protected CrudOperation(DocumentMetadata metadata, object document, string tenantId, object documentId)
+    protected CrudOperation(DocumentMetadata metadata, object? document, string tenantId, object? documentId)
     {
         Document = document;
         TenantId = tenantId;

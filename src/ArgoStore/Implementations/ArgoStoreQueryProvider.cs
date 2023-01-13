@@ -20,30 +20,30 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
     public IQueryable<T> CreateQuery<T>(Expression expression)
     {
-        return new ArgoStoreQueryable<T>(_session, this, expression);
+        return new ArgoStoreQueryable<T>(this, expression);
     }
 
     public object Execute(Expression expression)
     {
         throw new NotSupportedException("Execute non generic not supported.");
     }
-
+    
     public TResult Execute<TResult>(Expression expression)
     {
         ArgoQueryModelVisitor v = VisitAndBuild(expression);
         ArgoCommand cmd = v.CommandBuilder.Build(_session.DocumentTypesMetaMap, _session.TenantId);
 
         ArgoCommandExecutor exec = _session.CreateExecutor();
-        TResult result = (TResult)exec.Execute(cmd);
+        TResult? result = (TResult?)exec.Execute(cmd);
 
-        return result;
+        return result!;
     }
 
     internal ArgoQueryModelVisitor VisitAndBuild(Expression expression)
     {
         QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);
 
-        ArgoQueryModelVisitor v = new();
+        ArgoQueryModelVisitor v = new(query);
         v.VisitQueryModel(query);
 
         return v;

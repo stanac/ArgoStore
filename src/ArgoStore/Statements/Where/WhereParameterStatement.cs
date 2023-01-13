@@ -6,7 +6,7 @@ internal class WhereParameterStatement : WhereValueStatement
 
     public WhereParameterStatement(object value)
     {
-        if (value is Guid) Value = value.ToString();
+        if (value is Guid) Value = value.ToString()!;
         else Value = value;
     }
 }

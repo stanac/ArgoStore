@@ -14,7 +14,7 @@ internal class UpdateOperation : CrudOperation
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object key = Metadata.GetPrimaryKeyValue(Document, out _);
+        object? key = Metadata.GetPrimaryKeyValue(Document!, out _);
 
         string pkName = Metadata.IsKeyPropertyInt
             ? "serialId"
