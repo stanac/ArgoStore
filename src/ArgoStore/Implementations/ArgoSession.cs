@@ -81,11 +81,6 @@ internal class ArgoSession : IArgoDocumentSession
         return (T)result;
     }
 
-    internal ArgoCommandExecutor CreateExecutor()
-    {
-        return new ArgoCommandExecutor(_connectionString, _serializerOptions);
-    }
-
     public void Insert<T>(T[] documents) where T : class, new()
     {
         DocumentMetadata meta = GetRequiredMetadata<T>();
@@ -95,7 +90,17 @@ internal class ArgoSession : IArgoDocumentSession
             _crudOps.Add(new InsertOperation(meta, doc, TenantId));
         }
     }
-    
+
+    public void Update<T>(T[] documents) where T : class, new()
+    {
+        DocumentMetadata meta = GetRequiredMetadata<T>();
+
+        foreach (T doc in documents)
+        {
+            _crudOps.Add(new UpdateOperation(meta, doc, TenantId));
+        }
+    }
+
     public void DeleteById<T>(params object[] documentIds)
     {
         if (documentIds == null) throw new ArgumentNullException(nameof(documentIds));
@@ -171,6 +176,11 @@ internal class ArgoSession : IArgoDocumentSession
     public void Dispose()
     {
         DiscardChanges();
+    }
+
+    internal ArgoCommandExecutor CreateExecutor()
+    {
+        return new ArgoCommandExecutor(_connectionString, _serializerOptions);
     }
 
     private void DeleteInner(object document)
