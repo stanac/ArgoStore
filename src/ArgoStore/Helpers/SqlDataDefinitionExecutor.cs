@@ -1,7 +1,10 @@
-﻿using ArgoStore.Config;
+﻿using System.Text.Json;
+using ArgoStore.Config;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.Helpers;
+
+// ReSharper disable InconsistentlySynchronizedField
 
 internal class SqlDataDefinitionExecutor
 {
@@ -19,13 +22,11 @@ internal class SqlDataDefinitionExecutor
     public void CreateDocumentObjects(DocumentMetadata meta)
     {
         CreateTable(meta.DocumentName);
-
-        // TODO: create indexes
+        CreateIndexes(meta.Indexes, meta.DocumentName);
     }
 
     private void CreateTable(string documentName)
     {
-        // ReSharper disable once InconsistentlySynchronizedField
         if (CreatedObjects.Contains(documentName))
         {
             return;
@@ -81,11 +82,56 @@ internal class SqlDataDefinitionExecutor
         }
     }
 
+    private void CreateIndexes(IEnumerable<DocumentIndexMetadata> meta, string tableName)
+    {
+        foreach (DocumentIndexMetadata m in meta)
+        {
+            CreateIndex(m, tableName);
+        }
+    }
+
+    private void CreateIndex(DocumentIndexMetadata meta, string tableName)
+    {
+        string name = meta.GetIndexName();
+
+        if (CreatedObjects.Contains(name))
+        {
+            return;
+        }
+
+        lock (Sync)
+        {
+            if (CreatedObjects.Contains(name))
+            {
+                return;
+            }
+
+            string unique = meta.Unique
+                ? "UNIQUE"
+                : "";
+
+            IEnumerable<string> props = meta.PropertyNames.Select(JsonPropertyDataHelper.ExtractProperty);
+
+            string singleProps = string.Join(", ", props);
+
+            string sql = $"""
+                CREATE {unique} INDEX IF NOT EXISTS {name}
+                ON {tableName}({singleProps})
+                """ ;
+
+            using SqliteConnection c = GetAndOpenConnection();
+            SqliteCommand cmd = c.CreateCommand();
+            cmd.CommandText = sql;
+            cmd.ExecuteNonQuery();
+
+            CreatedObjects.Add(name);
+        }
+    }
+
     private SqliteConnection GetAndOpenConnection()
     {
         SqliteConnection c = new SqliteConnection(_connectionString);
         c.Open();
         return c;
     }
-
 }

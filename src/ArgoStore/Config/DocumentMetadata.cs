@@ -4,8 +4,6 @@ namespace ArgoStore.Config;
 
 internal class DocumentMetadata
 {
-    private readonly List<DocumentIndexMetadata> _indexes;
-
     private static readonly Type[] _allowedKeyTypes =
     {
         typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(string), typeof(Guid)
@@ -22,6 +20,7 @@ internal class DocumentMetadata
 
     public Type DocumentType { get; }
     public string DocumentName { get; }
+    public List<DocumentIndexMetadata> Indexes { get; }
     public bool IsKeyPropertyInt { get; }
     public bool IsKeyPropertyString { get; }
     public bool IsKeyPropertyGuid { get; }
@@ -34,10 +33,10 @@ internal class DocumentMetadata
         if (string.IsNullOrWhiteSpace(documentTableName)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(documentTableName));
 
         DocumentType = documentType ?? throw new ArgumentNullException(nameof(documentType));
-        _indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
         DocumentName = documentTableName;
+        Indexes = indexes ?? throw new ArgumentNullException(nameof(indexes));
         _keyProperty = documentType.GetProperty(pkPropertyName, BindingFlags.Public | BindingFlags.Instance)
-            ?? throw new InvalidOperationException($"Failed to find identity property `{pkPropertyName}` on type `{documentType.FullName}`.");
+                       ?? throw new InvalidOperationException($"Failed to find identity property `{pkPropertyName}` on type `{documentType.FullName}`.");
 
         EnsureTypeIsValid(documentType, documentTableName);
 

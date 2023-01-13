@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using System.Text.Json;
 using ArgoStore.Config;
 using ArgoStore.Helpers;
 using ArgoStore.Statements;
@@ -139,7 +138,7 @@ internal class ArgoCommandBuilder
             }
 
             sb.Append("json_insert('{}', '$.value', ")
-                .Append(GetPropertyExtraction(sps.Name))
+                .Append(JsonPropertyDataHelper.ExtractProperty(sps.Name))
                 .AppendLine(")");
         }
         else if (SelectStatement is SelectAnonymousType sat)
@@ -166,12 +165,12 @@ internal class ArgoCommandBuilder
 
                 sb.Append(", ");
 
-                string propName = ConvertPropertyCase(sat.SelectElements[i].ResultName);
+                string propName = JsonPropertyDataHelper.ConvertPropertyNameCase(sat.SelectElements[i].ResultName);
                 sb.Append("'$.").Append(propName).Append("', ");
 
                 if (sat.SelectElements[i] is SelectPropertyStatement sps1)
                 {
-                    sb.Append(GetPropertyExtraction(sps1.Name));
+                    sb.Append(JsonPropertyDataHelper.ExtractProperty(sps1.Name));
                 }
                 else if (sat.SelectElements[i] is SelectParameterStatement sps2)
                 {
@@ -234,7 +233,7 @@ internal class ArgoCommandBuilder
                 break;
 
             case WherePropertyStatement prop:
-                sb.Append(GetPropertyExtraction(prop.PropertyName)).Append(" ");
+                sb.Append(JsonPropertyDataHelper.ExtractProperty(prop.PropertyName)).Append(" ");
                 break;
 
             case WhereStringContainsMethodCallStatement scm:
@@ -368,18 +367,6 @@ internal class ArgoCommandBuilder
         }
     }
 
-    private string GetPropertyExtraction(string propertyName, string alias = null)
-    {
-        propertyName = ConvertPropertyCase(propertyName);
-
-        if (string.IsNullOrWhiteSpace(alias))
-        {
-            return $"json_extract(jsonData, '$.{propertyName}')";
-        }
-
-        return $"json_extract({alias}.jsonData, '$.{propertyName}')";
-    }
-
     private void AppendLimit(StringBuilder sb)
     {
         if (IsSelectFirstOrSingle || IsSelectAny)
@@ -387,12 +374,7 @@ internal class ArgoCommandBuilder
             sb.Append("LIMIT 1");
         }
     }
-
-    private string ConvertPropertyCase(string propertyName)
-    {
-        return JsonNamingPolicy.CamelCase.ConvertName(propertyName).Replace("'", "''");
-    }
-
+    
     private DocumentMetadata FindDocMeta(IReadOnlyDictionary<Type, DocumentMetadata> documentTypeMetaMap)
     {
         if (documentTypeMetaMap.TryGetValue(_docType, out DocumentMetadata meta))

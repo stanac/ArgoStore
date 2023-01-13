@@ -31,8 +31,8 @@ public class ArgoDocumentStore : IArgoDocumentStore
         _connectionString = c.ConnectionString;
         _ddExec = new SqlDataDefinitionExecutor(_connectionString);
 
-        _docTypeMetaMap = new ConcurrentDictionary<Type, DocumentMetadata>(c.DocumentMeta);
         _serializerOptions = CreateJsonSerializerOptions();
+        _docTypeMetaMap = new ConcurrentDictionary<Type, DocumentMetadata>(c.DocumentMeta);
 
         foreach (KeyValuePair<Type, DocumentMetadata> pair in _docTypeMetaMap)
         {

@@ -50,7 +50,7 @@ public class PersonsController : ControllerBase
     }
     
     [HttpPut, Route("{id}")]
-    public IActionResult Update([FromRoute]Guid id, [FromBody] Person person, [FromQuery] bool upsert)
+    public IActionResult Update([FromRoute]Guid id, [FromBody] Person person, [FromQuery] bool upsert = false)
     {
         if (!upsert)
         {

@@ -6,6 +6,13 @@ namespace ArgoStore.Config;
 
 internal abstract class DocumentConfiguration
 {
+    private static readonly Type[] _supportedPkTypes =
+    {
+        typeof(string), typeof(Guid),
+        typeof(int), typeof(uint),
+        typeof(long), typeof(ulong)
+    };
+
     protected readonly List<LambdaExpression> PrimaryKeyExpressions = new();
     protected readonly List<LambdaExpression> UniqueIndexesExpressions = new();
     protected readonly List<LambdaExpression> NonUniqueIndexesExpressions = new();
@@ -49,6 +56,15 @@ internal abstract class DocumentConfiguration
                         "cannot be used as primary key. Property must have public getter and setter.");
                 }
 
+                if (!_supportedPkTypes.Contains(pi.PropertyType))
+                {
+                    throw new InvalidOperationException(
+                        $"Property `{pi.Name}` on `{DocumentType.FullName}` " +
+                        "cannot be used as primary key. Property must be of type " +
+                        "(string, Guid, int, int64, uint, uint64)"
+                    );
+                }
+                
                 return pi.Name;
             }
         }

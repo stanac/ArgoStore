@@ -6,8 +6,9 @@ namespace ArgoStore.IntegrationTests;
 
 public class IntegrationTestBase : IDisposable
 {
-    protected TestDb TestDb { get; private set; } = TestDb.CreateNew();
+    protected TestDb CurrentTestDb { get; private set; } = TestDb.CreateNew();
     protected ArgoDocumentStore Store { get; private set; }
+    protected virtual bool InitializeUser => true;
 
     public IntegrationTestBase()
     {
@@ -39,18 +40,21 @@ public class IntegrationTestBase : IDisposable
     {
         Dispose();
 
-        TestDb = new OnDiskTestDb();
+        CurrentTestDb = new OnDiskTestDb();
         Initialize();
     }
     
     public void Dispose()
     {
-        TestDb.Dispose();
+        CurrentTestDb.Dispose();
     }
 
     private void Initialize()
     {
-        Store = new ArgoDocumentStore(TestDb.ConnectionString);
-        Store.RegisterDocument<Person>();
+        if (InitializeUser)
+        {
+            Store = new ArgoDocumentStore(CurrentTestDb.ConnectionString);
+            Store.RegisterDocument<Person>();
+        }
     }
 }

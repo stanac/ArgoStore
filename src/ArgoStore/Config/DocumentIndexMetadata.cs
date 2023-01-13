@@ -23,17 +23,7 @@ internal class DocumentIndexMetadata
     public bool Unique { get; }
     public IReadOnlyList<string> PropertyNames { get; }
     public Type EntityType { get; }
-
-    public bool HasSameProperties(DocumentIndexMetadata other)
-    {
-        if (other == null) throw new ArgumentNullException(nameof(other));
-
-        string props1 = string.Join("|||?|||", PropertyNames.Select(x => x.ToLower()).OrderBy(x => x));
-        string props2 = string.Join("|||?|||", other.PropertyNames.Select(x => x.ToLower()).OrderBy(x => x));
-
-        return props1 == props2;
-    }
-
+    
     public void EnsurePropertyNamesAreUnique()
     {
         if (PropertyNames.Count != PropertyNames.Distinct().Count())
