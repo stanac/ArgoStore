@@ -203,7 +203,15 @@ internal class ArgoCommandExecutor
         if (serializerOptions == null) throw new ArgumentNullException(nameof(serializerOptions));
 
         SqliteCommand cmd = op.CreateCommand(serializerOptions);
-        cmd.EnsureNoGuidParams();
+        try
+        {
+            cmd.EnsureNoGuidParams();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
         cmd.Connection = tr.Connection;
         cmd.Transaction = tr;
 
