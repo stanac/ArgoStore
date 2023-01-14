@@ -255,4 +255,130 @@ public class UpsertTests : IntegrationTestBase
         pFromDb.Should().NotBeNull();
         pFromDb!.Name.Should().Be(p1.Name);
     }
+
+    [Fact]
+    public void Int64Pk_ExistInDb_IdSet_Updates()
+    {
+        PersonPkInt64 p1 = new PersonPkInt64
+        {
+            Name = "Name 1",
+            Id = 99
+        };
+
+        IArgoDocumentSession s = Store.OpenSession();
+        s.Insert(p1);
+        s.SaveChanges();
+        s.Query<PersonPkInt64>().Count().Should().Be(1);
+
+        string newName = "Name 2";
+        p1.Name = newName;
+        s.Upsert(p1);
+        s.SaveChanges();
+
+        PersonPkInt64 pFromDb = s.Query<PersonPkInt64>().Single();
+        pFromDb.Should().NotBeNull();
+        pFromDb!.Name.Should().Be(newName);
+    }
+
+    [Fact]
+    public void Int64Pk_DoesNotExistInDb_IdSet_Inserts()
+    {
+        PersonPkInt64 p1 = new PersonPkInt64
+        {
+            Name = "Name 1",
+            Id = 99
+        };
+
+        IArgoDocumentSession s = Store.OpenSession();
+        s.Query<PersonPkInt64>().Count().Should().Be(0);
+
+        s.Upsert(p1);
+        s.SaveChanges();
+
+        PersonPkInt64 pFromDb = s.Query<PersonPkInt64>().Single();
+        pFromDb.Should().NotBeNull();
+        pFromDb!.Name.Should().Be(p1.Name);
+    }
+
+    [Fact]
+    public void Int64Pk_DoesNotExistInDb_IdNotSet_Inserts()
+    {
+        PersonPkInt64 p1 = new PersonPkInt64
+        {
+            Name = "Name 1",
+        };
+
+        IArgoDocumentSession s = Store.OpenSession();
+        s.Query<PersonPkInt64>().Count().Should().Be(0);
+
+        s.Upsert(p1);
+        s.SaveChanges();
+
+        PersonPkInt64 pFromDb = s.Query<PersonPkInt64>().Single();
+        pFromDb.Should().NotBeNull();
+        pFromDb!.Name.Should().Be(p1.Name);
+    }
+
+    [Fact]
+    public void UInt64Pk_ExistInDb_IdSet_Updates()
+    {
+        PersonPkUInt64 p1 = new PersonPkUInt64
+        {
+            Name = "Name 1",
+            Id = 99
+        };
+
+        IArgoDocumentSession s = Store.OpenSession();
+        s.Insert(p1);
+        s.SaveChanges();
+        s.Query<PersonPkUInt64>().Count().Should().Be(1);
+
+        string newName = "Name 2";
+        p1.Name = newName;
+        s.Upsert(p1);
+        s.SaveChanges();
+
+        PersonPkUInt64 pFromDb = s.Query<PersonPkUInt64>().Single();
+        pFromDb.Should().NotBeNull();
+        pFromDb!.Name.Should().Be(newName);
+    }
+
+    [Fact]
+    public void UInt64Pk_DoesNotExistInDb_IdSet_Inserts()
+    {
+        PersonPkUInt64 p1 = new PersonPkUInt64
+        {
+            Name = "Name 1",
+            Id = 99
+        };
+
+        IArgoDocumentSession s = Store.OpenSession();
+        s.Query<PersonPkUInt64>().Count().Should().Be(0);
+
+        s.Upsert(p1);
+        s.SaveChanges();
+
+        PersonPkUInt64 pFromDb = s.Query<PersonPkUInt64>().Single();
+        pFromDb.Should().NotBeNull();
+        pFromDb!.Name.Should().Be(p1.Name);
+    }
+
+    [Fact]
+    public void UInt64Pk_DoesNotExistInDb_IdNotSet_Inserts()
+    {
+        PersonPkUInt64 p1 = new PersonPkUInt64
+        {
+            Name = "Name 1",
+        };
+
+        IArgoDocumentSession s = Store.OpenSession();
+        s.Query<PersonPkUInt64>().Count().Should().Be(0);
+
+        s.Upsert(p1);
+        s.SaveChanges();
+
+        PersonPkUInt64 pFromDb = s.Query<PersonPkUInt64>().Single();
+        pFromDb.Should().NotBeNull();
+        pFromDb!.Name.Should().Be(p1.Name);
+    }
 }
