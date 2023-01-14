@@ -6,6 +6,17 @@ namespace ArgoStore.IntegrationTests;
 public class IndexTests : IntegrationTestBase
 {
     [Fact]
+    public void PersonOnIndex_CreatesIndexOnPkJsonField()
+    {
+        Store.RegisterDocument<Person>();
+
+        using SqliteConnection c = CurrentTestDb.GetAndOpenConnection();
+        List<SqliteHelpers.IndexInfo> indexes = SqliteHelpers.ListIndexes(c);
+
+        indexes.Any(x => x.Sql.Contains("json_extract") && x.Sql.Contains("id")).Should().BeTrue();
+    }
+
+    [Fact]
     public void PersonWithUniqueKeyOn_Email()
     {
         Store.RegisterDocument<Person>(p =>

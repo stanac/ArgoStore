@@ -21,12 +21,14 @@ internal class SqlDataDefinitionExecutor
 
     public void CreateDocumentObjects(DocumentMetadata meta)
     {
-        CreateTable(meta.DocumentName);
+        CreateTable(meta.DocumentName, meta.KeyPropertyName);
         CreateIndexes(meta.Indexes, meta.DocumentName);
     }
 
-    private void CreateTable(string documentName)
+    private void CreateTable(string documentName, string pkPropertyName)
     {
+        pkPropertyName = JsonPropertyDataHelper.ExtractProperty(pkPropertyName);
+
         if (CreatedObjects.Contains(documentName))
         {
             return;
@@ -58,6 +60,10 @@ internal class SqlDataDefinitionExecutor
                 $"""
                 CREATE INDEX IF NOT EXISTS ix_{documentName}_tenant 
                 ON {documentName} (tenantId)
+            """ ,
+                $"""
+                CREATE INDEX IF NOT EXISTS pk_json_{documentName} 
+                ON {documentName} ({pkPropertyName})
             """ /*,
             $"""
             CREATE INDEX IF NOT EXISTS ix_{documentName}_createdAt
