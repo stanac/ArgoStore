@@ -78,13 +78,45 @@ internal class UpsertOperation : CrudOperation
 
     private SqliteCommand CreateForSerialId(JsonSerializerOptions jsonSerializerOptions)
     {
-        throw new NotImplementedException();
+        object key = Metadata.GetPrimaryKeyValue(Document!, out bool isDefaultValue)!;
 
-        string sql = $"""
+        string sql;
+
+        if (isDefaultValue)
+        {
+            sql = $@"
+                INSERT INTO {Metadata.DocumentName} (tenantId, stringId, jsonData, createdAt)
+                VALUES (@tenantId, @guidId, json(@jsonData), @updatedAt)
+            ";
+        }
+        else
+        {
+            sql = $@"
                 INSERT INTO {Metadata.DocumentName} (serialId, tenantId, stringId, jsonData, createdAt)
-                VALUES (@serialId, @tenantId, @guidId, json(@jsonData), @updatedAt)
+                VALUES (@id, @tenantId, @guidId, json(@jsonData), @updatedAt)
                 ON CONFLICT DO UPDATE SET jsonData = json(@jsonData), updatedAt = @updatedAt
                 WHERE serialId = @id
-            """;
+            ";
+        }
+
+        long updatedAt = Clock.Default.GetCurrentUtcMilliseconds();
+        string jsonData = JsonSerializer.Serialize(Document, jsonSerializerOptions);
+
+        SqliteCommand cmd = new SqliteCommand(sql);
+
+        if (!isDefaultValue)
+        {
+            cmd.Parameters.AddWithValue("id", key);
+        }
+        
+        cmd.Parameters.AddWithValue("jsonData", jsonData);
+        cmd.Parameters.AddWithValue("updatedAt", updatedAt);
+        cmd.Parameters.AddWithValue("key", key);
+        cmd.Parameters.AddWithValue("tenantId", TenantId);
+        cmd.Parameters.AddWithValue("guidId", Guid.NewGuid().ToString().ToLower());
+
+        cmd.EnsureNoGuidParams();
+
+        return cmd;
     }
 }

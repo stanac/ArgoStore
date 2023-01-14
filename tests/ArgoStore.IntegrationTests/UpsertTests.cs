@@ -131,11 +131,55 @@ public class UpsertTests : IntegrationTestBase
     }
 
     [Fact]
+    public void Int32Pk_ExistInDb_IdSet_Updates()
+    {
+        PersonPkInt32 p1 = new PersonPkInt32
+        {
+            Name = "Name 1",
+            Id = 99
+        };
+
+        IArgoDocumentSession s = Store.OpenSession();
+        s.Insert(p1);
+        s.SaveChanges();
+        s.Query<PersonPkInt32>().Count().Should().Be(1);
+
+        string newName = "Name 2";
+        p1.Name = newName;
+        s.Upsert(p1);
+        s.SaveChanges();
+
+        PersonPkInt32 pFromDb = s.Query<PersonPkInt32>().Single();
+        pFromDb.Should().NotBeNull();
+        pFromDb!.Name.Should().Be(newName);
+    }
+
+    [Fact]
+    public void Int32Pk_DoesNotExistInDb_IdSet_Inserts()
+    {
+        PersonPkInt32 p1 = new PersonPkInt32
+        {
+            Name = "Name 1",
+            Id = 99
+        };
+
+        IArgoDocumentSession s = Store.OpenSession();
+        s.Query<PersonPkInt32>().Count().Should().Be(0);
+
+        s.Upsert(p1);
+        s.SaveChanges();
+
+        PersonPkInt32 pFromDb = s.Query<PersonPkInt32>().Single();
+        pFromDb.Should().NotBeNull();
+        pFromDb!.Name.Should().Be(p1.Name);
+    }
+    
+    [Fact]
     public void Int32Pk_DoesNotExistInDb_IdNotSet_Inserts()
     {
         PersonPkInt32 p1 = new PersonPkInt32
         {
-            Name = "Name 1"
+            Name = "Name 1",
         };
 
         IArgoDocumentSession s = Store.OpenSession();
