@@ -49,6 +49,8 @@ public class ArgoCommand
             cmds[0] = cmd;
         }
 
+        cmds.Last().EnsureNoGuidParams();
+
         return new SqliteCommandCollection(cmds);
     }
 

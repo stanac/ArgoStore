@@ -45,6 +45,10 @@ public class DeleteTests : IntegrationTestBase
     [Fact]
     public void DeleteById_DeletesDocument()
     {
+        // TODO: remove UseFileDb
+        UseFileDb();
+        InsertTestPersons();
+
         using IArgoDocumentSession s = Store.OpenSession();
 
         s.GetById<Person>(_person1.Id).Should().NotBeNull();

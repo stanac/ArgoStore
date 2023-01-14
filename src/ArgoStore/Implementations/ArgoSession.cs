@@ -65,7 +65,15 @@ internal class ArgoSession : IArgoDocumentSession
 
         ArgoCommandParameterCollection parameters = new();
 
-        parameters.AddWithName("key", id);
+        if (meta.IsKeyPropertyGuid)
+        {
+            parameters.AddWithName("key", id.ToString()!.ToLower());
+        }
+        else
+        {
+            parameters.AddWithName("key", id);
+        }
+
         parameters.AddWithName("tenantId", TenantId);
 
         ArgoCommand cmd = new ArgoCommand(sql, parameters, ArgoCommandTypes.FirstOrDefault, typeof(T), true, false);

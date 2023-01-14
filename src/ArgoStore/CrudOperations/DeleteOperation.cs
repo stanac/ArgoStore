@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using ArgoStore.Config;
+using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.CrudOperations;
@@ -22,8 +23,19 @@ internal class DeleteOperation : CrudOperation
         string sql = $"DELETE FROM {Metadata.DocumentName} WHERE {idPropName} = @id AND tenantId = @tenantId";
 
         SqliteCommand cmd = new SqliteCommand(sql);
-        cmd.Parameters.AddWithValue("id", id);
+
+        if (id is Guid g)
+        {
+            cmd.Parameters.AddWithValue("id", g.ToString().ToLower());
+        }
+        else
+        {
+            cmd.Parameters.AddWithValue("id", id);
+        }
+
         cmd.Parameters.AddWithValue("tenantId", TenantId);
+
+        cmd.EnsureNoGuidParams();
 
         return cmd;
     }

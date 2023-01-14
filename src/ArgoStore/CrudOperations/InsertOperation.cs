@@ -27,8 +27,13 @@ internal class InsertOperation : CrudOperation
         object key = Metadata.SetIfNeededAndGetPrimaryKeyValue(Document!, out bool insertKey);
 
         object guidId = Metadata.IsKeyPropertyInt
-            ? Guid.NewGuid().ToString()
+            ? Guid.NewGuid().ToString().ToLower()
             : key;
+
+        if (guidId is Guid g)
+        {
+            guidId = g.ToString().ToLower();
+        }
 
         insertKey = insertKey && Metadata.IsKeyPropertyInt;
 

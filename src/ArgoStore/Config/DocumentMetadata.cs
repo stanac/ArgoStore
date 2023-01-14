@@ -102,6 +102,54 @@ internal class DocumentMetadata
         return key;
     }
 
+    public bool DoesPrimaryKeyHaveDefaultValue(object doc)
+    {
+        if (doc == null) throw new ArgumentNullException(nameof(doc));
+
+#if DEBUG
+        if (doc.GetType() != DocumentType)
+        {
+            throw new InvalidOperationException(
+                $"Document of type `{doc.GetType().FullName}` not expected. Expected `{DocumentType.FullName}`"
+            );
+        }
+#endif
+
+        object? pk = _keyProperty.GetValue(doc);
+
+        if (pk == null)
+        {
+            return true;
+        }
+
+        if (IsKeyPropertyGuid)
+        {
+            return (Guid)pk == default;
+        }
+
+        if (IsKeyPropertyString)
+        {
+            return false;
+        }
+        
+        if (_keyProperty.PropertyType == typeof(int))
+        {
+            return (int)pk == default;
+        }
+
+        if (_keyProperty.PropertyType == typeof(uint))
+        {
+            return (uint)pk == default;
+        }
+
+        if (_keyProperty.PropertyType == typeof(long))
+        {
+            return (long)pk == default;
+        }
+
+        return (ulong)pk == default;
+    }
+
     public void SetKey(object document, object key)
     {
         _keyProperty.SetValue(document, key);
@@ -147,7 +195,7 @@ internal class DocumentMetadata
 
             if (s == null)
             {
-                s = Guid.NewGuid().ToString();
+                s = Guid.NewGuid().ToString().ToLower();
                 _keyProperty.SetValue(doc, s);
             }
 

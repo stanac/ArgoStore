@@ -36,10 +36,20 @@ internal class UpdateOperation : CrudOperation
 
         SqliteCommand cmd = new SqliteCommand(sql);
 
+        if (key is Guid g)
+        {
+            cmd.Parameters.AddWithValue("key", g.ToString().ToLower());
+        }
+        else
+        {
+            cmd.Parameters.AddWithValue("key", key);
+        }
+        
         cmd.Parameters.AddWithValue("jsonData", jsonData);
         cmd.Parameters.AddWithValue("updatedAt", updatedAt);
-        cmd.Parameters.AddWithValue("key", key);
         cmd.Parameters.AddWithValue("tenantId", TenantId);
+
+        cmd.EnsureNoGuidParams();
 
         return cmd;
     }
