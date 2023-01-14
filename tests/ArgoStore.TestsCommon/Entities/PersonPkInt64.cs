@@ -13,4 +13,18 @@ public class PersonPkInt64
             Name = "Test"
         };
     }
+
+    public static PersonPkInt64 TestPerson1 =>
+        new()
+        {
+            Id = 1,
+            Name = "Test 1"
+        };
+
+    public static PersonPkInt64 TestPerson2 =>
+        new()
+        {
+            Id = 2,
+            Name = "Test 2"
+        };
 }
