@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using ArgoStore.Command;
 using ArgoStore.Statements.Select;
+using ArgoStore.StatementTranslators.Order;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ResultOperators;
@@ -67,6 +68,7 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 
     public override void VisitOrdering(Ordering ordering, QueryModel queryModel, OrderByClause orderByClause, int index)
     {
+        CommandBuilder.OrderByStatements.Add(OrderTranslator.Translate(ordering));
         base.VisitOrdering(ordering, queryModel, orderByClause, index);
     }
 

@@ -2,6 +2,7 @@
 using ArgoStore.Config;
 using ArgoStore.Helpers;
 using ArgoStore.Statements;
+using ArgoStore.Statements.Order;
 using ArgoStore.Statements.Select;
 using ArgoStore.Statements.Where;
 using ArgoStore.StatementTranslators.Select;
@@ -18,6 +19,7 @@ internal class ArgoCommandBuilder
 
     public DocumentMetadata? Metadata { get; private set; }
     public List<WhereStatement> WhereStatements = new();
+    public List<OrderByStatement> OrderByStatements { get; } = new();
     public SelectStatementBase? SelectStatement { get; private set; }
     public Type ResultingType { get; private set; }
     public bool IsResultingTypeJson { get; private set; } = true;
@@ -26,6 +28,7 @@ internal class ArgoCommandBuilder
     public bool IsSelectCount => SelectStatement is SelectCountStatement;
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
     public bool IsSelectAny => SelectStatement is SelectAnyStatement;
+
 
     public string? ItemName { get; set; }
 
@@ -53,6 +56,7 @@ internal class ArgoCommandBuilder
         AppendSelect(sb);
         AppendFrom(sb);
         AppendWhere(sb, tenantId);
+        AppendOrderBy(sb);
         AppendLimit(sb);
 
         string sql = sb.ToString();
@@ -364,6 +368,31 @@ internal class ArgoCommandBuilder
         if (s.Method is StringMethods.Contains or StringMethods.StartsWith)
         {
             sb.Append(" || '%' ");
+        }
+    }
+
+    private void AppendOrderBy(StringBuilder sb)
+    {
+        if (OrderByStatements.Any())
+        {
+            sb.Append("ORDER BY ");
+
+            for (var i = 0; i < OrderByStatements.Count; i++)
+            {
+                OrderByStatement s = OrderByStatements[i];
+
+                if (i > 0)
+                {
+                    sb.Append(", ");
+                }
+
+                sb.Append(JsonPropertyDataHelper.ExtractProperty(s.PropertyName))
+                    .Append(" ")
+                    .Append(s.Direction)
+                    .Append(" ");
+            }
+
+            sb.AppendLine();
         }
     }
 
