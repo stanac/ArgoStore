@@ -68,7 +68,7 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 
     public override void VisitOrdering(Ordering ordering, QueryModel queryModel, OrderByClause orderByClause, int index)
     {
-        CommandBuilder.OrderByStatements.Add(OrderTranslator.Translate(ordering));
+        CommandBuilder.OrderByStatements.AddRange(OrderTranslator.Translate(ordering));
         base.VisitOrdering(ordering, queryModel, orderByClause, index);
     }
 
