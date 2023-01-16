@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using ArgoStore.Command;
 using ArgoStore.Statements.Select;
+using ArgoStore.Statements.SkipTake;
 using ArgoStore.StatementTranslators.Order;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -110,6 +111,14 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         else if (resultOperator is AnyResultOperator)
         {
             CommandBuilder.SetSelectStatement(new SelectAnyStatement());
+        }
+        else if (resultOperator is SkipResultOperator skro)
+        {
+            CommandBuilder.Skip = SkipTakeTranslator.GetSkipOrTakeValue(skro.Count, true);
+        }
+        else if (resultOperator is TakeResultOperator tro)
+        {
+            CommandBuilder.Take = SkipTakeTranslator.GetSkipOrTakeValue(tro.Count, false);
         }
 
         base.VisitResultOperator(resultOperator, queryModel, index);

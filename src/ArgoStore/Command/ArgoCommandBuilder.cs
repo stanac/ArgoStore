@@ -24,12 +24,13 @@ internal class ArgoCommandBuilder
     public Type ResultingType { get; private set; }
     public bool IsResultingTypeJson { get; private set; } = true;
     public bool IsDistinct { get; private set; }
+    public int? Take { get; set; }
+    public int? Skip { get; set; }
 
     public bool IsSelectCount => SelectStatement is SelectCountStatement;
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
     public bool IsSelectAny => SelectStatement is SelectAnyStatement;
-
-
+    
     public string? ItemName { get; set; }
 
     public ArgoCommandBuilder(QueryModel model)
@@ -58,6 +59,7 @@ internal class ArgoCommandBuilder
         AppendWhere(sb, tenantId);
         AppendOrderBy(sb);
         AppendLimit(sb);
+        AppendSkip(sb);
 
         string sql = sb.ToString();
 
@@ -396,11 +398,23 @@ internal class ArgoCommandBuilder
         }
     }
 
+    private void AppendSkip(StringBuilder sb)
+    {
+        if (Skip.HasValue)
+        {
+            sb.Append(" OFFSET ").AppendLine(Skip.Value.ToString());
+        }
+    }
+
     private void AppendLimit(StringBuilder sb)
     {
         if (IsSelectFirstOrSingle || IsSelectAny)
         {
             sb.Append("LIMIT 1");
+        }
+        else if (Take.HasValue)
+        {
+            sb.Append("LIMIT ").Append(Take.Value.ToString());
         }
     }
     
