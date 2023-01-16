@@ -37,4 +37,20 @@ public class SkipTakeTests : IntegrationTestBase
         result.Should().HaveCount(3);
         result.ForEach(x => x.NumberOfPorts.Should().BeGreaterThan(0));
     }
+
+    [Theory]
+    [InlineData(50, 3)]
+    public void SkipTake_FromParameter_WorksAsExpected(int skip, int take)
+    {
+        IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        List<Person> result = s.Query<Person>()
+            .OrderBy(x => x.NumberOfPorts)
+            .Skip(skip)
+            .Take(take)
+            .ToList();
+
+        result.Should().HaveCount(3);
+        result.ForEach(x => x.NumberOfPorts.Should().BeGreaterThan(0));
+    }
 }
