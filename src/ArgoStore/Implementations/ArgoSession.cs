@@ -3,6 +3,8 @@ using System.Text.Json;
 using ArgoStore.Command;
 using ArgoStore.Config;
 using ArgoStore.CrudOperations;
+using ArgoStore.Helpers;
+using Microsoft.Extensions.Logging;
 
 namespace ArgoStore.Implementations;
 
@@ -12,16 +14,15 @@ internal class ArgoSession : IArgoDocumentSession
     public IReadOnlyDictionary<Type, DocumentMetadata> DocumentTypesMetaMap { get; }
     private readonly string _connectionString;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly ILogger<ArgoSession> _logger;
+    private readonly SessionId _sessionId = new();
     internal const string DefaultTenant = "DEFAULT";
 
     private readonly List<CrudOperation> _crudOps = new();
-
-    public ArgoSession(string connectionString, IReadOnlyDictionary<Type, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
-        : this(connectionString, DefaultTenant, documentTypes, serializerOptions)
-    {
-    }
-
-    public ArgoSession(string connectionString, string tenantId, IReadOnlyDictionary<Type, DocumentMetadata> documentTypes, JsonSerializerOptions serializerOptions)
+    
+    public ArgoSession(string connectionString, string tenantId, IReadOnlyDictionary<Type, DocumentMetadata> documentTypes,
+        JsonSerializerOptions serializerOptions, ILoggerFactory loggerFactory)
     {
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
         if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
@@ -31,15 +32,26 @@ internal class ArgoSession : IArgoDocumentSession
         DocumentTypesMetaMap = documentTypes ?? throw new ArgumentNullException(nameof(documentTypes));
         _connectionString = connectionString;
         _serializerOptions = serializerOptions ?? throw new ArgumentNullException(nameof(serializerOptions));
+        _loggerFactory = loggerFactory;
+        _logger = _loggerFactory.CreateLogger<ArgoSession>();
+
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Started session: {SessionId}", _sessionId.Id);
+        }
     }
 
     public IArgoStoreQueryable<T> Query<T>() where T : class, new()
     {
+        DebugLogMethodStart<T>("Query<T>");
+
         return new ArgoStoreQueryable<T>(this);
     }
 
     public T? GetById<T>(object id) where T : class, new()
     {
+        DebugLogMethodStart<T>("GetById<T>");
+
         if (id is null)
         {
             throw new ArgumentNullException(nameof(id));
@@ -91,6 +103,8 @@ internal class ArgoSession : IArgoDocumentSession
 
     public void Insert<T>(T[] documents) where T : class, new()
     {
+        DebugLogMethodStart<T>("Insert<T>");
+
         DocumentMetadata meta = GetRequiredMetadata<T>();
 
         foreach (T doc in documents)
@@ -101,6 +115,8 @@ internal class ArgoSession : IArgoDocumentSession
 
     public void Update<T>(T[] documents) where T : class, new()
     {
+        DebugLogMethodStart<T>("Update<T>");
+
         DocumentMetadata meta = GetRequiredMetadata<T>();
 
         foreach (T doc in documents)
@@ -111,6 +127,8 @@ internal class ArgoSession : IArgoDocumentSession
     
     public void Upsert<T>(T[] documents) where T : class, new()
     {
+        DebugLogMethodStart<T>("Upsert<T>");
+
         DocumentMetadata meta = GetRequiredMetadata<T>();
 
         foreach (T doc in documents)
@@ -121,6 +139,8 @@ internal class ArgoSession : IArgoDocumentSession
 
     public void DeleteById<T>(params object[] documentIds)
     {
+        DebugLogMethodStart<T>("DeleteById<T>");
+
         if (documentIds == null) throw new ArgumentNullException(nameof(documentIds));
 
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -154,6 +174,8 @@ internal class ArgoSession : IArgoDocumentSession
 
     public void Delete(params object[] document)
     {
+        DebugLogMethodStart("Delete");
+
         if (document == null) throw new ArgumentNullException(nameof(document));
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (document.Any(x => x is null))
@@ -170,6 +192,8 @@ internal class ArgoSession : IArgoDocumentSession
     public void DeleteWhere<T>(Expression<Func<T, bool>> predicate)
         where T : class, new()
     {
+        DebugLogMethodStart<T>("DeleteWhere<T>");
+
         List<T> items = Query<T>().Where(predicate).ToList();
 
         foreach (T item in items)
@@ -180,6 +204,8 @@ internal class ArgoSession : IArgoDocumentSession
 
     public void SaveChanges()
     {
+        DebugLogMethodStart("SaveChanges");
+
         if (_crudOps.Any())
         {
             ArgoCommandExecutor exec = CreateExecutor();
@@ -190,17 +216,49 @@ internal class ArgoSession : IArgoDocumentSession
 
     public void DiscardChanges()
     {
+        DebugLogMethodStart("DiscardChanges");
+
         _crudOps.Clear();
     }
 
     public void Dispose()
     {
-        DiscardChanges();
-    }
+        DebugLogMethodStart("Dispose");
 
+        _crudOps.Clear();
+    }
+    
     internal ArgoCommandExecutor CreateExecutor()
     {
-        return new ArgoCommandExecutor(_connectionString, _serializerOptions);
+        return new ArgoCommandExecutor(
+            _connectionString,
+            _serializerOptions,
+            _loggerFactory.CreateLogger<ArgoCommandExecutor>(),
+            _sessionId);
+    }
+
+    private void DebugLogMethodStart(string methodName, params object[] args)
+    {
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            methodName = $"Method {methodName} start. SessionId: {{SessionId}}";
+
+            List<object> argsList = new(args) { _sessionId.Id };
+
+            _logger.LogDebug(methodName, argsList.ToArray());
+        }
+    }
+
+    private void DebugLogMethodStart<T>(string methodName, params object[] args)
+    {
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            methodName = $"Method {methodName} start. SessionId: {{SessionId}}, type: {{Type}}";
+
+            List<object> argsList = new (args) {_sessionId.Id, typeof(T).FullName ?? typeof(T).Name};
+
+            _logger.LogDebug(methodName, argsList.ToArray());
+        }
     }
 
     private void DeleteInner(object document)

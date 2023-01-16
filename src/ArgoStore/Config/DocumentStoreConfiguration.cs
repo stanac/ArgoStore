@@ -1,9 +1,12 @@
 ﻿using ArgoStore.Implementations;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArgoStore.Config;
 
 internal class DocumentStoreConfiguration : IArgoStoreConfiguration
 {
+    internal ILoggerFactory LoggerFactory { get; private set; } = new NullLoggerFactory();
     private string? _connectionString;
     private readonly Dictionary<Type, DocumentConfiguration> _entityConfigs = new();
 
@@ -11,6 +14,11 @@ internal class DocumentStoreConfiguration : IArgoStoreConfiguration
     {
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
         _connectionString = connectionString;
+    }
+
+    public void SetLogger(ILoggerFactory loggerFactory)
+    {
+        LoggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
     public IDocumentConfiguration<TDocument> RegisterDocument<TDocument>() where TDocument : class, new()

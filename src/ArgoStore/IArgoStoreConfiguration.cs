@@ -1,4 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Logging;
+
 // ReSharper disable RedundantNullableFlowAttribute
 
 namespace ArgoStore;
@@ -13,6 +15,8 @@ public interface IArgoStoreConfiguration
     /// </summary>
     /// <param name="connectionString">SQLite connection string</param>
     void ConnectionString([DisallowNull] string connectionString);
+
+    void SetLogger(ILoggerFactory loggerFactory);
 
     /// <summary>
     /// Registers document type without any additional options

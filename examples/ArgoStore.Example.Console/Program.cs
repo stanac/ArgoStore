@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using ArgoStore;
+using Microsoft.Extensions.Logging;
 
 namespace ArgoStore.Example.Console;
 
@@ -12,16 +13,16 @@ static class Program
         string dbFilePath = GetDbFilePath();
         string connectionString = $"Data Source={dbFilePath}";
 
-        // IArgoDocumentStore store = new ArgoDocumentStore(connectionString);
-        // store.RegisterDocument<Person>();
+        using ILoggerFactory loggerFactory = LoggerFactory.Create(c =>
+        {
+            c.AddConsole();
+            c.SetMinimumLevel(LogLevel.Debug);
+        });
 
-        // OR
         IArgoDocumentStore store = new ArgoDocumentStore(c =>
         {
             c.ConnectionString(connectionString);
             
-            // c.RegisterDocument<Person>();
-            // OR
             c.RegisterDocument<Person>(p =>
             {
                 p.PrimaryKey(x => x.Id);
@@ -29,6 +30,8 @@ static class Program
                 p.UniqueIndex(x => x.EmailAddress);
                 p.NonUniqueIndex(x => new {x.EmailAddress, x.Id});
             });
+
+            c.SetLogger(loggerFactory);
 
         });
 

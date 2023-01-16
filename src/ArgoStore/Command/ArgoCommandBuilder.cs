@@ -187,7 +187,7 @@ internal class ArgoCommandBuilder
         }
         else if (SelectStatement is SelectAnyStatement)
         {
-            sb.Append("SELECT COUNT (1)");
+            sb.AppendLine("SELECT COUNT (1)");
         }
         else
         {

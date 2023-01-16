@@ -4,6 +4,7 @@ using ArgoStore.Config;
 using ArgoStore.CrudOperations;
 using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Logging;
 
 namespace ArgoStore.Command;
 
@@ -11,15 +12,26 @@ internal class ArgoCommandExecutor
 {
     private readonly string _connectionString;
     private readonly JsonSerializerOptions _serializerOptions;
+    private readonly ILogger<ArgoCommandExecutor> _logger;
+    private readonly SessionId _sessionId;
 
-    public ArgoCommandExecutor(string connectionString, JsonSerializerOptions serializerOptions)
+    public ArgoCommandExecutor(string connectionString, JsonSerializerOptions serializerOptions, ILogger<ArgoCommandExecutor> logger, SessionId sessionId)
     {
         _connectionString = connectionString;
         _serializerOptions = serializerOptions;
+        _logger = logger;
+        _sessionId = sessionId;
     }
 
     public object? Execute(ArgoCommand command)
     {
+        if (_logger.IsEnabled(LogLevel.Debug))
+        {
+            _logger.LogDebug("Execute command type: {CommandType} in session: {SessionId} with command text: " +
+                             Environment.NewLine + "{CommandText}",
+                command.CommandType, _sessionId.Id, command.Sql);
+        }
+
         switch (command.CommandType)
         {
             case ArgoCommandTypes.NonQuery:
