@@ -227,6 +227,6 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
             return new List<string>() {"admin", "user"};
         }
 
-        return new List<string>() { "sails", "admin", "user" };
+        return new List<string>() { "sales", "admin", "user" };
     }
 }
