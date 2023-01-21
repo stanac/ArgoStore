@@ -1,7 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using Microsoft.Data.Sqlite;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class IndexTests : IntegrationTestBase
 {
@@ -44,7 +44,7 @@ public class IndexTests : IntegrationTestBase
     {
         Store.RegisterDocument<Person>(p =>
         {
-            p.UniqueIndex(x => new {x.EmailAddress, x.EmailConfirmed});
+            p.UniqueIndex(x => new { x.EmailAddress, x.EmailConfirmed });
         });
 
         using IArgoDocumentSession s = Store.OpenSession();

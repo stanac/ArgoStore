@@ -1,7 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class DeleteTests : IntegrationTestBase
 {
@@ -23,7 +23,7 @@ public class DeleteTests : IntegrationTestBase
     public void DeleteDocument_DeletesDocument()
     {
         using IArgoDocumentSession s = Store.OpenSession();
-        
+
         s.GetById<Person>(_person1.Id).Should().NotBeNull();
         s.GetById<Person>(_person2.Id).Should().NotBeNull();
 
@@ -46,7 +46,7 @@ public class DeleteTests : IntegrationTestBase
     public void DeletePkGuidById_DeletesDocument()
     {
         Store.RegisterDocument<PersonPkGuid>();
-        
+
         using IArgoDocumentSession s = Store.OpenSession();
 
         PersonPkGuid p1 = PersonPkGuid.TestPerson1;

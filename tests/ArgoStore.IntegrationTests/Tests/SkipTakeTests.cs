@@ -1,6 +1,6 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class SkipTakeTests : IntegrationTestBase
 {

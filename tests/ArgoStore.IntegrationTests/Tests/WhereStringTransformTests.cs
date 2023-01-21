@@ -1,6 +1,6 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class WhereStringTransformTests : IntegrationTestBase
 {
@@ -9,7 +9,7 @@ public class WhereStringTransformTests : IntegrationTestBase
     private const string LookupTrimEnd = "Katie Banks";
     private const string LookupUpperCase = "Ramona Taylor";
     private const string LookupLowerCase = "Ken Sutton";
-    
+
     public WhereStringTransformTests()
     {
         InsertTestPersons();
@@ -70,7 +70,7 @@ public class WhereStringTransformTests : IntegrationTestBase
     public void NoMatchedWithoutToUpper_ReturnsEmptyCollection()
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
-        
+
         List<Person> p = s.Query<Person>().Where(x => x.Name == LookupUpperCase).ToList();
         p.Should().BeEmpty();
     }

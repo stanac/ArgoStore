@@ -24,7 +24,7 @@ public class InMemoryTestDb : TestDb
         c.Open();
         return c;
     }
-    
+
     public override void Dispose()
     {
         _connection.Close();

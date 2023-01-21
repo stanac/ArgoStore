@@ -1,12 +1,12 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class StringMethodsInWhereTests : IntegrationTestBase
 {
     private readonly IReadOnlyList<Person> _persons = PersonTestData.GetPersonTestData().ToList();
-    
+
     public StringMethodsInWhereTests()
     {
         InsertTestPersons();
@@ -15,7 +15,7 @@ public class StringMethodsInWhereTests : IntegrationTestBase
         Person p = _persons[0].Copy();
         p.Id = Guid.NewGuid();
         p.Name = p.Name.ToLower();
-        
+
         s.Insert(p);
         s.SaveChanges();
     }
@@ -123,7 +123,7 @@ public class StringMethodsInWhereTests : IntegrationTestBase
         List<Person> p = s.Query<Person>().Where(x => x.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
         p.Should().HaveCount(2);
     }
-    
+
     [Fact]
     public void StartsWith_ReturnsCorrectItems()
     {
@@ -277,4 +277,5 @@ public class StringMethodsInWhereTests : IntegrationTestBase
         List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
         p.Should().HaveCount(1);
     }
+    
 }

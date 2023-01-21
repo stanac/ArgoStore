@@ -1,6 +1,6 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class UpsertTests : IntegrationTestBase
 {
@@ -62,7 +62,7 @@ public class UpsertTests : IntegrationTestBase
 
         IArgoDocumentSession s = Store.OpenSession();
         s.Query<PersonPkString>().Count().Should().Be(0);
-        
+
         s.Upsert(p1);
         s.SaveChanges();
 
@@ -105,7 +105,7 @@ public class UpsertTests : IntegrationTestBase
         IArgoDocumentSession s = Store.OpenSession();
         s.Upsert(p1);
         s.SaveChanges();
-        
+
         PersonPkGuid pFromDb = s.Query<PersonPkGuid>().Single();
         pFromDb.Should().NotBeNull();
         pFromDb!.Name.Should().Be(p1.Name);
@@ -121,10 +121,10 @@ public class UpsertTests : IntegrationTestBase
 
         IArgoDocumentSession s = Store.OpenSession();
         s.Query<PersonPkGuid>().Count().Should().Be(0);
-        
+
         s.Upsert(p1);
         s.SaveChanges();
-        
+
         PersonPkGuid pFromDb = s.Query<PersonPkGuid>().Single();
         pFromDb.Should().NotBeNull();
         pFromDb!.Name.Should().Be(p1.Name);
@@ -173,7 +173,7 @@ public class UpsertTests : IntegrationTestBase
         pFromDb.Should().NotBeNull();
         pFromDb!.Name.Should().Be(p1.Name);
     }
-    
+
     [Fact]
     public void Int32Pk_DoesNotExistInDb_IdNotSet_Inserts()
     {

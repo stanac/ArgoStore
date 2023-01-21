@@ -1,7 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class IEnumerableContainsTests : IntegrationTestBase
 {
@@ -94,7 +94,7 @@ public class IEnumerableContainsTests : IntegrationTestBase
         int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.RolesIReadOnlyList != null && x.Roles.Contains(role));
         r.Should().HaveCount(expectedCount);
     }
-    
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]

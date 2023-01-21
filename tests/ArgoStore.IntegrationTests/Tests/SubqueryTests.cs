@@ -1,7 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class SubqueryTests : IntegrationTestBase
 {
@@ -9,7 +9,7 @@ public class SubqueryTests : IntegrationTestBase
     {
         InsertTestPersons();
     }
-    
+
     [Fact]
     public void SimpleFromSubQuery_ToAnonymousObject_ToList_ReturnsExpected()
     {

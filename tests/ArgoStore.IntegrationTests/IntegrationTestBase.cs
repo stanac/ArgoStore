@@ -1,4 +1,5 @@
-﻿using ArgoStore.TestsCommon.Entities;
+﻿using ArgoStore.IntegrationTests.Tests;
+using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 
 namespace ArgoStore.IntegrationTests;
@@ -13,7 +14,7 @@ public class IntegrationTestBase : IDisposable
     {
         Initialize();
     }
-    
+
     protected void InsertSingleTestPerson()
     {
         using IArgoDocumentSession s = Store.OpenSession();
@@ -30,7 +31,7 @@ public class IntegrationTestBase : IDisposable
     protected void InsertTestPersons()
     {
         using IArgoDocumentSession s = Store.OpenSession();
-        
+
         s.Insert(PersonTestData.GetPersonTestData().ToArray());
         s.SaveChanges();
     }
@@ -42,7 +43,7 @@ public class IntegrationTestBase : IDisposable
         CurrentTestDb = new OnDiskTestDb();
         Initialize();
     }
-    
+
     public void Dispose()
     {
         CurrentTestDb.Dispose();

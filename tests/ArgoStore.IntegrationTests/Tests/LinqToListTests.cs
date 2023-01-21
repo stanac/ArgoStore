@@ -1,7 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class LinqToListTests : IntegrationTestBase
 {
@@ -9,7 +9,7 @@ public class LinqToListTests : IntegrationTestBase
     public void NoDocuments_ToList_GivesEmptyList()
     {
         IArgoDocumentSession s = Store.OpenSession();
-        
+
         List<Person> persons = s.Query<Person>().ToList();
         persons.Should().BeEmpty();
     }

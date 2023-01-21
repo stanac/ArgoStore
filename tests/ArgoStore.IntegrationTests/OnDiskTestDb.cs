@@ -16,7 +16,7 @@ internal class OnDiskTestDb : TestDb
         FilePath = Path.Combine(DirectoryPath, FileName);
         ConnectionString = $"Data Source={FilePath}";
     }
-    
+
     public override SqliteConnection GetAndOpenConnection()
     {
         SqliteConnection c = new SqliteConnection(ConnectionString);

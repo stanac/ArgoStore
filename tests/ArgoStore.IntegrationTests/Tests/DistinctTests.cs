@@ -1,7 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class DistinctTests : IntegrationTestBase
 {
@@ -67,7 +67,7 @@ public class DistinctTests : IntegrationTestBase
             values[i].Should().Be(expectedValues[i]);
         }
     }
-    
+
     [Fact]
     public void DistinctNumberOnWhereAfterSelect_GivesExpectedResults()
     {

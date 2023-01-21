@@ -2,7 +2,7 @@
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 // ReSharper disable AccessToDisposedClosure
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.Tests;
 
 public class GroupByTests : IntegrationTestBase
 {
