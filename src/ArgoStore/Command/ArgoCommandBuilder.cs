@@ -273,13 +273,13 @@ internal class ArgoCommandBuilder
 		            ))
         */
         
-        sb.Append(" (");
+        sb.AppendLine().Append(" /* Collection contains */ ( ");
         AppendWhereStatement(sb, statement.Collection);
-        sb.AppendLine(" IS NOT NULL AND (").Append("    EXISTS (SELECT 1 FROM json_each(");
+        sb.Append(" IS NOT NULL AND (").Append("    EXISTS (SELECT 1 FROM json_each(");
         AppendWhereStatement(sb, statement.Collection);
         sb.Append(") WHERE value = ");
         AppendWhereStatement(sb, statement.Value);
-        sb.Append("))) ");
+        sb.AppendLine("))) ");
     }
 
     private void AppendWhereStringTransform(StringBuilder sb, WhereStringTransformStatement wsts)
