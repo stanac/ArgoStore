@@ -8,6 +8,7 @@ internal class WhereLogicalAndOrStatementTranslator : IWhereToStatementTranslato
     private readonly ExpressionType[] _supportedOperators =
     {
         ExpressionType.And,
+        ExpressionType.AndAlso,
         ExpressionType.Or,
         ExpressionType.OrElse
     };
@@ -24,7 +25,7 @@ internal class WhereLogicalAndOrStatementTranslator : IWhereToStatementTranslato
         WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left);
         WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right);
 
-        bool isAnd = be.NodeType == ExpressionType.Add;
+        bool isAnd = be.NodeType is ExpressionType.And or ExpressionType.AndAlso;
 
         return new WhereLogicalAndOrStatement(isAnd, left, right);
     }

@@ -126,8 +126,10 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                 NickName = _names[i].Split(' ')[0],
                 RegistrationTime = GetRegistrationTime(i),
                 Roles = GetRoles(i),
-                Type = (PersonTypes)(i % 3)
-            };
+                Type = (PersonTypes)(i % 3),
+                PortList = GetPortList(i)
+            }
+                .SetCollections();
         }
     }
 
@@ -208,6 +210,19 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
         DateTime dt = new DateTime(2022, 10, 1);
 
         return dt.AddDays(-index);
+    }
+
+    private static List<int> GetPortList(int index)
+    {
+        if (index % 3 == 0) return new List<int> { 1 };
+        if (index % 5 == 0) return new List<int> { 1, 3 };
+        if (index % 7 == 0) return new List<int> { 1, 3, 2 };
+        if (index % 11 == 0) return new List<int> { 1, 2 };
+        if (index % 13 == 0) return new List<int> { 2 };
+        if (index % 17 == 0) return new List<int> { 2, 3 };
+        if (index % 19 == 0) return new List<int> { 3 };
+        if (index % 23 == 0) return null;
+        return new List<int>();
     }
 
     private static List<string> GetRoles(int index)

@@ -14,7 +14,12 @@ namespace ArgoStore.TestsCommon.Entities
         public int OddNumberOfPorts { get; set; }
         public string EmailAddress { get; set; }
         public bool EmailConfirmed { get; set; }
+        public List<int> PortList { get; set; }
         public List<string> Roles { get; set; }
+        public string[] RolesArray { get; set; }
+        public IList<string> RolesIList { get; set; }
+        public IReadOnlyList<string> RolesIReadOnlyList { get; set; }
+        public IEnumerable<string> RolesIEnumerable { get; set; }
         public DateTimeOffset RegistrationTime { get; set; }
         public DateTime? CakeDay { get; set; }
         public PersonTypes Type { get; set; }
@@ -25,6 +30,19 @@ namespace ArgoStore.TestsCommon.Entities
             Person p = (Person)MemberwiseClone();
             p.Roles = Roles?.AsEnumerable().ToList();
             return p;
+        }
+
+        public Person SetCollections()
+        {
+            if (Roles != null)
+            {
+                RolesArray = Roles.ToArray();
+                RolesIList = Roles.AsEnumerable().ToList();
+                RolesIReadOnlyList = Roles.AsEnumerable().ToList();
+                RolesIEnumerable = Roles.AsEnumerable().ToList();
+            }
+
+            return this;
         }
     }
 }
