@@ -1,10 +1,24 @@
-﻿using System.Reflection;
+﻿using System.Collections;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace ArgoStore.Helpers;
 
 internal static class Extensions
 {
+    // TODO: validate list
+    private static readonly Type[] _supportedPrimitiveTypes =
+    {
+        typeof(int), typeof(uint), typeof(long), typeof(ulong),
+        typeof (byte), typeof(short), typeof(ushort),
+        typeof(float), typeof(double), typeof(decimal),
+        typeof(char), typeof(string), typeof(Guid), 
+        typeof(DateTime), typeof(DateTimeOffset)
+#if !NETSTANDARD
+        ,typeof(DateOnly)
+#endif
+    };
+    
     public static bool IsCaseSensitive(this StringComparison sc)
     {
         return !(
@@ -62,4 +76,37 @@ internal static class Extensions
 
     public static bool HasPublicGetAndSet(this PropertyInfo pi) => pi.HasPublicGetter() && pi.HasPublicSetter();
 
+    public static bool IsSupportedPrimitiveType(this Type t)
+    {
+        return _supportedPrimitiveTypes.Contains(t);
+    }
+
+    public static bool IsTypeCollectionOfSupportedPrimitiveType(this Type type)
+    {
+        return type.IsSupportedTypeCollection()
+               && type.GetCollectionTypeArgument().IsSupportedPrimitiveType();
+    }
+
+    public static Type GetCollectionTypeArgument(this Type type)
+    {
+        if (type.IsArray)
+        {
+            return type.GetElementType()!;
+        }
+
+        return type.GetGenericArguments()[0];
+    }
+
+    public static bool IsSupportedTypeCollection(this Type type)
+    {
+        if (type.IsArray && type.GetArrayRank() == 1) return true;
+
+        if (type.IsClass && type.IsGenericType && type.GenericTypeArguments.Length == 1)
+        {
+            Type gen = type.GetGenericTypeDefinition()!;
+            return gen.GetInterfaces().Contains(typeof(IEnumerable));
+        }
+
+        return false;
+    }
 }

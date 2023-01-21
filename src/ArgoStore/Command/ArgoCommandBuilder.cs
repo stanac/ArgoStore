@@ -252,11 +252,34 @@ internal class ArgoCommandBuilder
                 sb.Append(" ) ");
                 break;
 
+            case WhereCollectionContainsStatement cc:
+                AppendWhereCollectionContains(sb, cc);
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(statement));
         }
 
         sb.Append(" ");
+    }
+
+    private void AppendWhereCollectionContains(StringBuilder sb, WhereCollectionContainsStatement statement)
+    {
+        /*
+            SELECT *, json_extract(jsonData, '$.roles') 
+            FROM Person
+            WHERE (json_extract(jsonData, '$.roles') IS NOT NULL AND (
+	              EXISTS (SELECT 1 FROM json_each(json_extract(jsonData, '$.roles')) WHERE value = 'admin')
+		            ))
+        */
+        
+        sb.Append(" (");
+        AppendWhereStatement(sb, statement.Collection);
+        sb.AppendLine(" IS NOT NULL AND (").Append("    EXISTS (SELECT 1 FROM json_each(");
+        AppendWhereStatement(sb, statement.Collection);
+        sb.Append(") WHERE value = ");
+        AppendWhereStatement(sb, statement.Value);
+        sb.Append("))) ");
     }
 
     private void AppendWhereStringTransform(StringBuilder sb, WhereStringTransformStatement wsts)

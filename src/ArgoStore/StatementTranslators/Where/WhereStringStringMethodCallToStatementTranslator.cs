@@ -4,7 +4,7 @@ using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
 
-internal class WhereStringMethodCallToStatementTranslator : IWhereToStatementTranslator
+internal class WhereStringStringMethodCallToStatementTranslator : IWhereToStatementTranslator
 {
     private static readonly string[] _supportedMethods =
     {

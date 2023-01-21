@@ -155,7 +155,7 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
 
         if (name == "Ken Sutton")
         {
-            return "ken sutton".ToLower();
+            return "ken sutton";
         }
 
         return name;
@@ -212,21 +212,14 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
 
     private static List<string> GetRoles(int index)
     {
-        if (index % 3 == 0)
-        {
-            return null;
-        }
-
-        if (index % 2 == 0)
-        {
-            return new List<string>();
-        }
-
-        if (index % 5 == 0)
-        {
-            return new List<string>() {"admin", "user"};
-        }
-
-        return new List<string>() { "sales", "admin", "user" };
+        if (index % 3 == 0) return new List<string> {"admin"};
+        if (index % 5 == 0) return new List<string> {"admin", "user"};
+        if (index % 7 == 0) return new List<string> {"admin", "user", "sales"};
+        if (index % 11 == 0) return new List<string> {"admin", "sales"};
+        if (index % 13 == 0) return new List<string> {"sales"};
+        if (index % 17 == 0) return new List<string> {"sales", "user"};
+        if (index % 19 == 0) return new List<string> {"user"};
+        if (index % 23 == 0) return null;
+        return new List<string>();
     }
 }
