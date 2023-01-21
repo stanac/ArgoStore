@@ -1,7 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
-namespace ArgoStore.IntegrationTests.Tests;
+namespace ArgoStore.IntegrationTests.Tests.CrudTests;
 
 public class LastTests : IntegrationTestBase
 {

@@ -3,7 +3,7 @@ using ArgoStore.TestsCommon.TestData;
 using Microsoft.Data.Sqlite;
 // ReSharper disable AccessToDisposedClosure
 
-namespace ArgoStore.IntegrationTests.Tests;
+namespace ArgoStore.IntegrationTests.Tests.CrudTests;
 
 public class InsertTests : IntegrationTestBase
 {

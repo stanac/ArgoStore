@@ -1,6 +1,6 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 
-namespace ArgoStore.IntegrationTests.Tests;
+namespace ArgoStore.IntegrationTests.Tests.CrudTests;
 
 public class GetByIdTests : IntegrationTestBase
 {

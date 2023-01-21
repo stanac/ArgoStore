@@ -1,7 +1,7 @@
 ﻿using ArgoStore.TestsCommon.Entities;
 using ArgoStore.TestsCommon.TestData;
 
-namespace ArgoStore.IntegrationTests.Tests;
+namespace ArgoStore.IntegrationTests.Tests.CrudTests;
 
 public class MultitenancyTests : IntegrationTestBase
 {
