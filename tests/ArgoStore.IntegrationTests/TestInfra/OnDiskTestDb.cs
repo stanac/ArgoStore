@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.TestInfra;
 
 internal class OnDiskTestDb : TestDb
 {

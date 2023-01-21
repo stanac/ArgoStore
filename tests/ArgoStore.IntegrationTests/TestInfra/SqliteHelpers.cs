@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using Microsoft.Data.Sqlite;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.TestInfra;
 
 internal static class SqliteHelpers
 {

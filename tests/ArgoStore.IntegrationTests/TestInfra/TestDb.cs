@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 
-namespace ArgoStore.IntegrationTests;
+namespace ArgoStore.IntegrationTests.TestInfra;
 
 public abstract class TestDb : IDisposable
 {
