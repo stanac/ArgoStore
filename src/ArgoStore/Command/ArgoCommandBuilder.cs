@@ -260,6 +260,10 @@ internal class ArgoCommandBuilder
                 AppendWhereSubQuery(sb, sqs);
                 break;
 
+            case WhereStringLengthStatement wsls:
+                AppendWhereStringLength(sb, wsls);
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(statement));
         }
@@ -421,6 +425,13 @@ internal class ArgoCommandBuilder
         }
 
         throw new NotSupportedException("Not supported subquery");
+    }
+
+    private void AppendWhereStringLength(StringBuilder sb, WhereStringLengthStatement wsls)
+    {
+        sb.Append("length(");
+        AppendWhereStatement(sb, wsls.Value);
+        sb.Append(")");
     }
 
     private void AppendOrderBy(StringBuilder sb)

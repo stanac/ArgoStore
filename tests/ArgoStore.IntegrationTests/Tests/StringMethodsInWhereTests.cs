@@ -277,5 +277,24 @@ public class StringMethodsInWhereTests : IntegrationTestBase
         List<Person> p = s.Query<Person>().Where(x => x.Name.EndsWith(name, StringComparison.OrdinalIgnoreCase)).ToList();
         p.Should().HaveCount(1);
     }
+
+    [Fact]
+    public void LengthEquals_ReturnsExpectedResult()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        const int nameLength = 13;
+
+        List<Person> p = s.Query<Person>()
+            .Where(x => x.Name.Length == nameLength)
+            .ToList();
+
+        List<Person> expected = PersonTestData
+            .GetPersonTestData()
+            .Where(x => x.Name.Length == nameLength)
+            .ToList();
+
+        p.Should().HaveCount(expected.Count);
+    }
     
 }

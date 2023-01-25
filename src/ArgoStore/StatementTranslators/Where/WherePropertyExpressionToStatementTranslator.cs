@@ -17,6 +17,13 @@ internal class PropertyExpressionToStatementTranslator : IWhereToStatementTransl
 
         if (me.Member is PropertyInfo pi)
         {
+            if (pi.Name == "Length" && pi.DeclaringType == typeof(string))
+            {
+                WhereStatementBase prop = WhereToStatementTranslatorStrategies.Translate(me.Expression!);
+
+                return new WhereStringLengthStatement(prop);
+            }
+
             return new WherePropertyStatement(pi.Name);
         }
 
