@@ -83,7 +83,7 @@ internal static class Extensions
 
     public static bool IsTypeCollectionOfSupportedPrimitiveType(this Type type)
     {
-        return type.IsSupportedTypeCollection()
+        return type.IsTypeCollection()
                && type.GetCollectionTypeArgument().IsSupportedPrimitiveType();
     }
 
@@ -97,7 +97,7 @@ internal static class Extensions
         return type.GetGenericArguments()[0];
     }
 
-    public static bool IsSupportedTypeCollection(this Type type)
+    public static bool IsTypeCollection(this Type type)
     {
         if (type.IsArray && type.GetArrayRank() == 1) return true;
 

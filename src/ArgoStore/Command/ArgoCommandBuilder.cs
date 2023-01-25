@@ -256,6 +256,10 @@ internal class ArgoCommandBuilder
                 AppendWhereCollectionContains(sb, cc);
                 break;
 
+            case WhereSubQueryStatement sqs:
+                AppendWhereSubQuery(sb, sqs);
+                break;
+
             default:
                 throw new ArgumentOutOfRangeException(nameof(statement));
         }
@@ -394,6 +398,29 @@ internal class ArgoCommandBuilder
         {
             sb.Append(" || '%' ");
         }
+    }
+
+    private void AppendWhereSubQuery(StringBuilder sb, WhereSubQueryStatement sqs)
+    {
+        if (sqs.FromProperty != null && sqs.FromProperty.PropertyType.IsTypeCollection())
+        {
+            string from = JsonPropertyDataHelper.ExtractProperty(sqs.FromProperty.Name);
+
+            if (sqs.IsAny)
+            {
+                sb.Append("json_array_length(").Append(from).Append(") > 0 ").AppendLine();
+
+                return;
+            }
+
+            if (sqs.IsCount)
+            {
+                sb.Append("json_array_length(").Append(from).Append(")");
+                return;
+            }
+        }
+
+        throw new NotSupportedException("Not supported subquery");
     }
 
     private void AppendOrderBy(StringBuilder sb)
