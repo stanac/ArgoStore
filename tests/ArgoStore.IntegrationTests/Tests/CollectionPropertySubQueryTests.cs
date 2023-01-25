@@ -48,5 +48,17 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
         int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count > 0);
         r.Should().HaveCount(expectedCount);
     }
-    
+
+    [Fact]
+    public void CountEqualsOnStringCollection_NoCondition_GivesExpectedResults()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        List<Person> r = s.Query<Person>()
+            .Where(x => x.Roles.Count == 3)
+            .ToList();
+
+        int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count == 3);
+        r.Should().HaveCount(expectedCount);
+    }
 }
