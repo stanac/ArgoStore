@@ -227,13 +227,17 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
 
     private static List<string> GetRoles(int index)
     {
-        if (index % 3 == 0) return new List<string> {"admin"};
-        if (index % 5 == 0) return new List<string> {"admin", "user"};
-        if (index % 7 == 0) return new List<string> {"admin", "user", "sales"};
-        if (index % 11 == 0) return new List<string> {"admin", "sales"};
-        if (index % 13 == 0) return new List<string> {"sales"};
-        if (index % 17 == 0) return new List<string> {"sales", "user"};
-        if (index % 19 == 0) return new List<string> {"user"};
+        const string role1 = "admin";
+        const string role2 = "user";
+        const string role3 = "operator";
+
+        if (index % 3 == 0) return new List<string> {role1};
+        if (index % 5 == 0) return new List<string> {role1, role2};
+        if (index % 7 == 0) return new List<string> {role1, role2, role3};
+        if (index % 11 == 0) return new List<string> {role1, role3};
+        if (index % 13 == 0) return new List<string> {role3};
+        if (index % 17 == 0) return new List<string> {role3, role2};
+        if (index % 19 == 0) return new List<string> {role2};
         if (index % 23 == 0) return null;
         return new List<string>();
     }
