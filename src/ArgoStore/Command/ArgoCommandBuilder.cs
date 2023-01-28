@@ -5,19 +5,18 @@ using ArgoStore.Statements;
 using ArgoStore.Statements.Order;
 using ArgoStore.Statements.Select;
 using ArgoStore.Statements.Where;
+using ArgoStore.StatementTranslators.From;
 using ArgoStore.StatementTranslators.Select;
-using Remotion.Linq;
 using Remotion.Linq.Clauses;
 
 namespace ArgoStore.Command;
 
 internal class ArgoCommandBuilder
 {
-    private readonly Type _docType;
     private readonly ArgoCommandParameterCollection _params = new();
     private bool _containsLikeOperator;
 
-    public DocumentMetadata? Metadata { get; private set; }
+    public FromStatementBase FromStatement { get; }
     public List<WhereStatement> WhereStatements = new();
     public List<OrderByStatement> OrderByStatements { get; } = new();
     public SelectStatementBase? SelectStatement { get; private set; }
@@ -26,6 +25,7 @@ internal class ArgoCommandBuilder
     public bool IsDistinct { get; private set; }
     public int? Take { get; set; }
     public int? Skip { get; set; }
+    public bool IsSubQuery { get; set; }
 
     public bool IsSelectCount => SelectStatement is SelectCountStatement;
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
@@ -33,15 +33,21 @@ internal class ArgoCommandBuilder
     
     public string? ItemName { get; set; }
 
-    public ArgoCommandBuilder(QueryModel model)
-        : this(model.MainFromClause.ItemType)
-    {
-    }
+    public int AliasCounter { get; set; }
 
-    public ArgoCommandBuilder(Type docType)
+    public ArgoCommandBuilder(FromStatementBase fromStatement, int aliasCounter)
     {
-        _docType = docType;
-        ResultingType = docType;
+        FromStatement = fromStatement ?? throw new ArgumentNullException(nameof(fromStatement));
+        AliasCounter = aliasCounter;
+
+        if (fromStatement is FromJsonData fjd)
+        {
+            ResultingType = fjd.DocumentMetadata.DocumentType;
+        }
+        else
+        {
+            ResultingType = typeof(bool);
+        }
     }
 
     public void SetIsDistinct(bool value)
@@ -51,7 +57,6 @@ internal class ArgoCommandBuilder
 
     public ArgoCommand Build(IReadOnlyDictionary<Type, DocumentMetadata> documentTypes, string tenantId)
     {
-        Metadata = FindDocMeta(documentTypes);
         StringBuilder sb = StringBuilderBag.Default.Get();
 
         AppendSelect(sb);
@@ -144,7 +149,7 @@ internal class ArgoCommandBuilder
             }
 
             sb.Append("json_insert('{}', '$.value', ")
-                .Append(JsonPropertyDataHelper.ExtractProperty(sps.Name))
+                .Append(ExtractProperty(sps.Name))
                 .AppendLine(")");
         }
         else if (SelectStatement is SelectAnonymousType sat)
@@ -176,7 +181,7 @@ internal class ArgoCommandBuilder
 
                 if (sat.SelectElements[i] is SelectPropertyStatement sps1)
                 {
-                    sb.Append(JsonPropertyDataHelper.ExtractProperty(sps1.Name));
+                    sb.Append(ExtractProperty(sps1.Name));
                 }
                 else if (sat.SelectElements[i] is SelectParameterStatement sps2)
                 {
@@ -199,7 +204,15 @@ internal class ArgoCommandBuilder
 
     private void AppendFrom(StringBuilder sb)
     {
-        sb.Append("FROM ").Append(Metadata!.DocumentName);
+        if (FromStatement is FromJsonData jd)
+        {
+            sb.Append("FROM ").Append(jd.DocumentMetadata.DocumentName).Append(" t").Append(AliasCounter);
+        }
+        else
+        {
+            throw new NotSupportedException();
+        }
+
         sb.AppendLine();
     }
 
@@ -239,7 +252,7 @@ internal class ArgoCommandBuilder
                 break;
 
             case WherePropertyStatement prop:
-                sb.Append(JsonPropertyDataHelper.ExtractProperty(prop.PropertyName)).Append(" ");
+                sb.Append(ExtractProperty(prop.PropertyName)).Append(" ");
                 break;
 
             case WhereStringContainsMethodCallStatement scm:
@@ -408,7 +421,7 @@ internal class ArgoCommandBuilder
     {
         if (sqs.FromProperty != null && sqs.FromProperty.PropertyType.IsTypeCollection())
         {
-            string from = JsonPropertyDataHelper.ExtractProperty(sqs.FromProperty.Name);
+            string from = ExtractProperty(sqs.FromProperty.Name);
 
             if (sqs.IsAny)
             {
@@ -449,7 +462,7 @@ internal class ArgoCommandBuilder
                     sb.Append(", ");
                 }
 
-                sb.Append(JsonPropertyDataHelper.ExtractProperty(s.PropertyName))
+                sb.Append(ExtractProperty(s.PropertyName))
                     .Append(" ")
                     .Append(s.Direction)
                     .Append(" ");
@@ -479,14 +492,9 @@ internal class ArgoCommandBuilder
         }
     }
     
-    private DocumentMetadata FindDocMeta(IReadOnlyDictionary<Type, DocumentMetadata> documentTypeMetaMap)
+    private string ExtractProperty(string propertyName)
     {
-        if (documentTypeMetaMap.TryGetValue(_docType, out DocumentMetadata? meta))
-        {
-            return meta;
-        }
-
-        throw new InvalidOperationException($"Document metadata for type `{_docType.FullName}` is not registered.");
+        string alias = "t" + AliasCounter;
+        return JsonPropertyDataHelper.ExtractProperty(propertyName, alias);
     }
-
 }

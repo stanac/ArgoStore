@@ -16,9 +16,6 @@ internal class WhereSubQueryExpressionToStatementTranslator : IWhereToStatementT
     {
         SubQueryExpression sqe = (SubQueryExpression)expression;
 
-        ArgoWhereSubQueryModelVisitor subVisitor = new ArgoWhereSubQueryModelVisitor(new());
-        subVisitor.Visit(sqe);
-
-        return subVisitor.CommandBuilder.Build();
+        throw new NotImplementedException();
     }
 }

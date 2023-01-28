@@ -1,6 +1,7 @@
 ﻿using Remotion.Linq;
 using System.Linq.Expressions;
 using ArgoStore.Command;
+using ArgoStore.Config;
 
 namespace ArgoStore.Implementations;
 
@@ -42,8 +43,9 @@ internal class ArgoStoreQueryProvider : IQueryProvider
     internal ArgoQueryModelVisitor VisitAndBuild(Expression expression)
     {
         QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);
-
-        ArgoQueryModelVisitor v = new(query);
+        DocumentMetadata meta = _session.DocumentTypesMetaMap[query.MainFromClause.ItemType];
+        
+        ArgoQueryModelVisitor v = new(meta);
         v.VisitQueryModel(query);
 
         return v;

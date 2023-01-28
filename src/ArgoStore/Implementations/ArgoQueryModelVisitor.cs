@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using ArgoStore.Command;
+using ArgoStore.Config;
 using ArgoStore.Statements.Select;
 using ArgoStore.Statements.SkipTake;
+using ArgoStore.StatementTranslators.From;
 using ArgoStore.StatementTranslators.Order;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
@@ -14,14 +16,13 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 {
     public ArgoCommandBuilder CommandBuilder { get; private set; }
 
-    public ArgoQueryModelVisitor(QueryModel queryModel)
+    public ArgoQueryModelVisitor(DocumentMetadata metadata)
     {
-        CommandBuilder = new ArgoCommandBuilder(queryModel);
+        CommandBuilder = new ArgoCommandBuilder(new FromJsonData(metadata), 1);
     }
 
     public override void VisitQueryModel(QueryModel queryModel)
     {
-        CommandBuilder = new ArgoCommandBuilder(queryModel);
         base.VisitQueryModel(queryModel);
     }
 

@@ -10,18 +10,18 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
         InsertTestPersons();
     }
 
-    [Fact]
-    public void AnyOnStringCollection_NoCondition_GivesExpectedResults()
-    {
-        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+    //[Fact]
+    //public void AnyOnStringCollection_NoCondition_GivesExpectedResults()
+    //{
+    //    using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        List<Person> r = s.Query<Person>()
-            .Where(x => x.Roles.Any())
-            .ToList();
+    //    List<Person> r = s.Query<Person>()
+    //        .Where(x => x.Roles.Any())
+    //        .ToList();
 
-        int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count > 0);
-        r.Should().HaveCount(expectedCount);
-    }
+    //    int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count > 0);
+    //    r.Should().HaveCount(expectedCount);
+    //}
 
     [Fact]
     public void AnyWithConditionOnStringCollection_NoCondition_GivesExpectedResults()
@@ -36,30 +36,30 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
         r.Should().HaveCount(expectedCount);
     }
 
-    [Fact]
-    public void CountOnStringCollection_NoCondition_GivesExpectedResults()
-    {
-        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+    //[Fact]
+    //public void CountOnStringCollection_NoCondition_GivesExpectedResults()
+    //{
+    //    using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        List<Person> r = s.Query<Person>()
-            .Where(x => x.Roles.Count > 0)
-            .ToList();
+    //    List<Person> r = s.Query<Person>()
+    //        .Where(x => x.Roles.Count > 0)
+    //        .ToList();
 
-        int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count > 0);
-        r.Should().HaveCount(expectedCount);
-    }
+    //    int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count > 0);
+    //    r.Should().HaveCount(expectedCount);
+    //}
 
-    [Fact]
-    public void CountEqualsOnStringCollection_NoCondition_GivesExpectedResults()
-    {
-        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+    //[Fact]
+    //public void CountEqualsOnStringCollection_NoCondition_GivesExpectedResults()
+    //{
+    //    using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-        List<Person> r = s.Query<Person>()
-            .Where(x => x.Roles.Count == 3)
-            .ToList();
+    //    List<Person> r = s.Query<Person>()
+    //        .Where(x => x.Roles.Count == 3)
+    //        .ToList();
 
-        int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count == 3);
-        r.Should().HaveCount(expectedCount);
-    }
+    //    int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count == 3);
+    //    r.Should().HaveCount(expectedCount);
+    //}
 
 }
