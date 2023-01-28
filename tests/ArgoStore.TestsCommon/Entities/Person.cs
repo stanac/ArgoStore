@@ -24,6 +24,8 @@ namespace ArgoStore.TestsCommon.Entities
         public DateTime? CakeDay { get; set; }
         public PersonTypes Type { get; set; }
         public string NickName { get; set; }
+        public PersonContact PrimaryContact { get; set; }
+        public List<PersonContact> Contacts { get; set; }
 
         public Person Copy()
         {
@@ -43,6 +45,18 @@ namespace ArgoStore.TestsCommon.Entities
             }
 
             return this;
+        }
+
+        public class PersonContact
+        {
+            public int ContactType { get; set; }
+            public List<ContactInfo> ContactInfos { get; set; }
+        }
+
+        public class ContactInfo
+        {
+            public bool Active { get; set; }
+            public string[] Details { get; set; }
         }
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
+using System.Reflection;
 using ArgoStore.TestsCommon.Entities;
 
 namespace ArgoStore.TestsCommon.TestData;
@@ -127,7 +129,9 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                 RegistrationTime = GetRegistrationTime(i),
                 Roles = GetRoles(i),
                 Type = (PersonTypes)(i % 3),
-                PortList = GetPortList(i)
+                PortList = GetPortList(i),
+                PrimaryContact = GetPrimaryContact(i),
+                Contacts = GetContacts(i)
             }
                 .SetCollections();
         }
@@ -241,4 +245,132 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
         if (index % 23 == 0) return null;
         return new List<string>();
     }
+
+    private static Person.PersonContact GetPrimaryContact(int i)
+    {
+        return GetContacts(i)?.FirstOrDefault();
+    }
+
+    private static List<Person.PersonContact> GetContacts(int i)
+    {
+        if (i % 3 == 0)
+            return new List<Person.PersonContact>
+            {
+                new()
+                {
+                    ContactType = i,
+                    ContactInfos = new List<Person.ContactInfo>()
+                }
+            };
+
+        if (i % 5 == 0)
+            return new List<Person.PersonContact>
+            {
+                new()
+                {
+                    ContactType = i,
+                    ContactInfos = null
+                }
+            };
+
+        if (i % 7 == 0) return new List<Person.PersonContact>
+        {
+            new()
+            {
+                ContactType = -4,
+                ContactInfos = new List<Person.ContactInfo>
+                {
+                    new ()
+                    {
+                        Active = true,
+                        Details = null
+                    }
+                }
+            }
+        };
+
+        if (i % 11 == 0)
+            return new List<Person.PersonContact>
+            {
+                new()
+                {
+                    ContactType = -8,
+                    ContactInfos = new List<Person.ContactInfo>
+                    {
+                        new()
+                        {
+                            Active = true,
+                            Details = Array.Empty<string>()
+                        }
+                    }
+                }
+            };
+
+        if (i % 13 == 0)
+            return new List<Person.PersonContact>
+            {
+                new()
+                {
+                    ContactType = -9,
+                    ContactInfos = new List<Person.ContactInfo>
+                    {
+                        new()
+                        {
+                            Active = true,
+                            Details = new[] { "a", "abc", "123" }
+                        }
+                    }
+                }
+            };
+
+        if (i % 17 == 0)
+            return new List<Person.PersonContact>
+            {
+                new()
+                {
+                    ContactType = -9,
+                    ContactInfos = new List<Person.ContactInfo>
+                    {
+                        new()
+                        {
+                            Active = true,
+                            Details = new[] { "a", "abc", "123" }
+                        },
+                        new()
+                        {
+                            Active = false,
+                            Details = new[] { "99", "98" }
+                        }
+                    }
+                }
+
+            };
+
+        if (i % 19 == 0)
+            return new List<Person.PersonContact>
+            {
+                new()
+                {
+                    ContactType = -9,
+                    ContactInfos = new List<Person.ContactInfo>
+                    {
+                        new()
+                        {
+                            Active = true,
+                            Details = new[] { "a", "abc", "123" }
+                        },
+                        new()
+                        {
+                            Active = false,
+                            Details = new[] { "99", "98", "s1", "s2" }
+                        }
+                    }
+                }
+            };
+
+        if (i % 23 == 0) return null;
+
+        return new List<Person.PersonContact>();
+    }
+
 }
