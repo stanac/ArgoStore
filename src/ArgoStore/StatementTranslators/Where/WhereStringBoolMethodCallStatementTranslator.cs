@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using ArgoStore.Helpers;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
@@ -18,14 +19,14 @@ internal class WhereStringBoolMethodCallStatementTranslator : IWhereToStatementT
                && _supportedMethods.Contains(mce.Method.Name);
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         MethodCallExpression e = (MethodCallExpression)expression;
 
         if (e.Arguments.Count == 1)
         {
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(e.Object!);
-            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(e.Arguments[0]);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(e.Object!, alias);
+            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(e.Arguments[0], alias);
 
             StringMethods method = (StringMethods)Enum.Parse(typeof(StringMethods), e.Method.Name);
 
@@ -34,8 +35,8 @@ internal class WhereStringBoolMethodCallStatementTranslator : IWhereToStatementT
 
         if (e.Arguments.Count == 2 && e.Arguments[1] is ConstantExpression ce && ce.Value is StringComparison sc)
         {
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(e.Object!);
-            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(e.Arguments[0]);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(e.Object!, alias);
+            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(e.Arguments[0], alias);
 
             StringMethods method = (StringMethods)Enum.Parse(typeof(StringMethods), e.Method.Name);
 

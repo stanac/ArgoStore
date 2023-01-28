@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Linq.Expressions;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
@@ -11,12 +12,10 @@ internal class WhereConstantExpressionToStatementTranslator : IWhereToStatementT
         return expression is ConstantExpression;
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         ConstantExpression ce = (ConstantExpression)expression;
-
-        Debug.Assert(ce != null, "Convert expression as ConstantExpression");
-
+        
         if (ce.Value is null)
         {
             return new WhereNullValueStatement();

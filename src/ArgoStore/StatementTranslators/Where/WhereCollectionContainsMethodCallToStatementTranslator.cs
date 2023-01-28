@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using ArgoStore.Helpers;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
@@ -16,11 +17,11 @@ internal class WhereCollectionContainsMethodCallToStatementTranslator : IWhereTo
         return false;
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         MethodCallExpression mce = (MethodCallExpression)expression;
 
-        WhereStatementBase c = WhereToStatementTranslatorStrategies.Translate(mce.Object!);
+        WhereStatementBase c = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias);
         WhereValueStatement collection;
 
         if (c is WhereValueStatement temp1)
@@ -32,7 +33,7 @@ internal class WhereCollectionContainsMethodCallToStatementTranslator : IWhereTo
             throw new NotSupportedException($"Unexpected collection type object expression: {mce.Object!.Describe()}");
         }
 
-        WhereStatementBase a = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0]);
+        WhereStatementBase a = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias);
         WhereValueStatement argument;
 
         if (a is WhereValueStatement temp2)

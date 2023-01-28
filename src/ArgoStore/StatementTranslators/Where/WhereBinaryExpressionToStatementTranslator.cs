@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
@@ -21,14 +21,12 @@ internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTra
         return expression is BinaryExpression && _supportedExTypes.Contains(expression.NodeType);
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         BinaryExpression be = (BinaryExpression) expression;
-        Debug.Assert(be != null, "BinaryExpression cast in " + nameof(WhereBinaryExpressionToStatementTranslator));
-
         
-        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left);
-        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right);
+        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left, alias);
+        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right, alias);
         ComparisonOperators op;
         
         if (_supportedExTypes.Contains(be.NodeType))

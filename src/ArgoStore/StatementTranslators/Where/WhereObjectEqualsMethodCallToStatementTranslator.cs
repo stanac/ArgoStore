@@ -17,14 +17,14 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
         return false;
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         MethodCallExpression mce = (MethodCallExpression)expression;
 
         if (mce.Arguments.Count == 1)
         {
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!);
-            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0]);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias);
+            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias);
 
             return new WhereComparisonStatement(left, ComparisonOperators.Equal, right);
         }
@@ -33,8 +33,8 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
         {
             bool ignoreCase = !sc.IsCaseSensitive();
 
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!);
-            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0]);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias);
+            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias);
 
             if (ignoreCase)
             {

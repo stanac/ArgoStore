@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
@@ -11,7 +12,7 @@ internal class PropertyExpressionToStatementTranslator : IWhereToStatementTransl
         return expression is MemberExpression;
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         MemberExpression me = (MemberExpression)expression;
 
@@ -19,7 +20,7 @@ internal class PropertyExpressionToStatementTranslator : IWhereToStatementTransl
         {
             if (pi.Name == "Length" && pi.DeclaringType == typeof(string))
             {
-                WhereStatementBase prop = WhereToStatementTranslatorStrategies.Translate(me.Expression!);
+                WhereStatementBase prop = WhereToStatementTranslatorStrategies.Translate(me.Expression!, alias);
 
                 return new WhereStringLengthStatement(prop);
             }

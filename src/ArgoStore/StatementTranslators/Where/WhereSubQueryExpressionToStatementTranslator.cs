@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
-using ArgoStore.Implementations;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
+using ArgoStore.StatementTranslators.From;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace ArgoStore.StatementTranslators.Where;
@@ -12,11 +13,11 @@ internal class WhereSubQueryExpressionToStatementTranslator : IWhereToStatementT
         return expression is SubQueryExpression;
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         SubQueryExpression sqe = (SubQueryExpression)expression;
 
-        sqe.QueryModel.MainFromClause.
+        FromProperty fromStatement = new FromProperty(sqe.QueryModel, 1, 2);
 
         throw new NotImplementedException();
     }

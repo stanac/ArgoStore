@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
@@ -18,12 +19,12 @@ internal class WhereLogicalAndOrStatementTranslator : IWhereToStatementTranslato
         return expression is BinaryExpression && _supportedOperators.Contains(expression.NodeType);
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         BinaryExpression be = (BinaryExpression)expression;
 
-        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left);
-        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right);
+        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left, alias);
+        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right, alias);
 
         bool isAnd = be.NodeType is ExpressionType.And or ExpressionType.AndAlso;
 

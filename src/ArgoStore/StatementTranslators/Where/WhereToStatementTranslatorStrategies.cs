@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using ArgoStore.Helpers;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
 namespace ArgoStore.StatementTranslators.Where;
@@ -8,7 +9,7 @@ internal static class WhereToStatementTranslatorStrategies
 {
     private static readonly IReadOnlyList<IWhereToStatementTranslator> _translators = GetTranslators();
 
-    public static WhereStatementBase Translate(Expression expression)
+    public static WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         IWhereToStatementTranslator? t = _translators.FirstOrDefault(x => x.CanTranslate(expression));
 
@@ -17,7 +18,7 @@ internal static class WhereToStatementTranslatorStrategies
             throw new NotSupportedException($"Failed to translate to statement: {expression.Describe()}");
         }
 
-        return t.Translate(expression);
+        return t.Translate(expression, alias);
     }
 
     private static IReadOnlyList<IWhereToStatementTranslator> GetTranslators()

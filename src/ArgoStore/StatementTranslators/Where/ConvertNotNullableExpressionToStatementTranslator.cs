@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using ArgoStore.Helpers;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 using ArgoStore.StatementTranslators.Select;
 
@@ -14,10 +15,10 @@ internal class ConvertNotNullableExpressionToStatementTranslator : IWhereToState
                && ue.Operand.Type.IsNullableType();
     }
 
-    public WhereStatementBase Translate(Expression expression)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         UnaryExpression ue = (UnaryExpression)expression;
 
-        return WhereToStatementTranslatorStrategies.Translate(ue.Operand);
+        return WhereToStatementTranslatorStrategies.Translate(ue.Operand, alias);
     }
 }

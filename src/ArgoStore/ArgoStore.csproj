@@ -21,6 +21,7 @@
 
 	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<NoWarn>$(NoWarn);nullable</NoWarn>
+		<NoWarn>CS8632</NoWarn>
 	</PropertyGroup>
 
 </Project>

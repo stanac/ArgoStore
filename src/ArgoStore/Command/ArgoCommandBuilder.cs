@@ -17,6 +17,7 @@ internal class ArgoCommandBuilder
     private bool _containsLikeOperator;
 
     public FromStatementBase FromStatement { get; }
+    public FromAlias Alias { get; }
     public List<WhereStatement> WhereStatements = new();
     public List<OrderByStatement> OrderByStatements { get; } = new();
     public SelectStatementBase? SelectStatement { get; private set; }
@@ -32,13 +33,12 @@ internal class ArgoCommandBuilder
     public bool IsSelectAny => SelectStatement is SelectAnyStatement;
     
     public string? ItemName { get; set; }
-
-    public int AliasCounter { get; set; }
-
-    public ArgoCommandBuilder(FromStatementBase fromStatement, int aliasCounter)
+    
+    public ArgoCommandBuilder(FromStatementBase fromStatement, FromAlias alias)
     {
         FromStatement = fromStatement ?? throw new ArgumentNullException(nameof(fromStatement));
-        AliasCounter = aliasCounter;
+        Alias = alias;
+
 
         if (fromStatement is FromJsonData fjd)
         {
@@ -105,7 +105,7 @@ internal class ArgoCommandBuilder
 
     public void AddWhereClause(WhereClause whereClause)
     {
-        WhereStatements.Add(new WhereStatement(whereClause));
+        WhereStatements.Add(new WhereStatement(whereClause, Alias));
     }
 
     public void SetSelectStatement(SelectStatementBase selectStatement)
@@ -206,7 +206,7 @@ internal class ArgoCommandBuilder
     {
         if (FromStatement is FromJsonData jd)
         {
-            sb.Append("FROM ").Append(jd.DocumentMetadata.DocumentName).Append(" t").Append(AliasCounter);
+            sb.Append("FROM ").Append(jd.DocumentMetadata.DocumentName).Append(" ").Append(Alias.CurrentAliasName);
         }
         else
         {
@@ -494,7 +494,6 @@ internal class ArgoCommandBuilder
     
     private string ExtractProperty(string propertyName)
     {
-        string alias = "t" + AliasCounter;
-        return JsonPropertyDataHelper.ExtractProperty(propertyName, alias);
+        return JsonPropertyDataHelper.ExtractProperty(propertyName, Alias.CurrentAliasName);
     }
 }

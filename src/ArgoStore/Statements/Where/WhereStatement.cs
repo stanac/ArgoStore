@@ -7,8 +7,8 @@ internal class WhereStatement
 {
     public WhereStatementBase Statement { get; }
 
-    public WhereStatement(WhereClause clause)
+    public WhereStatement(WhereClause clause, FromAlias alias)
     {
-        Statement = WhereToStatementTranslatorStrategies.Translate(clause.Predicate);
+        Statement = WhereToStatementTranslatorStrategies.Translate(clause.Predicate, alias);
     }
 }

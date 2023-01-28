@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using ArgoStore.Command;
 using ArgoStore.Config;
+using ArgoStore.Statements;
 using ArgoStore.Statements.Select;
 using ArgoStore.Statements.SkipTake;
 using ArgoStore.StatementTranslators.From;
@@ -18,7 +19,7 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 
     public ArgoQueryModelVisitor(DocumentMetadata metadata)
     {
-        CommandBuilder = new ArgoCommandBuilder(new FromJsonData(metadata), 1);
+        CommandBuilder = new ArgoCommandBuilder(new FromJsonData(metadata), new FromAlias());
     }
 
     public override void VisitQueryModel(QueryModel queryModel)
