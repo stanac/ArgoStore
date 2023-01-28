@@ -4,6 +4,7 @@ using ArgoStore.Command;
 using ArgoStore.Config;
 using ArgoStore.CrudOperations;
 using ArgoStore.Helpers;
+using ArgoStore.Statements;
 using Microsoft.Extensions.Logging;
 
 namespace ArgoStore.Implementations;
@@ -75,7 +76,7 @@ internal class ArgoSession : IArgoDocumentSession
                 AND tenantId = @tenantId
             """;
 
-        ArgoCommandParameterCollection parameters = new();
+        ArgoCommandParameterCollection parameters = new(new FromAlias());
 
         if (meta.IsKeyPropertyGuid)
         {

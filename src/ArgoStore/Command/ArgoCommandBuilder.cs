@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using ArgoStore.Config;
 using ArgoStore.Helpers;
 using ArgoStore.Statements;
 using ArgoStore.Statements.Order;
@@ -13,7 +12,7 @@ namespace ArgoStore.Command;
 
 internal class ArgoCommandBuilder
 {
-    private readonly ArgoCommandParameterCollection _params = new();
+    private readonly ArgoCommandParameterCollection _params;
     private bool _containsLikeOperator;
 
     public FromStatementBase FromStatement { get; }
@@ -38,8 +37,8 @@ internal class ArgoCommandBuilder
     {
         FromStatement = fromStatement ?? throw new ArgumentNullException(nameof(fromStatement));
         Alias = alias;
-
-
+        _params = new ArgoCommandParameterCollection(alias);
+        
         if (fromStatement is FromJsonData fjd)
         {
             ResultingType = fjd.DocumentMetadata.DocumentType;
@@ -50,13 +49,33 @@ internal class ArgoCommandBuilder
         }
     }
 
+    private string _tenantId = "";
+
     public void SetIsDistinct(bool value)
     {
-        IsDistinct = true;
+        IsDistinct = value;
     }
 
-    public ArgoCommand Build(IReadOnlyDictionary<Type, DocumentMetadata> documentTypes, string tenantId)
+    public ArgoCommand BuildForSubQuery()
     {
+        StringBuilder sb = StringBuilderBag.Default.Get();
+
+        sb.Append("SELECT 1 ");
+        AppendFrom(sb);
+        AppendWhere(sb, null);
+
+        ArgoCommand c = new ArgoCommand(sb.ToString(), _params, ArgoCommandTypes.Any, typeof(bool), false, _containsLikeOperator);
+
+        StringBuilderBag.Default.Return(sb);
+
+        return c;
+    }
+
+    public ArgoCommand Build(string tenantId)
+    {
+        if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
+
+        _tenantId = tenantId;
         StringBuilder sb = StringBuilderBag.Default.Get();
 
         AppendSelect(sb);
@@ -204,25 +223,43 @@ internal class ArgoCommandBuilder
 
     private void AppendFrom(StringBuilder sb)
     {
+        sb.Append("FROM ");
+
         if (FromStatement is FromJsonData jd)
         {
-            sb.Append("FROM ").Append(jd.DocumentMetadata.DocumentName).Append(" ").Append(Alias.CurrentAliasName);
+            sb.Append(jd.DocumentMetadata.DocumentName);
+        }
+        else if (FromStatement is FromProperty fp)
+        {
+            sb.Append("json_each(").Append(ExtractParentProperty(fp.Property.Name)).Append(") ");
         }
         else
         {
             throw new NotSupportedException();
         }
 
-        sb.AppendLine();
+        sb.Append(" ").Append(Alias.CurrentAliasName).AppendLine();
     }
 
-    private void AppendWhere(StringBuilder sb, string tenantId)
+    private void AppendWhere(StringBuilder sb, string? tenantId)
     {
-        sb.Append("WHERE tenantId = @").AppendLine(_params.AddNewParameter(tenantId));
+        sb.Append("WHERE ");
 
-        foreach (WhereStatement w in WhereStatements)
+        if (tenantId != null)
         {
-            sb.Append("AND (");
+            sb.Append("tenantId = @").AppendLine(_params.AddNewParameter(tenantId));
+        }
+
+        for (var i = 0; i < WhereStatements.Count; i++)
+        {
+            if (i > 0 || tenantId != null)
+            {
+                sb.Append(" AND ");
+            }
+
+            sb.Append(" (");
+
+            WhereStatement w = WhereStatements[i];
             AppendWhereStatement(sb, w.Statement);
             sb.AppendLine(")");
         }
@@ -275,6 +312,10 @@ internal class ArgoCommandBuilder
 
             case WhereStringLengthStatement wsls:
                 AppendWhereStringLength(sb, wsls);
+                break;
+
+            case SubQueryValueWhereStatement sqvws:
+                sb.Append(Alias.CurrentAliasName).Append(".value");
                 break;
 
             default:
@@ -419,25 +460,14 @@ internal class ArgoCommandBuilder
 
     private void AppendWhereSubQuery(StringBuilder sb, WhereSubQueryStatement sqs)
     {
-        if (sqs.FromProperty != null && sqs.FromProperty.PropertyType.IsTypeCollection())
+        ArgoCommand cmd = sqs.CommandBuilder.BuildForSubQuery();
+
+        sb.Append(" EXISTS (").Append(cmd.Sql).AppendLine(" )");
+
+        foreach (ArgoCommandParameter p in cmd.Parameters)
         {
-            string from = ExtractProperty(sqs.FromProperty.Name);
-
-            if (sqs.IsAny)
-            {
-                sb.Append("json_array_length(").Append(from).Append(") > 0 ").AppendLine();
-
-                return;
-            }
-
-            if (sqs.IsCount)
-            {
-                sb.Append("json_array_length(").Append(from).Append(")");
-                return;
-            }
+            _params.AddWithName(p.Name, p.Value);
         }
-
-        throw new NotSupportedException("Not supported subquery");
     }
 
     private void AppendWhereStringLength(StringBuilder sb, WhereStringLengthStatement wsls)
@@ -491,9 +521,19 @@ internal class ArgoCommandBuilder
             sb.Append("LIMIT ").Append(Take.Value.ToString());
         }
     }
-    
+
     private string ExtractProperty(string propertyName)
     {
         return JsonPropertyDataHelper.ExtractProperty(propertyName, Alias.CurrentAliasName);
+    }
+
+    private string ExtractParentProperty(string propertyName)
+    {
+        if (Alias.ParentAlias.HasValue)
+        {
+            return JsonPropertyDataHelper.ExtractProperty(propertyName, Alias.ParentAliasName);
+        }
+
+        throw new InvalidOperationException("Parent alias not set");
     }
 }

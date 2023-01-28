@@ -1,12 +1,13 @@
 ﻿using System.Text;
 using ArgoStore.Helpers;
+using ArgoStore.Statements;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.Command;
 
 public class ArgoCommand
 {
-    private static readonly ArgoCommandParameterCollection _noParameters = new();
+    private static readonly ArgoCommandParameterCollection _noParameters = new(new FromAlias());
 
     public string Sql { get; }
     public ArgoCommandParameterCollection Parameters { get; }

@@ -1,10 +1,17 @@
 ﻿using System.Collections;
+using ArgoStore.Statements;
 
 namespace ArgoStore.Command;
 
 public class ArgoCommandParameterCollection : IEnumerable<ArgoCommandParameter>
 {
+    private readonly FromAlias _alias;
     private readonly Dictionary<string, object> _parameters = new();
+
+    internal ArgoCommandParameterCollection(FromAlias alias)
+    {
+        _alias = alias;
+    }
 
     public IEnumerator<ArgoCommandParameter> GetEnumerator()
     {
@@ -23,7 +30,7 @@ public class ArgoCommandParameterCollection : IEnumerable<ArgoCommandParameter>
 
     public string AddNewParameter(object value)
     {
-        string name = $"p{_parameters.Count + 1}";
+        string name = $"p_{_alias.CurrentAlias}_{_parameters.Count + 1}";
 
         _parameters[name] = value;
         return name;

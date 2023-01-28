@@ -22,6 +22,11 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         CommandBuilder = new ArgoCommandBuilder(new FromJsonData(metadata), new FromAlias());
     }
 
+    public ArgoQueryModelVisitor(ArgoCommandBuilder commandBuilder)
+    {
+        CommandBuilder = commandBuilder ?? throw new ArgumentNullException(nameof(commandBuilder));
+    }
+
     public override void VisitQueryModel(QueryModel queryModel)
     {
         base.VisitQueryModel(queryModel);

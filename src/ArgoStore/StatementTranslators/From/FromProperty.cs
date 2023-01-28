@@ -1,21 +1,20 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 using ArgoStore.Helpers;
+using ArgoStore.Statements;
 using Remotion.Linq;
 
 namespace ArgoStore.StatementTranslators.From;
 
 internal class FromProperty : FromStatementBase
 {
-    public int ParentAliasCounter { get; }
-    public int CurrentAliasCounter { get; }
+    public FromAlias Alias { get; }
     public PropertyInfo Property { get; }
     public string ItemName { get; }
     
-    public FromProperty(QueryModel model, int parentAliasCounter, int currentAliasCounter)
+    public FromProperty(QueryModel model, FromAlias alias)
     {
-        ParentAliasCounter = parentAliasCounter;
-        CurrentAliasCounter = currentAliasCounter;
+        Alias = alias;
         ItemName = model.MainFromClause.ItemName;
 
         if (model.MainFromClause.FromExpression is MemberExpression me && me.Member is PropertyInfo pi)

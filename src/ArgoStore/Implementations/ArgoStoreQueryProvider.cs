@@ -32,7 +32,7 @@ internal class ArgoStoreQueryProvider : IQueryProvider
     public TResult Execute<TResult>(Expression expression)
     {
         ArgoQueryModelVisitor v = VisitAndBuild(expression);
-        ArgoCommand cmd = v.CommandBuilder.Build(_session.DocumentTypesMetaMap, _session.TenantId);
+        ArgoCommand cmd = v.CommandBuilder.Build(_session.TenantId);
 
         ArgoCommandExecutor exec = _session.CreateExecutor();
         TResult? result = (TResult?)exec.Execute(cmd);
