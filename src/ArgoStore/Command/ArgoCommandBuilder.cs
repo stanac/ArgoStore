@@ -243,6 +243,11 @@ internal class ArgoCommandBuilder
 
     private void AppendWhere(StringBuilder sb, string? tenantId)
     {
+        if (tenantId == null && WhereStatements.Count == 0)
+        {
+            return;
+        }
+
         sb.Append("WHERE ");
 
         if (tenantId != null)
