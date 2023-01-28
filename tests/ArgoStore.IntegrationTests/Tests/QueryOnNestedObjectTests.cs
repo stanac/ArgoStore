@@ -20,7 +20,7 @@ public class QueryOnNestedObjectTests : IntegrationTestBase
             .Where(x => x.PrimaryContact.ContactType < 0)
             .ToList();
 
-        var expected = PersonTestData.GetPersonTestData()
+        List<Person> expected = PersonTestData.GetPersonTestData()
             .Where(x => x.PrimaryContact != null && x.PrimaryContact.ContactType < 0)
             .ToList();
 
