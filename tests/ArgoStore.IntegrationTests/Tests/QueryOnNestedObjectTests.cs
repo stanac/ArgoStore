@@ -7,6 +7,7 @@ public class QueryOnNestedObjectTests : IntegrationTestBase
 {
     public QueryOnNestedObjectTests()
     {
+        UseFileDb();
         InsertTestPersons();
     }
 
