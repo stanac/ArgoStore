@@ -16,6 +16,8 @@ internal class WhereSubQueryExpressionToStatementTranslator : IWhereToStatementT
     {
         SubQueryExpression sqe = (SubQueryExpression)expression;
 
+        sqe.QueryModel.MainFromClause.
+
         throw new NotImplementedException();
     }
 }

@@ -1,13 +1,22 @@
-﻿using System.Reflection;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using Remotion.Linq;
 
 namespace ArgoStore.StatementTranslators.From;
 
 internal class FromProperty : FromStatementBase
 {
     public PropertyInfo Property { get; }
+    public string ItemName { get; }
 
-    public FromProperty(PropertyInfo property)
+
+    public FromProperty(QueryModel model)
     {
-        Property = property ?? throw new ArgumentNullException(nameof(property));
+        ItemName = model.MainFromClause.ItemName;
+
+        if (model.MainFromClause.FromExpression is MemberExpression me)
+        {
+
+        }
     }
 }
