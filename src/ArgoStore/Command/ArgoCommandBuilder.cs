@@ -60,11 +60,19 @@ internal class ArgoCommandBuilder
     {
         StringBuilder sb = StringBuilderBag.Default.Get();
 
-        sb.Append("SELECT 1 ");
+        if (IsSelectCount)
+        {
+            sb.Append("SELECT COUNT(1) ");
+        }
+        else
+        {
+            sb.Append("SELECT 1 ");
+        }
+
         AppendFrom(sb);
         AppendWhere(sb, null);
 
-        ArgoCommand c = new ArgoCommand(sb.ToString(), _params, ArgoCommandTypes.Any, typeof(bool), false, _containsLikeOperator);
+        ArgoCommand c = new ArgoCommand(sb.ToString(), _params, GetCommandType(), typeof(bool), false, _containsLikeOperator);
 
         StringBuilderBag.Default.Return(sb);
 
@@ -90,7 +98,12 @@ internal class ArgoCommandBuilder
         StringBuilderBag.Default.Return(sb);
 
         // QueryModel m = _model;
+        
+        return new ArgoCommand(sql, _params, GetCommandType(), ResultingType, IsResultingTypeJson, _containsLikeOperator);
+    }
 
+    private ArgoCommandTypes GetCommandType()
+    {
         ArgoCommandTypes cmdType = ArgoCommandTypes.ToList;
 
         if (SelectStatement is SelectCountStatement c)
@@ -119,7 +132,7 @@ internal class ArgoCommandBuilder
             cmdType = ArgoCommandTypes.Any;
         }
 
-        return new ArgoCommand(sql, _params, cmdType, ResultingType, IsResultingTypeJson, _containsLikeOperator);
+        return cmdType;
     }
 
     public void AddWhereClause(WhereClause whereClause)
@@ -467,7 +480,14 @@ internal class ArgoCommandBuilder
     {
         ArgoCommand cmd = sqs.CommandBuilder.BuildForSubQuery();
 
-        sb.Append(" EXISTS (").Append(cmd.Sql).AppendLine(" )");
+        if (cmd.CommandType == ArgoCommandTypes.Count)
+        {
+            sb.Append(" (").Append(cmd.Sql).AppendLine(" )");
+        }
+        else
+        {
+            sb.Append(" EXISTS (").Append(cmd.Sql).AppendLine(" )");
+        }
 
         foreach (ArgoCommandParameter p in cmd.Parameters)
         {
