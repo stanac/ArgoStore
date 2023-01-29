@@ -25,15 +25,16 @@ public class QueryOnNestedObjectTests : IntegrationTestBase
             .ToList();
 
         r.Should().HaveCount(expected.Count);
+        r.Should().BeEquivalentTo(expected);
     }
 
-    //[Fact]
-    //public void Test1()
-    //{
-    //    using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+    [Fact]
+    public void Test1()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-    //    List<Person> r = s.Query<Person>()
-    //        .Where(x => x.PrimaryContact.ContactInfos.Any(c => c.Details.Any(d => d == "s2")))
-    //        .ToList();
-    //}
+        List<Person> r = s.Query<Person>()
+            .Where(x => x.PrimaryContact.ContactInfos.Any(c => c.Details.Any(d => d == "s2")))
+            .ToList();
+    }
 }
