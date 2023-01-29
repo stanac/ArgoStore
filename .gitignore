@@ -355,3 +355,4 @@ MigrationBackup/
 TestResults/
 
 *.sqlite
+/docs/docs/.vitepress/cache/deps
