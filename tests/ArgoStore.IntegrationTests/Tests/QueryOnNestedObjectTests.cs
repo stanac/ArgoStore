@@ -29,7 +29,7 @@ public class QueryOnNestedObjectTests : IntegrationTestBase
     }
 
     [Fact]
-    public void QueryOnNestedObjectWithSubquery_GivesExpectedResults()
+    public void QueryOnNestedObjectWithSubqueryWithBoolCondition_GivesExpectedResults()
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
@@ -46,13 +46,23 @@ public class QueryOnNestedObjectTests : IntegrationTestBase
         r.Should().BeEquivalentTo(expected);
     }
 
-    //[Fact]
-    //public void Test1()
-    //{
-    //    using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+    [Fact]
+    public void QueryOnNestedObjectWithSubqueryContainingSubquery_GivesExpectedResults()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
-    //    List<Person> r = s.Query<Person>()
-    //        .Where(x => x.PrimaryContact.ContactInfos.Any(c => c.Details.Any(d => d == "s2")))
-    //        .ToList();
-    //}
+        List<Person> r = s.Query<Person>()
+            .Where(x => x.PrimaryContact.ContactInfos.Any(c => c.Details.Any(d => d == "s2")))
+            .ToList();
+
+        List<Person> expected = PersonTestData.GetPersonTestData()
+            .Where(x => x.PrimaryContact != null
+                        && x.PrimaryContact.ContactInfos != null
+                        && x.PrimaryContact.ContactInfos.Any(
+                            y => y.Details != null
+                                    && y.Details.Contains("s2")))
+            .ToList();
+
+        r.Should().BeEquivalentTo(expected);
+    }
 }
