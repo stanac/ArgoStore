@@ -9,7 +9,7 @@ namespace ArgoStore.StatementTranslators.From;
 internal class FromProperty : FromStatementBase
 {
     public FromAlias Alias { get; }
-    public PropertyInfo Property { get; }
+    public string PropertyName { get; }
     public string ItemName { get; }
     
     public FromProperty(QueryModel model, FromAlias alias)
@@ -19,7 +19,14 @@ internal class FromProperty : FromStatementBase
 
         if (model.MainFromClause.FromExpression is MemberExpression me && me.Member is PropertyInfo pi)
         {
-            Property = pi;
+            if (me.Expression is MemberExpression)
+            {
+                PropertyName = ExtractPropertyName(me);
+            }
+            else
+            {
+                PropertyName = pi.Name;
+            }
         }
         else
         {
@@ -27,5 +34,20 @@ internal class FromProperty : FromStatementBase
                 $"Unsupported SubQuery from {model.MainFromClause.FromExpression.Describe()}"
                 );
         }
+    }
+
+    private static string ExtractPropertyName(MemberExpression me)
+    {
+        List<string> path = new();
+
+        Expression? e = me;
+
+        while (e is MemberExpression m2 && m2.Member is PropertyInfo pi)
+        {
+            path.Add(pi.Name);
+            e = m2.Expression;
+        }
+
+        return string.Join(".", path);
     }
 }

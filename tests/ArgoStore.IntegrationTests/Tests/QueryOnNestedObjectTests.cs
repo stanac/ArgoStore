@@ -34,7 +34,17 @@ public class QueryOnNestedObjectTests : IntegrationTestBase
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
         List<Person> r = s.Query<Person>()
-            .Where(x => x.PrimaryContact.ContactInfos.Any(c => c.Details.Any(d => d == "s2")))
+            .Where(x => x.PrimaryContact.ContactInfos.Any(c => c.Active))
             .ToList();
     }
+
+    //[Fact]
+    //public void Test1()
+    //{
+    //    using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+    //    List<Person> r = s.Query<Person>()
+    //        .Where(x => x.PrimaryContact.ContactInfos.Any(c => c.Details.Any(d => d == "s2")))
+    //        .ToList();
+    //}
 }

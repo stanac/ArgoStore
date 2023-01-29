@@ -241,7 +241,7 @@ internal class ArgoCommandBuilder
         }
         else if (FromStatement is FromProperty fp)
         {
-            sb.Append("json_each(").Append(ExtractParentProperty(fp.Property.Name)).Append(") ");
+            sb.Append("json_each(").Append(ExtractParentProperty(fp.PropertyName)).Append(") ");
         }
         else
         {
