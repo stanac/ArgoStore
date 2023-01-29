@@ -48,6 +48,8 @@ internal class FromProperty : FromStatementBase
             e = m2.Expression;
         }
 
+        path.Reverse();
+
         return string.Join(".", path);
     }
 }

@@ -4,6 +4,8 @@ namespace ArgoStore.Helpers;
 
 internal static class JsonPropertyDataHelper
 {
+    private const string TopTableAlias = "t1";
+
     public static string ExtractProperty(string propertyName) => ExtractProperty(propertyName, null);
 
     public static string ExtractProperty(string propertyName, string? alias)
@@ -17,7 +19,12 @@ internal static class JsonPropertyDataHelper
             return $"json_extract(jsonData, '$.{propertyName}')";
         }
 
-        return $"json_extract({alias}.jsonData, '$.{propertyName}')";
+        if (alias == TopTableAlias)
+        {
+            return $"json_extract({alias}.jsonData, '$.{propertyName}')";
+        }
+
+        return $"json_extract({alias}.value, '$.{propertyName}')";
     }
 
 

@@ -29,13 +29,21 @@ public class QueryOnNestedObjectTests : IntegrationTestBase
     }
 
     [Fact]
-    public void Test1()
+    public void QueryOnNestedObjectWithSubquery_GivesExpectedResults()
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 
         List<Person> r = s.Query<Person>()
             .Where(x => x.PrimaryContact.ContactInfos.Any(c => c.Active))
             .ToList();
+
+        List<Person> expected = PersonTestData.GetPersonTestData()
+            .Where(x => x.PrimaryContact != null 
+                        && x.PrimaryContact.ContactInfos != null 
+                        && x.PrimaryContact.ContactInfos.Any(y => y.Active))
+            .ToList();
+
+        r.Should().BeEquivalentTo(expected);
     }
 
     //[Fact]
