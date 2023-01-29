@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ArgoStore.TestsCommon.Entities;
+namespace ArgoStore.TestsCommon.Entities.Person;
 
 public class PersonPkString
 {

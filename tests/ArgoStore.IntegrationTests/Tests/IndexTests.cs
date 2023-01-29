@@ -1,5 +1,5 @@
 ﻿using ArgoStore.IntegrationTests.TestInfra;
-using ArgoStore.TestsCommon.Entities;
+using ArgoStore.TestsCommon.Entities.Person;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.IntegrationTests.Tests;

@@ -1,4 +1,4 @@
-﻿using ArgoStore.TestsCommon.Entities;
+﻿using ArgoStore.TestsCommon.Entities.Person;
 // ReSharper disable ReturnValueOfPureMethodIsNotUsed
 
 namespace ArgoStore.IntegrationTests.Tests.CrudTests;

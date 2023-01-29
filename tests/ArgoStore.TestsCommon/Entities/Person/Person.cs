@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ArgoStore.TestsCommon.Entities
+namespace ArgoStore.TestsCommon.Entities.Person
 {
     public class Person
     {

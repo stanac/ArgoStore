@@ -1,4 +1,4 @@
-﻿using ArgoStore.TestsCommon.Entities;
+﻿using ArgoStore.TestsCommon.Entities.Person;
 using ArgoStore.TestsCommon.TestData;
 
 namespace ArgoStore.IntegrationTests.Tests.CrudTests;

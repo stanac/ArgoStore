@@ -1,10 +1,10 @@
-﻿namespace ArgoStore.TestsCommon.Entities;
+﻿namespace ArgoStore.TestsCommon.Entities.Person;
 
 public class PersonPkUInt32
 {
     public uint Id { get; set; }
     public string Name { get; set; }
-    
+
     public static PersonPkUInt32 Create()
     {
         return new PersonPkUInt32

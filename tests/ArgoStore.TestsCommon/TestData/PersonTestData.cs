@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using ArgoStore.TestsCommon.Entities;
+using ArgoStore.TestsCommon.Entities.Person;
 
 namespace ArgoStore.TestsCommon.TestData;
 

@@ -1,4 +1,4 @@
-﻿using ArgoStore.TestsCommon.Entities;
+﻿using ArgoStore.TestsCommon.Entities.Person;
 using ArgoStore.TestsCommon.TestData;
 using Microsoft.Data.Sqlite;
 // ReSharper disable AccessToDisposedClosure
