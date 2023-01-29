@@ -12,7 +12,7 @@ public class QueryOnNestedObjectTests : IntegrationTestBase
     }
 
     [Fact]
-    public void Test12()
+    public void QueryOnSimpleNestedProp_ReturnsExpected()
     {
         using IArgoQueryDocumentSession s = Store.OpenQuerySession();
 

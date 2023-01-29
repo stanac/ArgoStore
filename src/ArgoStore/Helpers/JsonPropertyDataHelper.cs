@@ -9,7 +9,7 @@ internal static class JsonPropertyDataHelper
     public static string ExtractProperty(string propertyName, string? alias)
     {
         if (string.IsNullOrWhiteSpace(propertyName)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(propertyName));
-
+        
         propertyName = ConvertPropertyNameCase(propertyName);
 
         if (string.IsNullOrWhiteSpace(alias))
@@ -23,6 +23,13 @@ internal static class JsonPropertyDataHelper
 
     public static string ConvertPropertyNameCase(string propertyName)
     {
+        if (propertyName.Contains('.'))
+        {
+            string[] parts = propertyName.Split('.');
+
+            return string.Join(".", parts.Select(JsonNamingPolicy.CamelCase.ConvertName));
+        }
+
         return JsonNamingPolicy.CamelCase.ConvertName(propertyName);
     }
 }

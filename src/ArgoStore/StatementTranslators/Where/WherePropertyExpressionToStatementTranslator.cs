@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using ArgoStore.Helpers;
 using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
@@ -23,6 +24,18 @@ internal class PropertyExpressionToStatementTranslator : IWhereToStatementTransl
                 WhereStatementBase prop = WhereToStatementTranslatorStrategies.Translate(me.Expression!, alias);
 
                 return new WhereStringLengthStatement(prop);
+            }
+
+            if (me.Expression is MemberExpression)
+            {
+                WhereStatementBase parent = WhereToStatementTranslatorStrategies.Translate(me.Expression, alias);
+
+                if (parent is WherePropertyStatement wps)
+                {
+                    return wps.AddChild(pi.Name);
+                }
+
+                throw new NotSupportedException("Unexpected parent expression: " + me.Expression.Describe());
             }
 
             return new WherePropertyStatement(pi.Name);

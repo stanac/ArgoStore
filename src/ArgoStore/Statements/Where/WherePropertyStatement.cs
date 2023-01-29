@@ -8,4 +8,9 @@ internal class WherePropertyStatement : WhereValueStatement
     {
         PropertyName = propertyName;
     }
+
+    public WherePropertyStatement AddChild(string child)
+    {
+        return new WherePropertyStatement($"{PropertyName}.{child}");
+    }
 }

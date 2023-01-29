@@ -48,9 +48,7 @@ internal class ArgoCommandBuilder
             ResultingType = typeof(bool);
         }
     }
-
-    private string _tenantId = "";
-
+    
     public void SetIsDistinct(bool value)
     {
         IsDistinct = value;
@@ -82,8 +80,7 @@ internal class ArgoCommandBuilder
     public ArgoCommand Build(string tenantId)
     {
         if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
-
-        _tenantId = tenantId;
+        
         StringBuilder sb = StringBuilderBag.Default.Get();
 
         AppendSelect(sb);
@@ -332,7 +329,7 @@ internal class ArgoCommandBuilder
                 AppendWhereStringLength(sb, wsls);
                 break;
 
-            case SubQueryValueWhereStatement sqvws:
+            case SubQueryValueWhereStatement:
                 sb.Append(Alias.CurrentAliasName).Append(".value");
                 break;
 
