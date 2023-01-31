@@ -11,7 +11,7 @@ public class DateTimeTests : IntegrationTestBase
     }
 
     [Fact]
-    public void GreaterThan_GivesExpectedResults()
+    public void GreaterThanDateTime_GivesExpectedResults()
     {
         List<DateTime> dates = PersonTestData.GetPersonTestData()
             .Where(x => x.CakeDay is not null)
@@ -34,4 +34,54 @@ public class DateTimeTests : IntegrationTestBase
         r.Should().HaveCount(expected.Count);
         r.Should().BeEquivalentTo(expected);
     }
+
+    [Fact]
+    public void GreaterThanDateTimeOffset_GivesExpectedResults()
+    {
+        List<DateTimeOffset> dates = PersonTestData.GetPersonTestData()
+            .Select(x => x.RegistrationTime)
+            .OrderBy(x => x)
+            .ToList();
+
+        DateTimeOffset dto = dates.Skip(dates.Count / 2).First();
+
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        List<Person> r = s.Query<Person>()
+            .Where(x => x.RegistrationTime > dto)
+            .ToList();
+
+        List<Person> expected = PersonTestData.GetPersonTestData()
+            .Where(x => x.RegistrationTime > dto)
+            .ToList();
+
+        r.Should().HaveCount(expected.Count);
+        r.Should().BeEquivalentTo(expected);
+    }
+
+    [Fact]
+    public void GreaterThanDateOnly_GivesExpectedResults()
+    {
+        List<DateOnly> dates = PersonTestData.GetPersonTestData()
+            .Select(x => x.CoronationDate)
+            .OrderBy(x => x)
+            .ToList();
+
+        DateOnly dto = dates.Skip(dates.Count / 2).First();
+
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        List<Person> r = s.Query<Person>()
+            .Where(x => x.CoronationDate > dto)
+            .ToList();
+
+        List<Person> expected = PersonTestData.GetPersonTestData()
+            .Where(x => x.CoronationDate > dto)
+            .ToList();
+
+        r.Should().HaveCount(expected.Count);
+        r.Should().BeEquivalentTo(expected);
+    }
+
+    // TODO: add TimeOnly test
 }

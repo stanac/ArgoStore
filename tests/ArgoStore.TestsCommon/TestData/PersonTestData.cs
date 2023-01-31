@@ -112,7 +112,7 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
     {
         for (int i = 0; i < _names.Length; i++)
         {
-            yield return new Person
+            Person p = new Person
             {
                 Name = GetName(_names[i]),
                 EmailAddress = GetEmailAddress(_names[i]),
@@ -130,8 +130,12 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                 PortList = GetPortList(i),
                 PrimaryContact = GetPrimaryContact(i),
                 Contacts = GetContacts(i)
-            }
-                .SetCollections();
+            };
+
+            p.SetCollections();
+            p.CoronationDate = DateOnly.FromDateTime(p.RegistrationTime.AddDays(-7).Date);
+
+            yield return p;
         }
     }
 
