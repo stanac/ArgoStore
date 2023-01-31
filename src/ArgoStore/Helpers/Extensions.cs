@@ -18,6 +18,14 @@ internal static class Extensions
         ,typeof(DateOnly)
 #endif
     };
+
+    private static readonly Type[] _dateTypes =
+    {
+        typeof(DateTime), typeof(DateTimeOffset)
+#if !NETSTANDARD
+        , typeof(DateOnly)
+#endif
+    };
     
     public static bool IsCaseSensitive(this StringComparison sc)
     {
@@ -36,10 +44,17 @@ internal static class Extensions
                && type.GetCustomAttribute<CompilerGeneratedAttribute>() != null;
     }
 
-    public static bool IsNullableType(this Type type)
+    public static bool IsNullableType(this Type type, out Type? innerType)
     {
-        return type.IsGenericType
-               && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        if (type.IsGenericType
+            && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            innerType = type.GetGenericArguments()[0];
+            return true;
+        }
+
+        innerType = null;
+        return false;
     }
 
     public static bool HasPublicGetter(this PropertyInfo pi)
@@ -108,5 +123,43 @@ internal static class Extensions
         }
 
         return false;
+    }
+
+    public static bool IsTypeADateType(this Type type)
+    {
+        if (type.IsNullableType(out Type? t))
+        {
+            return t!.IsTypeADateType();
+        }
+
+        return _dateTypes.Contains(type);
+    }
+
+    public static string? FormatAsIso8601DateTimeString(this object? o)
+    {
+        if (o is null) return null;
+
+        DateTimeOffset dto;
+
+        if (o is DateTime dt)
+        {
+            dto = dt;
+        }
+        else if (o is DateTimeOffset d)
+        {
+            dto = d;
+        }
+#if !NETSTANDARD
+        else if (o is DateOnly dOnly)
+        {
+            dto = dOnly.ToDateTime(default);
+        }
+#endif
+        else
+        {
+            throw new ArgumentOutOfRangeException(nameof(o), $"Unexpected type {o.GetType().Name}");
+        }
+
+        return dto.ToString("O");
     }
 }

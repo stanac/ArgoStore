@@ -4,7 +4,6 @@ using ArgoStore.Implementations;
 using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 using ArgoStore.StatementTranslators.From;
-using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace ArgoStore.StatementTranslators.Where;

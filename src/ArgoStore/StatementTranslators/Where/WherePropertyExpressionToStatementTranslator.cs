@@ -32,13 +32,13 @@ internal class PropertyExpressionToStatementTranslator : IWhereToStatementTransl
 
                 if (parent is WherePropertyStatement wps)
                 {
-                    return wps.AddChild(pi.Name);
+                    return wps.AddChild(pi.Name, pi.PropertyType);
                 }
 
                 throw new NotSupportedException("Unexpected parent expression: " + me.Expression.Describe());
             }
 
-            return new WherePropertyStatement(pi.Name);
+            return new WherePropertyStatement(pi.Name, pi.PropertyType);
         }
 
         throw new NotSupportedException("f1dde3f265cb");

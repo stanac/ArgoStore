@@ -10,7 +10,7 @@ internal class ConvertNotNullableExpressionToStatementTranslator : ISelectStatem
     {
         return expression is UnaryExpression ue
                && expression.NodeType == ExpressionType.Convert
-               && ue.Operand.Type.IsNullableType();
+               && ue.Operand.Type.IsNullableType(out _);
     }
 
     public SelectStatementBase Translate(Expression expression)

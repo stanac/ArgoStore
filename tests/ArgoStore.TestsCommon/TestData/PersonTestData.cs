@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
-using System.Reflection;
 using ArgoStore.TestsCommon.Entities.Person;
 
 namespace ArgoStore.TestsCommon.TestData;
@@ -188,7 +186,7 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
 
     private static DateTime? GetCakeDay(int index)
     {
-        DateTime dt = new DateTime(2022, 11, 1);
+        DateTime dt = new DateTime(2022, 11, 1).ToLocalTime();
 
         if (index % 2 == 0)
         {

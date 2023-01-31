@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 
@@ -21,6 +20,6 @@ internal class WhereConstantExpressionToStatementTranslator : IWhereToStatementT
             return new WhereNullValueStatement();
         }
 
-        return new WhereParameterStatement(ce.Value);
+        return new WhereParameterStatement(ce.Value, ce.Type);
     }
 }

@@ -1,5 +1,4 @@
-﻿using ArgoStore.Implementations;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArgoStore.Config;

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using ArgoStore;
 using Microsoft.Extensions.Logging;
 
 namespace ArgoStore.Example.Console;

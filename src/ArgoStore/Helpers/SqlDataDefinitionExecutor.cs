@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using ArgoStore.Config;
+﻿using ArgoStore.Config;
 using Microsoft.Data.Sqlite;
 
 namespace ArgoStore.Helpers;

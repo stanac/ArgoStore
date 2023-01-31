@@ -40,7 +40,7 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
             {
                 if (left is WhereParameterStatement wps1 && wps1.Value is string s1)
                 {
-                    left = new WhereParameterStatement(s1.ToLower());
+                    left = new WhereParameterStatement(s1.ToLower(), typeof(string));
                 }
                 else
                 {
@@ -49,7 +49,7 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
 
                 if (right is WhereParameterStatement wps2 && wps2.Value is string s2)
                 {
-                    right = new WhereParameterStatement(s2.ToLower());
+                    right = new WhereParameterStatement(s2.ToLower(), typeof(string));
                 }
                 else
                 {

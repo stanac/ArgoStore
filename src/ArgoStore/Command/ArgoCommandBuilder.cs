@@ -295,8 +295,7 @@ internal class ArgoCommandBuilder
                 break;
 
             case WhereParameterStatement param:
-                string paramName = _params.AddNewParameter(param.Value);
-                sb.Append(" @").Append(paramName).Append(" ");
+                AppendWhereParameterStatement(sb, param);
                 break;
 
             case WhereStringTransformStatement wsts:
@@ -304,7 +303,7 @@ internal class ArgoCommandBuilder
                 break;
 
             case WherePropertyStatement prop:
-                sb.Append(ExtractProperty(prop.PropertyName)).Append(" ");
+                AppendWherePropertyStatement(sb, prop);
                 break;
 
             case WhereStringContainsMethodCallStatement scm:
@@ -338,6 +337,43 @@ internal class ArgoCommandBuilder
         }
 
         sb.Append(" ");
+    }
+
+    private void AppendWherePropertyStatement(StringBuilder sb, WherePropertyStatement prop)
+    {
+        bool isDate = prop.PropertyType.IsTypeADateType();
+
+        if (isDate)
+        {
+            sb.Append("strftime('%s', ");
+        }
+
+        sb.Append(ExtractProperty(prop.PropertyName)).Append(" ");
+
+        if (isDate)
+        {
+            sb.Append(") ");
+        }
+    }
+
+    private void AppendWhereParameterStatement(StringBuilder sb, WhereParameterStatement param)
+    {
+        bool isDate = param.Type.IsTypeADateType();
+
+        if (isDate)
+        {
+            sb.Append("strftime('%s', ");
+
+            string paramName = _params.AddNewParameter(param.Value.FormatAsIso8601DateTimeString()!);
+            sb.Append(" @").Append(paramName).Append(" ");
+
+            sb.Append(")");
+        }
+        else
+        {
+            string paramName = _params.AddNewParameter(param.Value);
+            sb.Append(" @").Append(paramName).Append(" ");
+        }
     }
 
     private void AppendWhereCollectionContains(StringBuilder sb, WhereCollectionContainsStatement statement)
@@ -400,7 +436,7 @@ internal class ArgoCommandBuilder
     private void AppendWhereComparison(StringBuilder sb, WhereComparisonStatement s)
     {
         sb.Append(" ");
-
+        
         if (s.Operator.IsEqualOrNotEqual() && (s.Left is WhereNullValueStatement || s.Right is WhereNullValueStatement))
         {
             string op = s.Operator == ComparisonOperators.Equal
