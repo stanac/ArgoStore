@@ -23,6 +23,7 @@ namespace ArgoStore.TestsCommon.Entities.Person
         public DateTimeOffset RegistrationTime { get; set; }
         public DateTime? CakeDay { get; set; }
         public DateOnly CoronationDate { get; set; }
+        public TimeOnly TeaTime { get; set; }
         public PersonTypes Type { get; set; }
         public string NickName { get; set; }
         public PersonContact PrimaryContact { get; set; }

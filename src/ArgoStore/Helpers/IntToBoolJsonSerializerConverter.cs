@@ -11,11 +11,13 @@ internal class IntToBoolJsonSerializerConverter : JsonConverter<bool>
         {
             return true;
         }
-        else if (reader.TokenType is JsonTokenType.False)
+
+        if (reader.TokenType is JsonTokenType.False)
         {
             return false;
         }
-        else if (reader.TokenType is JsonTokenType.Number)
+
+        if (reader.TokenType is JsonTokenType.Number)
         {
             JsonConverter<int> valueConverter = (JsonConverter<int>)options.GetConverter(typeof(int));
             int value = valueConverter.Read(ref reader, typeof(int), options);
@@ -25,7 +27,7 @@ internal class IntToBoolJsonSerializerConverter : JsonConverter<bool>
 
         }
 
-        throw new NotSupportedException("633b9d72a547");
+        throw new NotSupportedException($"Unsupported JsonTokenType `{reader.TokenType}` in `{nameof(IntToBoolJsonSerializerConverter)}`");
     }
 
     public override void Write(Utf8JsonWriter writer, bool value, JsonSerializerOptions options)

@@ -369,6 +369,14 @@ internal class ArgoCommandBuilder
 
             sb.Append(")");
         }
+        else if (param.Type == typeof(TimeOnly) || param.Type == typeof(TimeOnly?))
+        {
+            TimeOnly val = (param.Value as TimeOnly?)!.Value;
+            int intVal = (int)val.ToTimeSpan().TotalMilliseconds;
+
+            string paramName = _params.AddNewParameter(intVal);
+            sb.Append(" @").Append(paramName).Append(" ");
+        }
         else
         {
             string paramName = _params.AddNewParameter(param.Value);

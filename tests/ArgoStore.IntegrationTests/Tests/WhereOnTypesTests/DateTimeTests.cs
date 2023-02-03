@@ -83,5 +83,27 @@ public class DateTimeTests : IntegrationTestBase
         r.Should().BeEquivalentTo(expected);
     }
 
-    // TODO: add TimeOnly test
+    [Fact]
+    public void GreaterThanTimeOnly_GivesExpectedResults()
+    {
+        List<TimeOnly> dates = PersonTestData.GetPersonTestData()
+            .Select(x => x.TeaTime)
+            .OrderBy(x => x)
+            .ToList();
+
+        TimeOnly to = dates.Skip(dates.Count / 2).First();
+
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        List<Person> r = s.Query<Person>()
+            .Where(x => x.TeaTime > to)
+            .ToList();
+
+        List<Person> expected = PersonTestData.GetPersonTestData()
+            .Where(x => x.TeaTime > to)
+            .ToList();
+
+        r.Should().HaveCount(expected.Count);
+        r.Should().BeEquivalentTo(expected);
+    }
 }

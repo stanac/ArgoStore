@@ -129,11 +129,12 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                 Type = (PersonTypes)(i % 3),
                 PortList = GetPortList(i),
                 PrimaryContact = GetPrimaryContact(i),
-                Contacts = GetContacts(i)
+                Contacts = GetContacts(i),
             };
 
             p.SetCollections();
             p.CoronationDate = DateOnly.FromDateTime(p.RegistrationTime.AddDays(-7).Date);
+            p.TeaTime = TimeOnly.MinValue.Add(TimeSpan.FromMinutes((i + 1) * 14));
 
             yield return p;
         }

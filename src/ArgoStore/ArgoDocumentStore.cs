@@ -78,6 +78,7 @@ public class ArgoDocumentStore : IArgoDocumentStore
         };
 
         opt.Converters.Add(new IntToBoolJsonSerializerConverterFactory());
+        opt.Converters.Add(new TimeOnlyToIntJsonSerializerConverterFactory());
         opt.Converters.Add(new JsonStringEnumConverter());
 
         return opt;
