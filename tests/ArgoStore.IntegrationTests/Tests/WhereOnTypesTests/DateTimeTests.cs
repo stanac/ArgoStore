@@ -7,6 +7,7 @@ public class DateTimeTests : IntegrationTestBase
 {
     public DateTimeTests()
     {
+        UseFileDb();
         InsertTestPersons();
     }
 

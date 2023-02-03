@@ -152,7 +152,7 @@ internal static class Extensions
 #if !NETSTANDARD
         else if (o is DateOnly dOnly)
         {
-            dto = dOnly.ToDateTime(default);
+            return dOnly.ToString("yyyy-MM-dd");
         }
 #endif
         else
