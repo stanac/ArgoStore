@@ -7,15 +7,15 @@ titleTemplate: .NET Transactional Embedded Document DB
 
 hero:
   name: ArgoStore
-  text: .NET Embedded Transactional Document DB Powered by Sqlite!
-  tagline: Tagline
+  text: .NET Embedded Transactional Document DB
+  tagline: Powered by SQLite
   image:
-    src: /logo.png
-    alt: alt text
+    src: /images/argo-logo-vb200.svg
+    alt: logo
   actions:
     - theme: brand
       text: Get Started
-      link: /getting-started/
+      link: /docs/getting-started
     - theme: alt
       text: Documentation
       link: /docs/

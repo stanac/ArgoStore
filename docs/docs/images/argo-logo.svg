@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1">
+   <style>
+        path { fill:#10b981; stroke-width:0; }
+    </style>
+    <g id="left">
+        <path d="M 20 120 L 85 20 L 85 120 z"
+            />
+    </g>
+
+    <g id="right">
+        <path d="M 90 120 L 90 0 L 160 120 L 140 120 L 105 55 L 105 120 z"
+            />
+
+        <path d="M 95 80 L 130 80 L 140 95 L 95 95"
+            />
+    </g>
+
+    <g id="lower">
+        <path d="M 0 125 L 190 125 L 160 147 L 15 147 z" 
+            />
+    </g>
+</svg>
