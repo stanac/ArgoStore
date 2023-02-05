@@ -58,8 +58,8 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
             .Where(x => x.Roles.Count == 3)
             .ToList();
 
-        int expectedCount = PersonTestData.GetPersonTestData().Count(x => x.Roles != null && x.Roles.Count == 3);
-        r.Should().HaveCount(expectedCount);
+        var expected = PersonTestData.GetPersonTestData().Where(x => x.Roles != null && x.Roles.Count == 3).ToList();
+        r.Should().BeEquivalentTo(expected);
     }
 
 }
