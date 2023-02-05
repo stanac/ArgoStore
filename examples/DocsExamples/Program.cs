@@ -51,16 +51,18 @@ class Program
     {
         using IArgoQueryDocumentSession session = store.OpenQuerySession();
 
-        Person marco = session.Query<Person>().First(x => x.Name.EndsWith("marco", StringComparison.OrdinalIgnoreCase));
-        Console.WriteLine(marco.Name);
+        Person marco = session.Query<Person>()
+            .First(x => x.Name.EndsWith("marco", StringComparison.OrdinalIgnoreCase));
+        Console.WriteLine($"{marco.Id}: {marco.Name}");
 
         List<Person> sales = session.Query<Person>()
             .Where(x => x.Roles.Contains("sales"))
             .ToList();
 
+        Console.WriteLine("sales:");
         foreach (Person salesPerson in sales)
         {
-            Console.WriteLine($"Sales: {salesPerson.Name}");
+            Console.WriteLine($"{salesPerson.Id}: {salesPerson.Name}");
         }
     }
 }

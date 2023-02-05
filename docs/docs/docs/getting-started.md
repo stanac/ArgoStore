@@ -18,7 +18,7 @@ It is recommended to read this guide first.
 
 Install [dotnet sdk](https://dot.net) 6, or newer.
 ArgoStore works on any framework that is implementing `NETSTANDARD2.0` so you can try using older frameworks if you want. However ArgoStore is only tested with .NET 6 and 7.
-ArgoStore is following [.NET Support Policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core), which means officially we are not going to support issues specifically occurring on older frameworks.
+ArgoStore is following [.NET Support Policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core), which means we may not fix issues occurring specifically only on older frameworks.
 
 ---
 
@@ -49,7 +49,7 @@ dotnet add package ArgoStore
 ### Document Type and Document Store
 
 Create new file called `Person.cs`.
-This class represents document type we are going to store in the DB.
+This class represents type of documents we are going to store in the DB.
 (Namespaces removed for brevity.)
 
 ```csharp
@@ -62,8 +62,8 @@ public class Person
 }
 ```
 
-`Id` will be used automatically for identity.
-It will be automatically populated when not set.
+`Id` will be used for identity.
+It will be automatically populated when not set (when it's `Guid.Empty`).
 See [Identity]() for more information.
 
 Open `Program.cs` and add using:
@@ -75,13 +75,13 @@ using ArgoStore;
 In `Main` we can now create instance of `ArgoDocumentStore`:
 
 ```csharp
-const string connectionString = "Data Source=mydb.sqlite";
+const string connectionString = "Data Source=c:\\temp\\mydb.sqlite";
 ArgoDocumentStore store = new ArgoDocumentStore(connectionString);
 store.RegisterDocument<Person>();
 ```
 
 - It is recommended to use full path for DB file path in connection string.
-- To register a document type we can use `store.RegisterDocument<T>();`
+- To register a document type use `store.RegisterDocument<T>();`
 - ArgoStore intentionally does not support operations on non registered documents.
 
 ### Inserting data
@@ -141,15 +141,17 @@ using IArgoQueryDocumentSession session = store.OpenQuerySession();
 
 Person marco = session.Query<Person>()
     .First(x => x.Name.EndsWith("marco", StringComparison.OrdinalIgnoreCase));
-Console.WriteLine(marco.Name);
+Console.WriteLine($"{marco.Id}: {marco.Name}");
 
 List<Person> sales = session.Query<Person>()
     .Where(x => x.Roles.Contains("sales"))
     .ToList();
 
+
+Console.WriteLine("sales:");
 foreach (Person salesPerson in sales)
 {
-    Console.WriteLine($"Sales: {salesPerson.Name}");
+    Console.WriteLine($"{salesPerson.Id}: {salesPerson.Name}");
 }
 ```
 
@@ -208,24 +210,26 @@ class Program
 
         Person marco = session.Query<Person>()
             .First(x => x.Name.EndsWith("marco", StringComparison.OrdinalIgnoreCase));
-        Console.WriteLine(marco.Name);
+        Console.WriteLine($"{marco.Id}: {marco.Name}");
 
         List<Person> sales = session.Query<Person>()
             .Where(x => x.Roles.Contains("sales"))
             .ToList();
 
+        Console.WriteLine("sales:");
         foreach (Person salesPerson in sales)
         {
-            Console.WriteLine($"Sales: {salesPerson.Name}");
+            Console.WriteLine($"{salesPerson.Id}: {salesPerson.Name}");
         }
     }
 }
 ```
 
-Calling `dotnet run` you should get the output:
+Calling `dotnet run` you should get the output (you will of course get different ids):
 
 ```
-Mark Marco
-Sales: John Doe
-Sales: Jane Doe
+215d12d9-a307-41f5-815d-00c0f376df51: Mark Marco
+sales:
+e2544fde-8ee7-42d7-a7ac-525a288d660f: John Doe
+b9758f3a-7f48-4e20-a79d-5249a05fd6b5: Jane Doe
 ```

@@ -173,7 +173,7 @@ internal class ArgoCommandExecutor
         if (result is int i) value = i;
         else value = (int)(long) result;
 
-        return value == 1;
+        return value > 0;
     }
 
     private SqliteCommand ExecutePreCommandsAndGetCommand(SqliteCommandCollection cmds)
