@@ -369,6 +369,7 @@ internal class ArgoCommandBuilder
 
             sb.Append(")");
         }
+#if !NETSTANDARD
         else if (param.Type == typeof(TimeOnly) || param.Type == typeof(TimeOnly?))
         {
             TimeOnly val = (param.Value as TimeOnly?)!.Value;
@@ -377,6 +378,7 @@ internal class ArgoCommandBuilder
             string paramName = _params.AddNewParameter(intVal);
             sb.Append(" @").Append(paramName).Append(" ");
         }
+#endif
         else
         {
             string paramName = _params.AddNewParameter(param.Value);

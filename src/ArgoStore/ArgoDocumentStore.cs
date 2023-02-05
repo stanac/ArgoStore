@@ -77,9 +77,12 @@ public class ArgoDocumentStore : IArgoDocumentStore
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        opt.Converters.Add(new IntToBoolJsonSerializerConverterFactory());
-        opt.Converters.Add(new TimeOnlyToIntJsonSerializerConverterFactory());
         opt.Converters.Add(new JsonStringEnumConverter());
+        opt.Converters.Add(new IntToBoolJsonSerializerConverterFactory());
+
+#if !NETSTANDARD
+        opt.Converters.Add(new TimeOnlyToIntJsonSerializerConverterFactory());
+#endif
 
         return opt;
     }
