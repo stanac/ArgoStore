@@ -4,6 +4,7 @@ public class RolesContainsBug : IntegrationTestBase
 {
     public RolesContainsBug()
     {
+        UseFileDb();
         RegisterAndInsertTestData();
     }
 

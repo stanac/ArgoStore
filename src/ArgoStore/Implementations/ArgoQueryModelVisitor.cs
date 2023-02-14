@@ -15,8 +15,8 @@ namespace ArgoStore.Implementations;
 
 internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 {
-    public ArgoCommandBuilder CommandBuilder { get; private set; }
-
+    public ArgoCommandBuilder CommandBuilder { get; }
+    
     public ArgoQueryModelVisitor(DocumentMetadata metadata)
     {
         CommandBuilder = new ArgoCommandBuilder(new FromJsonData(metadata), new FromAlias());
@@ -126,6 +126,14 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         else if (resultOperator is TakeResultOperator tro)
         {
             CommandBuilder.Take = SkipTakeTranslator.GetSkipOrTakeValue(tro.Count, false);
+        }
+        else if (resultOperator is ContainsResultOperator cro)
+        {
+            CommandBuilder.HandleResultOperator(queryModel, cro);
+        }
+        else if (resultOperator is CountResultOperator or LongCountResultOperator)
+        {
+            CommandBuilder.HandleCountResultOperator(queryModel);
         }
 
         base.VisitResultOperator(resultOperator, queryModel, index);

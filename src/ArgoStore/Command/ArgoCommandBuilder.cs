@@ -6,7 +6,10 @@ using ArgoStore.Statements.Select;
 using ArgoStore.Statements.Where;
 using ArgoStore.StatementTranslators.From;
 using ArgoStore.StatementTranslators.Select;
+using ArgoStore.StatementTranslators.Where;
+using Remotion.Linq;
 using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace ArgoStore.Command;
 
@@ -17,7 +20,7 @@ internal class ArgoCommandBuilder
 
     public FromStatementBase FromStatement { get; }
     public FromAlias Alias { get; }
-    public List<WhereStatement> WhereStatements = new();
+    public List<WhereStatement> WhereStatements { get; } = new();
     public List<OrderByStatement> OrderByStatements { get; } = new();
     public SelectStatementBase? SelectStatement { get; private set; }
     public Type ResultingType { get; private set; }
@@ -250,6 +253,8 @@ internal class ArgoCommandBuilder
 
         sb.Append(" ").Append(Alias.CurrentAliasName).AppendLine();
     }
+
+    #region Where
 
     private void AppendWhere(StringBuilder sb, string? tenantId)
     {
@@ -543,6 +548,23 @@ internal class ArgoCommandBuilder
         sb.Append("length(");
         AppendWhereStatement(sb, wsls.Value);
         sb.Append(")");
+    }
+
+    #endregion Where
+    
+    public void HandleResultOperator(QueryModel queryModel, ContainsResultOperator cro)
+    {
+        WhereValueStatement value = (WhereValueStatement)WhereToStatementTranslatorStrategies.Translate(cro.Item, Alias);
+        WhereValueStatement source = (WhereValueStatement)WhereToStatementTranslatorStrategies.Translate(queryModel.MainFromClause.FromExpression, Alias);
+
+        WhereStatementBase contains = new WhereCollectionContainsStatement(source, value);
+
+        WhereStatements.Add(new WhereStatement(contains));
+    }
+
+    public void HandleCountResultOperator(QueryModel queryModel)
+    {
+        throw new NotImplementedException();
     }
 
     private void AppendOrderBy(StringBuilder sb)

@@ -11,4 +11,9 @@ internal class WhereStatement
     {
         Statement = WhereToStatementTranslatorStrategies.Translate(clause.Predicate, alias);
     }
+
+    public WhereStatement(WhereStatementBase statement)
+    {
+        Statement = statement;
+    }
 }
