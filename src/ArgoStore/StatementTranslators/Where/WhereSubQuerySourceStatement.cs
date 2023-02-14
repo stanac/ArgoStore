@@ -5,7 +5,7 @@ using Remotion.Linq.Clauses.Expressions;
 
 namespace ArgoStore.StatementTranslators.Where;
 
-internal class SubQueryValueToStatementTranslator : IWhereToStatementTranslator
+internal class WhereSubQuerySourceStatement : IWhereToStatementTranslator
 {
     public bool CanTranslate(Expression expression)
     {
@@ -14,6 +14,6 @@ internal class SubQueryValueToStatementTranslator : IWhereToStatementTranslator
 
     public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
-        return new SubQueryValueWhereStatement(alias.CurrentAliasName);
+        return new WhereSubQueryValueStatement(alias.CurrentAliasName);
     }
 }

@@ -1,10 +1,10 @@
 ﻿namespace ArgoStore.Statements.Where;
 
-internal class SubQueryValueWhereStatement : WhereStatementBase
+internal class WhereSubQueryValueStatement : WhereStatementBase
 {
     public string CurrentAlias { get; }
-
-    public SubQueryValueWhereStatement(string currentAlias)
+    
+    public WhereSubQueryValueStatement(string currentAlias)
     {
         CurrentAlias = currentAlias;
     }

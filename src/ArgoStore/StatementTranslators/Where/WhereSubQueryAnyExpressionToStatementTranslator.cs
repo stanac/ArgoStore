@@ -23,6 +23,7 @@ internal class WhereSubQueryAnyExpressionToStatementTranslator : IWhereToStateme
         WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias);
 
         WhereStatementBase? where = null;
+        FromAlias childAlias = alias.CreateChildAlias();
 
         if (sqe.QueryModel.BodyClauses.Count > 1)
         {
@@ -33,7 +34,7 @@ internal class WhereSubQueryAnyExpressionToStatementTranslator : IWhereToStateme
         {
             if (sqe.QueryModel.BodyClauses[0] is WhereClause wc)
             {
-                where = WhereToStatementTranslatorStrategies.Translate(wc.Predicate, alias);
+                where = WhereToStatementTranslatorStrategies.Translate(wc.Predicate, childAlias);
             }
             else
             {
@@ -43,6 +44,6 @@ internal class WhereSubQueryAnyExpressionToStatementTranslator : IWhereToStateme
             }
         }
 
-        return new WhereSubQueryAnyStatement(from, where, alias.CreateChildAlias());
+        return new WhereSubQueryAnyStatement(new WhereSubQueryFromStatement(from, childAlias), where, childAlias);
     }
 }

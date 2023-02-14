@@ -333,8 +333,12 @@ internal class ArgoCommandBuilder
                 AppendWhereStringLength(sb, wsls);
                 break;
 
-            case SubQueryValueWhereStatement:
-                sb.Append(Alias.CurrentAliasName).Append(".value");
+            case WhereSubQueryFromStatement wsqf:
+                AppendWhereSubQueryFrom(sb, wsqf);
+                break;
+
+            case WhereSubQueryValueStatement wsqvs:
+                AppendWhereSubQueryValue(sb, wsqvs);
                 break;
 
             default:
@@ -552,7 +556,7 @@ internal class ArgoCommandBuilder
         if (s.Condition is null)
         {
             sb.Append("json_array_length(");
-            AppendWhereStatement(sb, s.From);
+            AppendWhereStatement(sb, s.From.FromStatement);
             sb.Append(") > 0");
         }
         else
@@ -568,6 +572,27 @@ internal class ArgoCommandBuilder
     private void AppendWhereSubQueryContains(StringBuilder sb, WhereSubQueryContainsStatement s)
     {
         throw new NotImplementedException();
+    }
+
+    private void AppendWhereSubQueryFrom(StringBuilder sb, WhereSubQueryFromStatement wsqf)
+    {
+        if (wsqf.FromStatement is WhereValueStatement v)
+        {
+            sb.Append("json_each(");
+            AppendWhereStatement(sb, v);
+            sb.Append(") ").Append(wsqf.Alias.CurrentAliasName);
+        }
+        else
+        {
+            throw new NotSupportedException(
+                $"Not supported subquery from statement of type: {wsqf.FromStatement.GetType().Name}"
+                );
+        }
+    }
+
+    private void AppendWhereSubQueryValue(StringBuilder sb, WhereSubQueryValueStatement s)
+    {
+        sb.Append($"{s.CurrentAlias}.value");
     }
 
     #endregion Where
