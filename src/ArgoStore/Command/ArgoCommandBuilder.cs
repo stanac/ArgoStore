@@ -28,8 +28,6 @@ internal class ArgoCommandBuilder
     public bool IsDistinct { get; private set; }
     public int? Take { get; set; }
     public int? Skip { get; set; }
-    public bool IsSubQuery { get; set; }
-
     public bool IsSelectCount => SelectStatement is SelectCountStatement;
     public bool IsSelectFirstOrSingle => SelectStatement is FirstSingleMaybeDefaultStatement;
     public bool IsSelectAny => SelectStatement is SelectAnyStatement;
@@ -56,30 +54,7 @@ internal class ArgoCommandBuilder
     {
         IsDistinct = value;
     }
-
-    public ArgoCommand BuildForSubQuery()
-    {
-        StringBuilder sb = StringBuilderBag.Default.Get();
-
-        if (IsSelectCount)
-        {
-            sb.Append("SELECT COUNT(1) ");
-        }
-        else
-        {
-            sb.Append("SELECT 1 ");
-        }
-
-        AppendFrom(sb);
-        AppendWhere(sb, null);
-
-        ArgoCommand c = new ArgoCommand(sb.ToString(), _params, GetCommandType(), typeof(bool), false, _containsLikeOperator);
-
-        StringBuilderBag.Default.Return(sb);
-
-        return c;
-    }
-
+    
     public ArgoCommand Build(string tenantId)
     {
         if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
@@ -356,9 +331,9 @@ internal class ArgoCommandBuilder
         {
             sb.Append("strftime('%s', ");
         }
-
+        
         sb.Append(ExtractProperty(prop.PropertyName)).Append(" ");
-
+        
         if (isDate)
         {
             sb.Append(") ");
@@ -588,7 +563,7 @@ internal class ArgoCommandBuilder
         }
         else
         {
-            sb.Append("COUNT ( SELECT 1 FROM ");
+            sb.Append("( SELECT COUNT(1) FROM ");
             AppendWhereStatement(sb, s.From);
             sb.Append(" WHERE ");
             AppendWhereStatement(sb, s.Condition);
@@ -681,7 +656,12 @@ internal class ArgoCommandBuilder
 
     private string ExtractProperty(string propertyName)
     {
-        return JsonPropertyDataHelper.ExtractProperty(propertyName, Alias.CurrentAliasName);
+        return ExtractProperty(propertyName, Alias.CurrentAliasName);
+    }
+
+    private string ExtractProperty(string propertyName, string alias)
+    {
+        return JsonPropertyDataHelper.ExtractProperty(propertyName, alias);
     }
 
     private string ExtractParentProperty(string propertyName)
