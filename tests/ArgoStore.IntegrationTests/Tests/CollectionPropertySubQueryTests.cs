@@ -71,8 +71,14 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
             .Where(x => x.Contacts != null && x.Contacts.Count(y => y.ContactType < 0) == 1)
             .ToList();
 
-        List<Person> r = s.Query<Person>()
+        
+        List<Person> r1 = s.Query<Person>()
             .Where(x => x.Contacts.Count(y => y.ContactType < 0) == 1)
+            .ToList();
+
+        List<Person> r2 = s.Query<Person>()
+            // ReSharper disable once ReplaceWithSingleCallToCount
+            .Where(x => x.Contacts.Where(y => y.ContactType < 0).Count() == 1)
             .ToList();
 
         throw new NotImplementedException();
