@@ -62,4 +62,20 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
         r.Should().BeEquivalentTo(expected);
     }
 
+    [Fact]
+    public void CountWithConditionEquals_GivesExpectedResults()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        var expected = PersonTestData.GetPersonTestData()
+            .Where(x => x.Contacts != null && x.Contacts.Count(y => y.ContactType < 0) == 1)
+            .ToList();
+
+        List<Person> r = s.Query<Person>()
+            .Where(x => x.Contacts.Count(y => y.ContactType < 0) == 1)
+            .ToList();
+
+        throw new NotImplementedException();
+    }
+
 }

@@ -580,7 +580,20 @@ internal class ArgoCommandBuilder
 
     private void AppendWhereSubQueryCount(StringBuilder sb, WhereSubQueryCountStatement s)
     {
-        throw new NotImplementedException();
+        if (s.Condition is null)
+        {
+            sb.Append("json_array_length(");
+            AppendWhereStatement(sb, s.From.FromStatement);
+            sb.Append(")");
+        }
+        else
+        {
+            sb.Append("COUNT ( SELECT 1 FROM ");
+            AppendWhereStatement(sb, s.From);
+            sb.Append(" WHERE ");
+            AppendWhereStatement(sb, s.Condition);
+            sb.Append(" )");
+        }
     }
 
     private void AppendWhereSubQueryFrom(StringBuilder sb, WhereSubQueryFromStatement s)
