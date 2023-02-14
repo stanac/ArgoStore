@@ -13,6 +13,7 @@ internal class FromAlias
     public int? ParentAlias { get; set; }
     public string CurrentAliasName => $"t{CurrentAlias}";
     public string ParentAliasName => $"t{ParentAlias}";
+    public bool IsTopAlias => CurrentAlias == 1;
 
     public FromAlias CreateChildAlias()
     {

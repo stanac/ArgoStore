@@ -38,7 +38,7 @@ internal class PropertyExpressionToStatementTranslator : IWhereToStatementTransl
                 throw new NotSupportedException("Unexpected parent expression: " + me.Expression.Describe());
             }
 
-            return new WherePropertyStatement(pi.Name, pi.PropertyType);
+            return new WherePropertyStatement(pi.Name, pi.PropertyType, alias.CurrentAliasName);
         }
 
         throw new NotSupportedException("f1dde3f265cb");

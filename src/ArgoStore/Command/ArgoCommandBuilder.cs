@@ -332,7 +332,7 @@ internal class ArgoCommandBuilder
             sb.Append("strftime('%s', ");
         }
         
-        sb.Append(ExtractProperty(prop.PropertyName)).Append(" ");
+        sb.Append(ExtractProperty(prop.PropertyName, prop.FromAlias)).Append(" ");
         
         if (isDate)
         {
@@ -659,8 +659,9 @@ internal class ArgoCommandBuilder
         return ExtractProperty(propertyName, Alias.CurrentAliasName);
     }
 
-    private string ExtractProperty(string propertyName, string alias)
+    private string ExtractProperty(string propertyName, string? alias)
     {
+        alias = alias ?? Alias.CurrentAliasName;
         return JsonPropertyDataHelper.ExtractProperty(propertyName, alias);
     }
 

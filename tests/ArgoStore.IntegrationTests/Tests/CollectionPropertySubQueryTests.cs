@@ -84,17 +84,39 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
 	              ) = 1
          */
         
-        List<Person> r1 = s.Query<Person>()
+        List<Person> r = s.Query<Person>()
             .Where(x => x.Contacts.Count(y => y.ContactType < 0) == 1)
             .ToList();
-
-        //List<Person> r2 = s.Query<Person>()
-        //    // ReSharper disable once ReplaceWithSingleCallToCount
-        //    .Where(x => x.Contacts.Where(y => y.ContactType < 0).Count() == 1)
-        //    .ToList();
-
-        r1.Should().BeEquivalentTo(expected);
-        // r2.Should().BeEquivalentTo(expected);
+        
+        r.Should().BeEquivalentTo(expected);
     }
 
+    [Fact]
+    public void CountWithWhereConditionEquals_GivesExpectedResults()
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        var expected = PersonTestData.GetPersonTestData()
+            .Where(x => x.Contacts != null && x.Contacts.Count(y => y.ContactType < 0) == 1)
+            .ToList();
+
+        /*
+            -- EXPECTED SQL
+
+            SELECT t1.jsonData
+            FROM Person t1
+            WHERE (
+			            SELECT COUNT(1)
+			            FROM json_each(t1.jsonData, '$.contacts') t2
+			            WHERE json_extract(t2.value, '$.contactType') < 0
+	              ) = 1
+         */
+        
+        List<Person> r = s.Query<Person>()
+            // ReSharper disable once ReplaceWithSingleCallToCount
+            .Where(x => x.Contacts.Where(y => y.ContactType < 0).Count() == 1)
+            .ToList();
+
+        r.Should().BeEquivalentTo(expected);
+    }
 }
