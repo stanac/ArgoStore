@@ -7,6 +7,7 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
 {
     public CollectionPropertySubQueryTests()
     {
+        UseFileDb();
         InsertTestPersons();
     }
 
@@ -70,6 +71,18 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
         var expected = PersonTestData.GetPersonTestData()
             .Where(x => x.Contacts != null && x.Contacts.Count(y => y.ContactType < 0) == 1)
             .ToList();
+
+        /*
+            -- EXPECTED SQL
+
+            SELECT t1.jsonData
+            FROM Person t1
+            WHERE (
+			            SELECT COUNT(1) c1
+			            FROM json_each(t1.jsonData, '$.contacts') t2
+			            WHERE json_extract(t2.value, '$.contactType') < 0
+	              ) = 1
+         */
         
         List<Person> r1 = s.Query<Person>()
             .Where(x => x.Contacts.Count(y => y.ContactType < 0) == 1)

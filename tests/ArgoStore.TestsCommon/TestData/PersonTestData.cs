@@ -331,7 +331,7 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
             {
                 new()
                 {
-                    ContactType = -9,
+                    ContactType = 9,
                     ContactInfos = new List<Person.ContactInfo>
                     {
                         new()
@@ -346,7 +346,6 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                         }
                     }
                 }
-
             };
 
         if (i % 19 == 0)
@@ -366,6 +365,23 @@ Hugh Cross".Split(Environment.NewLine.ToCharArray(), StringSplitOptions.RemoveEm
                         {
                             Active = false,
                             Details = new[] { "99", "98", "s1", "s2" }
+                        }
+                    }
+                },
+                new()
+                {
+                    ContactType = -7,
+                    ContactInfos = new List<Person.ContactInfo>
+                    {
+                        new()
+                        {
+                            Active = true,
+                            Details = new[] { "abc", "123" }
+                        },
+                        new()
+                        {
+                            Active = false,
+                            Details = new[] { "98", "s1", "s2" }
                         }
                     }
                 }
