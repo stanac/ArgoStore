@@ -545,6 +545,10 @@ internal class ArgoCommandBuilder
         {
             AppendWhereSubQueryContains(sb, s2);
         }
+        else if (sqs is WhereSubQueryCountStatement s3)
+        {
+            AppendWhereSubQueryCount(sb, s3);
+        }
         else
         {
             throw new NotSupportedException($"SubQuery {sqs.GetType().FullName} not supported.");
@@ -574,18 +578,23 @@ internal class ArgoCommandBuilder
         throw new NotImplementedException();
     }
 
-    private void AppendWhereSubQueryFrom(StringBuilder sb, WhereSubQueryFromStatement wsqf)
+    private void AppendWhereSubQueryCount(StringBuilder sb, WhereSubQueryCountStatement s)
     {
-        if (wsqf.FromStatement is WhereValueStatement v)
+        throw new NotImplementedException();
+    }
+
+    private void AppendWhereSubQueryFrom(StringBuilder sb, WhereSubQueryFromStatement s)
+    {
+        if (s.FromStatement is WhereValueStatement v)
         {
             sb.Append("json_each(");
             AppendWhereStatement(sb, v);
-            sb.Append(") ").Append(wsqf.Alias.CurrentAliasName);
+            sb.Append(") ").Append(s.Alias.CurrentAliasName);
         }
         else
         {
             throw new NotSupportedException(
-                $"Not supported subquery from statement of type: {wsqf.FromStatement.GetType().Name}"
+                $"Not supported subquery from statement of type: {s.FromStatement.GetType().Name}"
                 );
         }
     }
