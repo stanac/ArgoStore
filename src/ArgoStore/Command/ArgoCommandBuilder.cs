@@ -550,7 +550,11 @@ internal class ArgoCommandBuilder
 
     private void AppendWhereSubQueryContains(StringBuilder sb, WhereSubQueryContainsStatement s)
     {
-        throw new NotImplementedException();
+        sb.Append("EXISTS ( SELECT 1 FROM ");
+        AppendWhereStatement(sb, s.From);
+        sb.Append($" WHERE {s.Alias.CurrentAliasName}.value = ");
+        AppendWhereStatement(sb, s.Value);
+        sb.Append(") ");
     }
 
     private void AppendWhereSubQueryCount(StringBuilder sb, WhereSubQueryCountStatement s)

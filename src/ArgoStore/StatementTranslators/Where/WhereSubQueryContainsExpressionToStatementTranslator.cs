@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Runtime.Intrinsics.X86;
 using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 using Remotion.Linq.Clauses.Expressions;
@@ -17,6 +18,28 @@ internal class WhereSubQueryContainsExpressionToStatementTranslator : IWhereToSt
 
     public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
-        throw new NotImplementedException();
+        SubQueryExpression sqe = (SubQueryExpression) expression;
+        WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias);
+        WhereValueStatement value;
+        FromAlias childAlias = alias.CreateChildAlias();
+
+        if (sqe.QueryModel.ResultOperators.Count > 1)
+        {
+            throw new NotSupportedException("Not supported subquery with multiple result operators");
+        }
+
+        ContainsResultOperator cre = (ContainsResultOperator) sqe.QueryModel.ResultOperators[0];
+        WhereStatementBase item = WhereToStatementTranslatorStrategies.Translate(cre.Item, childAlias);
+
+        if (item is WhereValueStatement wvs)
+        {
+            value = wvs;
+        }
+        else
+        {
+            throw new InvalidOperationException($"Cannot convert {item.GetType().FullName} to value statement in contains subquery.");
+        }
+
+        return new WhereSubQueryContainsStatement(childAlias, new WhereSubQueryFromStatement(from, childAlias), value);
     }
 }
