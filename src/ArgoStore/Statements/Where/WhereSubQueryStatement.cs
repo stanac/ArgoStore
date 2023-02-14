@@ -1,14 +1,31 @@
-﻿using ArgoStore.Command;
+﻿namespace ArgoStore.Statements.Where;
 
-namespace ArgoStore.Statements.Where;
-
-internal class WhereSubQueryStatement : WhereStatementBase
+internal abstract class WhereSubQueryStatement : WhereStatementBase
 {
-    public ArgoCommandBuilder CommandBuilder { get; }
+    public abstract FromAlias Alias { get; }
+}
 
-    public WhereSubQueryStatement(ArgoCommandBuilder commandBuilder)
+internal class WhereSubQueryAnyStatement : WhereSubQueryStatement
+{
+    public WhereStatementBase From { get; }
+    public WhereStatementBase? Condition { get; }
+    public override FromAlias Alias { get; }
+    
+    public WhereSubQueryAnyStatement(WhereStatementBase from, WhereStatementBase? condition, FromAlias alias)
     {
-        CommandBuilder = commandBuilder ?? throw new ArgumentNullException(nameof(commandBuilder));
-        commandBuilder.IsSubQuery = true;
+        From = from;
+        Condition = condition;
+        Alias = alias;
     }
+
+}
+
+internal class WhereSubQueryContainsStatement : WhereSubQueryStatement
+{
+    public WhereSubQueryContainsStatement(FromAlias alias)
+    {
+        Alias = alias;
+    }
+
+    public override FromAlias Alias { get; }
 }

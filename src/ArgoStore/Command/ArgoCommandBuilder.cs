@@ -230,7 +230,7 @@ internal class ArgoCommandBuilder
         }
         else
         {
-            sb.AppendLine("SELECT jsonData");
+            sb.AppendLine("SELECT t1.jsonData");
         }
     }
 
@@ -524,25 +524,6 @@ internal class ArgoCommandBuilder
         }
     }
 
-    private void AppendWhereSubQuery(StringBuilder sb, WhereSubQueryStatement sqs)
-    {
-        ArgoCommand cmd = sqs.CommandBuilder.BuildForSubQuery();
-
-        if (cmd.CommandType == ArgoCommandTypes.Count)
-        {
-            sb.Append(" (").Append(cmd.Sql).AppendLine(" )");
-        }
-        else
-        {
-            sb.Append(" EXISTS (").Append(cmd.Sql).AppendLine(" )");
-        }
-
-        foreach (ArgoCommandParameter p in cmd.Parameters)
-        {
-            _params.AddWithName(p.Name, p.Value);
-        }
-    }
-
     private void AppendWhereStringLength(StringBuilder sb, WhereStringLengthStatement wsls)
     {
         sb.Append("length(");
@@ -550,8 +531,47 @@ internal class ArgoCommandBuilder
         sb.Append(")");
     }
 
+    private void AppendWhereSubQuery(StringBuilder sb, WhereSubQueryStatement sqs)
+    {
+        if (sqs is WhereSubQueryAnyStatement s1)
+        {
+            AppendWhereSubQueryAny(sb, s1);
+        }
+        else if (sqs is WhereSubQueryContainsStatement s2)
+        {
+            AppendWhereSubQueryContains(sb, s2);
+        }
+        else
+        {
+            throw new NotSupportedException($"SubQuery {sqs.GetType().FullName} not supported.");
+        }
+    }
+
+    private void AppendWhereSubQueryAny(StringBuilder sb, WhereSubQueryAnyStatement s)
+    {
+        if (s.Condition is null)
+        {
+            sb.Append("json_array_length(");
+            AppendWhereStatement(sb, s.From);
+            sb.Append(") > 0");
+        }
+        else
+        {
+            sb.Append("EXISTS ( SELECT 1 FROM ");
+            AppendWhereStatement(sb, s.From);
+            sb.Append(" WHERE ");
+            AppendWhereStatement(sb, s.Condition);
+            sb.Append(" LIMIT 1 )");
+        }
+    }
+
+    private void AppendWhereSubQueryContains(StringBuilder sb, WhereSubQueryContainsStatement s)
+    {
+        throw new NotImplementedException();
+    }
+
     #endregion Where
-    
+
     public void HandleResultOperator(QueryModel queryModel, ContainsResultOperator cro)
     {
         WhereValueStatement value = (WhereValueStatement)WhereToStatementTranslatorStrategies.Translate(cro.Item, Alias);
