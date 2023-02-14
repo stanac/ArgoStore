@@ -19,9 +19,7 @@ internal class WhereSubQueryAnyExpressionToStatementTranslator : IWhereToStateme
     public WhereStatementBase Translate(Expression expression, FromAlias alias)
     {
         SubQueryExpression sqe = (SubQueryExpression) expression;
-
         WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias);
-
         WhereStatementBase? where = null;
         FromAlias childAlias = alias.CreateChildAlias();
 
