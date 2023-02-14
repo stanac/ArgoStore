@@ -78,7 +78,7 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
             SELECT t1.jsonData
             FROM Person t1
             WHERE (
-			            SELECT COUNT(1) c1
+			            SELECT COUNT(1)
 			            FROM json_each(t1.jsonData, '$.contacts') t2
 			            WHERE json_extract(t2.value, '$.contactType') < 0
 	              ) = 1
