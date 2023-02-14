@@ -2,23 +2,23 @@
 
 ## What is ArgoStore?
 
-ArgoStore is `NETSTANDARD2.0` library that is using [SQLite](https://www.sqlite.org)
+ArgoStore is a `NETSTANDARD2.0` library that is using [SQLite](https://www.sqlite.org)
 and [JSON1](https://www.sqlite.org/json1.html) to store and retrieve `JSON` documents.
 It supports identity, indexes, nested objects, collections, LINQ queries, etc...
 
-It is inspired by awesome [Marten](https://martendb.io/).
+It is inspired by the awesome [Marten](https://martendb.io/).
 
 ## Getting started
 
 This guide will get you started with using ArgoStore in console applications.
-For integration with ASP.NET Core, please see [Getting Started with ASP.NET Core]().
-It is recommended to read this guide first.
+For integration with [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-7.0), please see [Getting Started with ASP.NET Core]().
+It is recommended to read this guide before reading [ASP.NET Core guide]().
 
 ### Prerequisites
 
 Install [dotnet sdk](https://dot.net) 6, or newer.
 ArgoStore works on any framework that is implementing `NETSTANDARD2.0` so you can try using older frameworks if you want. However ArgoStore is only tested with .NET 6 and 7.
-ArgoStore is following [.NET Support Policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core), which means we may not fix issues occurring specifically only on older frameworks.
+ArgoStore is following [.NET Support Policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core), which means we may not fix issues occurring specifically only on older, unsupported frameworks.
 
 ---
 
@@ -62,7 +62,7 @@ public class Person
 }
 ```
 
-`Id` will be used for identity.
+Property `Id` will be used for identity.
 It will be automatically populated when not set (when it's `Guid.Empty`).
 See [Identity]() for more information.
 
@@ -72,7 +72,7 @@ Open `Program.cs` and add using:
 using ArgoStore;
 ```
 
-In `Main` we can now create instance of `ArgoDocumentStore`:
+In `Main` method we can now create instance of `ArgoDocumentStore`:
 
 ```csharp
 const string connectionString = "Data Source=c:\\temp\\mydb.sqlite";
@@ -80,9 +80,11 @@ ArgoDocumentStore store = new ArgoDocumentStore(connectionString);
 store.RegisterDocument<Person>();
 ```
 
+::: tip INFO
 - It is recommended to use full path for DB file path in connection string.
 - To register a document type use `store.RegisterDocument<T>();`
 - ArgoStore intentionally does not support operations on non registered documents.
+:::
 
 ### Inserting data
 
@@ -233,3 +235,7 @@ sales:
 e2544fde-8ee7-42d7-a7ac-525a288d660f: John Doe
 b9758f3a-7f48-4e20-a79d-5249a05fd6b5: Jane Doe
 ```
+
+::: tip INFO
+This code is available in [GitHub repo](https://github.com/stanac/ArgoStore/tree/master/examples).
+:::
