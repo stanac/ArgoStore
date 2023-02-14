@@ -70,7 +70,6 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
         var expected = PersonTestData.GetPersonTestData()
             .Where(x => x.Contacts != null && x.Contacts.Count(y => y.ContactType < 0) == 1)
             .ToList();
-
         
         List<Person> r1 = s.Query<Person>()
             .Where(x => x.Contacts.Count(y => y.ContactType < 0) == 1)
@@ -81,7 +80,8 @@ public class CollectionPropertySubQueryTests : IntegrationTestBase
             .Where(x => x.Contacts.Where(y => y.ContactType < 0).Count() == 1)
             .ToList();
 
-        throw new NotImplementedException();
+        r1.Should().BeEquivalentTo(expected);
+        r2.Should().BeEquivalentTo(expected);
     }
 
 }
