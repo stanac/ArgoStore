@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using System.Runtime.Intrinsics.X86;
 using ArgoStore.Statements;
 using ArgoStore.Statements.Where;
 using Remotion.Linq.Clauses.Expressions;
