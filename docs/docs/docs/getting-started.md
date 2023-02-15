@@ -11,8 +11,8 @@ It is inspired by the awesome [Marten](https://martendb.io/).
 ## Getting started
 
 This guide will get you started with using ArgoStore in console applications.
-For integration with [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-7.0), please see [Getting Started with ASP.NET Core]().
-It is recommended to read this guide before reading [ASP.NET Core guide]().
+For integration with [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-7.0), please see [Getting Started with ASP.NET Core](/docs/getting-started-aspnetcore).
+It is recommended to read this guide before reading [ASP.NET Core guide](/docs/getting-started-aspnetcore).
 
 ### Prerequisites
 
@@ -80,9 +80,12 @@ ArgoDocumentStore store = new ArgoDocumentStore(connectionString);
 store.RegisterDocument<Person>();
 ```
 
-::: tip INFO
+::: tip
 - It is recommended to use full path for DB file path in connection string.
 - To register a document type use `store.RegisterDocument<T>();`
+:::
+
+::: warning
 - ArgoStore intentionally does not support operations on non registered documents.
 :::
 
@@ -227,7 +230,7 @@ class Program
 }
 ```
 
-Calling `dotnet run` you should get the output (you will of course get different ids):
+Calling `dotnet run` should result in the following output (with different ids):
 
 ```
 215d12d9-a307-41f5-815d-00c0f376df51: Mark Marco
