@@ -14,7 +14,7 @@ This guide will get you started with using ArgoStore in console applications.
 For integration with [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-7.0), please see [Getting Started with ASP.NET Core](/docs/getting-started-aspnetcore).
 It is recommended to read this guide before reading [ASP.NET Core guide](/docs/getting-started-aspnetcore).
 
-### Prerequisites
+## Prerequisites
 
 Install [dotnet sdk](https://dot.net) 6, or newer.
 ArgoStore works on any framework that is implementing `NETSTANDARD2.0` so you can try using older frameworks if you want. However ArgoStore is only tested with .NET 6 and 7.
@@ -46,7 +46,7 @@ Add ArgoStore nuget dependency.
 dotnet add package ArgoStore
 ```
 
-### Document Type and Document Store
+## Document Type and Document Store
 
 Create new file called `Person.cs`.
 This class represents type of documents we are going to store in the DB.
@@ -89,7 +89,7 @@ store.RegisterDocument<Person>();
 - ArgoStore intentionally does not support operations on non registered documents.
 :::
 
-### Inserting data
+## Inserting data
 
 To insert data we need an instance of `IArgoDocumentSession`.
 We can get new session by calling `store.OpenSession()`.
@@ -130,7 +130,7 @@ session.Insert(
 session.SaveChanges();
 ```
 
-### Querying data
+## Querying data
 
 To query data we can use either `IArgoDocumentSession` or `IArgoQueryDocumentSession`.
 `IArgoDocumentSession` is inheriting `IArgoQueryDocumentSession` so query operations 

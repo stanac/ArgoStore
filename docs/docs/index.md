@@ -17,21 +17,21 @@ hero:
       text: Get Started
       link: /docs/getting-started
     - theme: alt
-      text: Documentation
-      link: /docs/
-    - theme: alt
-      text: Nuget
-      link: https://www.nuget.org/packages/ArgoStore
+      text: ASP.NET Core Integration
+      link: /docs/getting-started-aspnetcore
     - theme: alt
       text: GitHub
       link: https://www.github.com/stanac/ArgoStore
+    - theme: alt
+      text: Nuget
+      link: https://www.nuget.org/packages/ArgoStore
 
 features:
   - title: Uses SQLite
     details: The the most deployed DB in the world 
   - title: Stores data as JSON using JSON1
     details: With full LINQ support
-  - title: Multitenant support out of  the box 
+  - title: Multitenant support out of the box 
     details: And much more...
 footer: MIT Licensed
 ---
