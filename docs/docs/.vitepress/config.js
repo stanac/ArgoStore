@@ -60,6 +60,10 @@ export default {
             link: '/docs/configuration/indexing'
           },
           {
+            text: 'Optimistic Concurrency',
+            link: '/docs/configuration/optimistic-concurrency'
+          },
+          {
             text: 'Multitenancy',
             link: '/docs/configuration/multitenancy'
           },
@@ -90,6 +94,10 @@ export default {
           {
             text: 'Upsert',
             link: '/docs/crudu/upsert'
+          },
+          {
+            text: 'Async operations',
+            link: '/docs/crudu/async-operations'
           }
         ]
       }

@@ -1,5 +1,6 @@
-﻿namespace DocsExamples;
-using ArgoStore;
+﻿using ArgoStore;
+
+namespace ConsoleExamples;
 
 class Program
 {

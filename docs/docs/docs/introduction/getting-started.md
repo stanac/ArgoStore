@@ -11,14 +11,14 @@ It is inspired by the awesome [Marten](https://martendb.io/).
 ## Getting started
 
 This guide will get you started with using ArgoStore in console applications.
-For integration with [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-7.0), please see [Getting Started with ASP.NET Core](/docs/getting-started-aspnetcore).
-It is recommended to read this guide before reading [ASP.NET Core guide](/docs/introduction/getting-started-aspnetcore).
+For integration with ASP .NET Core, please see [Getting Started with ASP.NET Core](/docs/introduction/getting-started-aspnetcore).
+It is recommended to read this guide before reading ASP .NET Core guide.
 
 ## Prerequisites
 
 Install [dotnet sdk](https://dot.net) 6, or newer.
 ArgoStore works on any framework that is implementing `NETSTANDARD2.0` so you can try using older frameworks if you want. However ArgoStore is only tested with .NET 6 and 7.
-ArgoStore is following [.NET Support Policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core), which means we may not fix issues occurring specifically only on older, unsupported frameworks.
+ArgoStore is following [.NET Support Policy](https://dotnet.microsoft.com/en-us/platform/support/policy/dotnet-core), which means we may not fix issues occurring specifically only on older, unsupported frameworks, and old .NET Framework v4.x.x and older.
 
 ---
 
@@ -57,14 +57,14 @@ public class Person
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = "";
-    public int CakesCount { get; set; }
+    public int CookiesCount { get; set; }
     public string[] Roles { get; set; } = Array.Empty<string>();
 }
 ```
 
 Property `Id` will be used for identity.
 It will be automatically populated when not set (when it's `Guid.Empty`).
-See [Identity]() for more information.
+See [Identity](/docs/configuration/identity) for more information.
 
 Open `Program.cs` and add using:
 
@@ -108,7 +108,7 @@ using IArgoDocumentSession session = store.OpenSession();
 session.Insert(new Person
 {
     Name = "John Doe",
-    CakesCount = 1,
+    CookiesCount = 1,
     Roles = new [] {"admin", "sales"}
 });
 
@@ -116,13 +116,13 @@ session.Insert(
     new Person
     {
         Name = "Jane Doe",
-        CakesCount = 3,
+        CookiesCount = 3,
         Roles = new[] { "sales" }
     },
     new Person
     {
         Name = "Mark Marco",
-        CakesCount = 6,
+        CookiesCount = 6,
         Roles = new[] { "management" }
     }
 );
@@ -187,7 +187,7 @@ class Program
         session.Insert(new Person
         {
             Name = "John Doe",
-            CakesCount = 1,
+            CookiesCount = 1,
             Roles = new [] {"admin", "sales"}
         });
 
@@ -195,13 +195,13 @@ class Program
             new Person
             {
                 Name = "Jane Doe",
-                CakesCount = 3,
+                CookiesCount = 3,
                 Roles = new[] { "sales" }
             },
             new Person
             {
                 Name = "Mark Marco",
-                CakesCount = 6,
+                CookiesCount = 6,
                 Roles = new[] { "management" }
             }
         );
@@ -240,5 +240,7 @@ b9758f3a-7f48-4e20-a79d-5249a05fd6b5: Jane Doe
 ```
 
 ::: tip INFO
-This code is available in [GitHub repo](https://github.com/stanac/ArgoStore/tree/master/examples).
+- This code is available in [GitHub repo](https://github.com/stanac/ArgoStore/tree/master/examples).
+- Documents are stored in `Person` table in the database
+  - Table name can be changed, please read [Configuration](/docs/configuration/configuration) and [Underlying Tables](/docs/configuration/underlying-tables)
 :::

@@ -1,0 +1,195 @@
+{
+  "info": {
+    "_postman_id": "e75f533f-eb96-4ac1-936a-f5877507e957",
+    "name": "ArgoStoreExample",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Get Persons",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6Im1pbGFuIiwibmJmIjoxNjU5OTg4OTEwLCJleHAiOjE2NjUyNTkzMTAsImlhdCI6MTY1OTk4ODkxMH0.I2Auj4ZdT_KGgQY3DOFkqGx-0V31a9g4q5Yzkhpio7A",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/person",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "person"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Person",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Tom Doe\",\r\n    \"cookiesCount\": 3,\r\n    \"roles\": [\"admin\", \"sales\"]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/person",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "person"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get Person by id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/person/::id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "person",
+            "::id"
+          ],
+          "variable": [
+            {
+              "key": ":id",
+              "value": "b2ffa3af-4ac5-401e-a98c-fd435e71c6c5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete Person by id",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/person/::id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "person",
+            "::id"
+          ],
+          "variable": [
+            {
+              "key": ":id",
+              "value": "b2ffa3af-4ac5-401e-a98c-fd435e71c6c5"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Query Persons",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/person/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "person",
+            ""
+          ],
+          "query": [
+            {
+              "key": "name",
+              "value": null,
+              "disabled": true
+            },
+            {
+              "key": "roles",
+              "value": null,
+              "disabled": true
+            },
+            {
+              "key": "roles",
+              "value": null,
+              "disabled": true
+            },
+            {
+              "key": "cookiesCount",
+              "value": "",
+              "disabled": true
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Upsert Person",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "x-upsert",
+            "value": "true",
+            "type": "default"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Marcus Kovalski\",\r\n    \"cookiesCount\": 7,\r\n    \"roles\": []\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/person/::id",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "person",
+            "::id"
+          ],
+          "variable": [
+            {
+              "key": ":id",
+              "value": "f542964d-5679-4e0b-9043-f90e3832d676"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

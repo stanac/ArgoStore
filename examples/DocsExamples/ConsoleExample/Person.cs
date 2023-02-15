@@ -1,4 +1,4 @@
-﻿namespace DocsExamples;
+﻿namespace ConsoleExamples;
 
 public class Person
 {
