@@ -36,11 +36,11 @@ export default {
         items: [
           {
             text: 'Get Started',
-            link: '/docs/getting-started'
+            link: '/docs/introduction/getting-started'
           },
           {
             text: 'ASP.NET Core Integration',
-            link: '/docs/getting-started-aspnetcore'
+            link: '/docs/introduction/getting-started-aspnetcore'
           }
         ]
       },
@@ -49,19 +49,23 @@ export default {
         items: [
           {
             text: 'Configuration',
-            link: '/docs/config'
+            link: '/docs/configuration/configuration'
           },
           {
             text: 'Identity',
-            link: '/docs/identity'
+            link: '/docs/configuration/identity'
           },
           {
             text: 'Indexing',
-            link: '/docs/indexing'
+            link: '/docs/configuration/indexing'
           },
           {
             text: 'Multitenancy',
-            link: '/docs/multitenancy'
+            link: '/docs/configuration/multitenancy'
+          },
+          {
+            text: 'Underlying Tables',
+            link: '/docs/configuration/underlying-tables'
           }
         ]
       },{
@@ -69,23 +73,23 @@ export default {
         items: [
           {
             text: 'Create',
-            link: '/docs/create'
+            link: '/docs/crudu/create'
           },
           {
             text: 'Read',
-            link: '/docs/read'
+            link: '/docs/crudu/read'
           },
           {
             text: 'Update',
-            link: '/docs/update'
+            link: '/docs/crudu/update'
           },
           {
             text: 'Delete',
-            link: '/docs/delete'
+            link: '/docs/crudu/delete'
           },
           {
             text: 'Upsert',
-            link: '/docs/upsert'
+            link: '/docs/crudu/upsert'
           }
         ]
       }

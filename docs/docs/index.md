@@ -15,10 +15,10 @@ hero:
   actions:
     - theme: brand
       text: Get Started
-      link: /docs/getting-started
+      link: /docs/introduction/getting-started
     - theme: alt
       text: ASP.NET Core Integration
-      link: /docs/getting-started-aspnetcore
+      link: /docs/introduction/getting-started-aspnetcore
     - theme: alt
       text: GitHub
       link: https://www.github.com/stanac/ArgoStore
