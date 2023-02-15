@@ -108,11 +108,17 @@ Calling `builder.Services.AddArgoStore` will register following types within IoC
 
 ::: tip
 Sessions can also be opened by calling one of the following methods or overrides:
--  `IArgoDocumentStore.OpenSession()`
+- `IArgoDocumentStore.OpenSession()`
 - `IArgoDocumentStore.OpenQuerySession()`
+- `ArgoDocumentStore.OpenSession()`
+- `ArgoDocumentStore.OpenQuerySession()`
 :::
 
 ## Create Controller
+
+For your convenience Postman collection for this API can be found [here](/downloads/ArgoStoreExample.postman_collection.json).
+
+---
 
 Create new controller in `Controllers/PersonController.cs` file and inject `IArgoDocumentSession`
 
@@ -318,7 +324,7 @@ private IActionResult Update(Person person)
 :::
 
 ::: warning
-If we don't check if person exists and call update no row will be updated.
+If we don't check if person exists and call `Update` no row will be updated.
 `SaveChanges()` will not throw exception it's a simple `SQL UPDATE` call in the background.
 :::
 
@@ -446,6 +452,93 @@ and
 
 We are going to use this documents for testing.
 
----
+Empty action method:
 
-For your convenience Postman collection for this API can be found [here](/downloads/ArgoStoreExample.postman_collection.json).
+```csharp
+[HttpGet]
+public IActionResult GetPersons(
+    [FromQuery] string? name,
+    [FromQuery] string? role,
+    [FromQuery] int? cookiesCount)
+{
+    throw new NotImplementedException();
+}
+```
+
+We want to be able to query persons by name, role and cookiesCount.
+In case of our action if name is provided we want to filter by name,
+if role is provided we want to query by role, etc...
+
+In order to build query dynamically we need to use `IQueryable<Person>`
+which we can get by calling `_session.Query<Person>()`.
+
+So following code will add query filter on `name` if `name` is set.
+
+```csharp
+IQueryable<Person> query = _session.Query<Person>();
+
+if (!string.IsNullOrWhiteSpace(name))
+{
+    query = query.Where(x => x.Name.Contains(name,
+        StringComparison.OrdinalIgnoreCase));
+}
+```
+
+::: warning
+`_session.Query<T>()` is returning `IArgoStoreQueryable<T>`. Do not user `var`
+in this example. Use explicitly `IQueryable<T>`.
+:::
+
+In order to filter on `roles` add:
+
+```csharp
+if (!string.IsNullOrWhiteSpace(role))
+{
+    query = query.Where(x => x.Roles.Contains(role));
+}
+```
+
+Similarly for `cookiesCount`:
+
+```csharp
+if (cookiesCount.HasValue)
+{
+    query = query.Where(x => x.CookiesCount == cookiesCount);
+}
+```
+
+
+::: tip
+Query is  executed at the end when needed (when returning from method or calling `ToList`, `First`, ...), no data is filtered in memory.
+:::
+
+Full method looks like this:
+
+```csharp
+[HttpGet]
+public IActionResult GetPersons(
+    [FromQuery] string? name,
+    [FromQuery] string? role,
+    [FromQuery] int? cookiesCount)
+{
+    IQueryable<Person> query = _session.Query<Person>();
+
+    if (!string.IsNullOrWhiteSpace(name))
+    {
+        query = query.Where(x => x.Name.Contains(name,
+            StringComparison.OrdinalIgnoreCase));
+    }
+
+    if (!string.IsNullOrWhiteSpace(role))
+    {
+        query = query.Where(x => x.Roles.Contains(role));
+    }
+
+    if (cookiesCount.HasValue)
+    {
+        query = query.Where(x => x.CookiesCount == cookiesCount.Value);
+    }
+
+    return Ok(query.ToList());
+}
+```

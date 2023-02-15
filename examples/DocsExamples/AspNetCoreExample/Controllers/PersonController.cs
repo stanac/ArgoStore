@@ -47,22 +47,11 @@ public class PersonController : ControllerBase
         return NoContent();
     }
 
-    // Alternative implementation for delete
-    /*
-    [HttpDelete, Route("{id}")]
-    public IActionResult DeletePersonByIdAlternative([FromRoute] Guid id)
-    {
-        _session.DeleteById<Person>(id);
-        _session.SaveChanges();
-        return NoContent();
-    }
-    */
-
     [HttpGet]
     public IActionResult GetPersons(
         [FromQuery] string? name,
         [FromQuery] string? role,
-        [FromQuery] int? cakesCount)
+        [FromQuery] int? cookiesCount)
     {
         IQueryable<Person> query = _session.Query<Person>();
 
@@ -77,9 +66,9 @@ public class PersonController : ControllerBase
             query = query.Where(x => x.Roles.Contains(role));
         }
 
-        if (cakesCount.HasValue)
+        if (cookiesCount.HasValue)
         {
-            query = query.Where(x => x.CookiesCount == cakesCount);
+            query = query.Where(x => x.CookiesCount == cookiesCount.Value);
         }
 
         return Ok(query.ToList());
@@ -109,7 +98,7 @@ public class PersonController : ControllerBase
         _session.Update(person);
         _session.SaveChanges();
 
-        return Ok(person);
+        return Ok(dbPerson);
     }
 
     private IActionResult Upsert(Person person)

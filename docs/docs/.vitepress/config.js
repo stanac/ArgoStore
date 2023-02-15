@@ -70,6 +70,10 @@ export default {
           {
             text: 'Underlying Tables',
             link: '/docs/configuration/underlying-tables'
+          },
+          {
+            text: 'Logging',
+            link: '/docs/configuration/logging'
           }
         ]
       },{
