@@ -30,7 +30,28 @@ public class EqualsWithNullableIntegerBug : IntegrationTestBase
         }
 
         List<BugObject> result = query.ToList();
-        
+        result.Should().BeEquivalentTo(expected);
+    }
+
+    [InlineData(null)]
+    [InlineData(2)]
+    [Theory]
+    public void QueryWithNullableIntegerComparedToNullableInteger_ReturnsExpectedResult(int? value)
+    {
+        using IArgoQueryDocumentSession s = Store.OpenQuerySession();
+
+        IQueryable<BugObject> query = s.Query<BugObject>();
+
+        List<BugObject> expected = BugObject.TestData().ToList();
+
+        if (value.HasValue)
+        {
+            query = query.Where(x => x.ValueB == value);
+            expected = expected.Where(x => x.ValueB == value).ToList();
+        }
+
+        List<BugObject> result = query.ToList();
+        result.Should().BeEquivalentTo(expected);
     }
 
     private class BugObject
