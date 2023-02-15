@@ -12,7 +12,7 @@ It is inspired by the awesome [Marten](https://martendb.io/).
 
 This guide will get you started with using ArgoStore in console applications.
 For integration with [ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/introduction-to-aspnet-core?view=aspnetcore-7.0), please see [Getting Started with ASP.NET Core](/docs/getting-started-aspnetcore).
-It is recommended to read this guide before reading [ASP.NET Core guide](/docs/getting-started-aspnetcore).
+It is recommended to read this guide before reading [ASP.NET Core guide](/docs/introduction/getting-started-aspnetcore).
 
 ## Prerequisites
 

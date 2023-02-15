@@ -3,7 +3,7 @@
 namespace ArgoStore;
 
 /// <summary>
-/// Query (read-only) session
+/// Query (read only) session
 /// </summary>
 public interface IArgoQueryDocumentSession : IDisposable
 {

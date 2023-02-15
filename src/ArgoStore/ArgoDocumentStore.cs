@@ -8,19 +8,30 @@ using Microsoft.Extensions.Logging;
 
 namespace ArgoStore;
 
+/// <summary>
+/// Argo document store
+/// </summary>
 public class ArgoDocumentStore : IArgoDocumentStore
 {
     private readonly string _connectionString;
     private readonly ILoggerFactory _loggerFactory;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly SqlDataDefinitionExecutor _ddExec;
-    private readonly ConcurrentDictionary<Type, DocumentMetadata> _docTypeMetaMap = new();
+    private readonly ConcurrentDictionary<Type, DocumentMetadata> _docTypeMetaMap;
 
+    /// <summary>
+    /// Constructor with connection string
+    /// </summary>
+    /// <param name="connectionString">Connection string</param>
     public ArgoDocumentStore(string connectionString)
         : this(ConfigureDefault(connectionString))
     {
     }
 
+    /// <summary>
+    /// Constructor with configuration action
+    /// </summary>
+    /// <param name="configure">Configure action</param>
     public ArgoDocumentStore(Action<IArgoStoreConfiguration> configure)
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
@@ -42,22 +53,28 @@ public class ArgoDocumentStore : IArgoDocumentStore
         }
     }
 
+    /// <inheritdoc />
     public IArgoQueryDocumentSession OpenQuerySession() => OpenSession(ArgoSession.DefaultTenant);
 
+    /// <inheritdoc />
     public IArgoQueryDocumentSession OpenQuerySession(string tenantId) => OpenSession(tenantId);
 
+    /// <inheritdoc />
     public IArgoDocumentSession OpenSession() => OpenSession(ArgoSession.DefaultTenant);
 
+    /// <inheritdoc />
     public IArgoDocumentSession OpenSession(string tenantId)
     {
         return new ArgoSession(_connectionString, tenantId, _docTypeMetaMap, _serializerOptions, _loggerFactory);
     }
 
+    /// <inheritdoc />
     public void RegisterDocument<T>() where T : class, new()
     {
         RegisterDocument<T>(_ => { });
     }
 
+    /// <inheritdoc />
     public void RegisterDocument<T>(Action<IDocumentConfiguration<T>> configure) where T : class, new()
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));

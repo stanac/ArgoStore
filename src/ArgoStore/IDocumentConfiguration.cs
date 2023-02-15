@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 namespace ArgoStore;
 
 /// <summary>
-/// Configuration for specific Entity
+/// Configuration for specific Document type
 /// </summary>
-/// <typeparam name="TDocument">Entity type</typeparam>
+/// <typeparam name="TDocument">Document type</typeparam>
 public interface IDocumentConfiguration<TDocument> where TDocument : class, new()
 {
     /// <summary>
@@ -18,7 +18,7 @@ public interface IDocumentConfiguration<TDocument> where TDocument : class, new(
     /// config.Entity<Person>().PrimaryKey(p => p.EmailAddress);
     /// ]]>
     /// </example>
-    /// <typeparam name="TProperty">Entity type</typeparam>
+    /// <typeparam name="TProperty">Document type</typeparam>
     /// <param name="selector">Lambda expression to select a single property as primary key</param>
     /// <returns>Same instance of IDocumentConfiguration</returns>
     IDocumentConfiguration<TDocument> PrimaryKey<TProperty>([DisallowNull] Expression<Func<TDocument, TProperty>> selector);
@@ -32,7 +32,7 @@ public interface IDocumentConfiguration<TDocument> where TDocument : class, new(
     /// config.Entity<Person>().UniqueIndex(p => new { p.EmailAddress, p.Age });
     /// ]]>
     /// </example>
-    /// <typeparam name="TProperty">Entity type</typeparam>
+    /// <typeparam name="TProperty">Document type</typeparam>
     /// <param name="selector">Lambda expression to select a single property as index or new anonymous object with multiple properties</param>
     /// <returns>Same instance of IDocumentConfiguration</returns>
     IDocumentConfiguration<TDocument> UniqueIndex<TProperty>([DisallowNull] Expression<Func<TDocument, TProperty>> selector);
@@ -46,7 +46,7 @@ public interface IDocumentConfiguration<TDocument> where TDocument : class, new(
     /// config.Entity<Person>().NonUniqueIndex(p => new { p.EmailAddress, p.Age });
     /// ]]>
     /// </example>
-    /// <typeparam name="TProperty">Entity type</typeparam>
+    /// <typeparam name="TProperty">Document type</typeparam>
     /// <param name="selector">Lambda expression to select a single property as index or new anonymous object with multiple properties</param>
     /// <returns>Same instance of IDocumentConfiguration</returns>
     IDocumentConfiguration<TDocument> NonUniqueIndex<TProperty>([DisallowNull] Expression<Func<TDocument, TProperty>> selector);
