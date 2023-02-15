@@ -25,8 +25,8 @@ export default {
     ],
 
     nav: [
-      { text: 'Get Started', link: '/docs/getting-started' },
-      { text: 'ASP.NET Core Integration', link: '/docs/getting-started-aspnetcore' }
+      { text: 'Get Started', link: '/docs/introduction/getting-started' },
+      { text: 'ASP.NET Core Integration', link: '/docs/introduction/getting-started-aspnetcore' }
       
     ],
 
