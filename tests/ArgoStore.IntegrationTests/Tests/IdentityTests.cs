@@ -107,7 +107,7 @@ public class IdentityTests : IntegrationTestBase
             Name = "b"
         };
 
-        using IArgoDocumentSession s = Store.OpenSession();
+        using IArgoDocumentSession s = Store.OpenSession("myTenant");
 
         s.Insert(p1);
         s.SaveChanges();

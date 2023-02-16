@@ -9,7 +9,7 @@ public class MultitenancyTests : IntegrationTestBase
     private readonly Person _tenant2Person;
 
     private const string Tenant1 = "t1";
-    private const string Tenant2 = "t2";
+    private const string Tenant2 = "T1"; // case sensitive
 
     public MultitenancyTests()
     {

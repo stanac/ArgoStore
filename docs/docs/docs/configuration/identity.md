@@ -31,6 +31,7 @@ Key property must be of type `System.Guid` or `System.String`, integer types are
 Default behavior can be overridden when registering document type, e.g.:
 
 ```csharp
+// Store is instance of IArgoDocumentStore or ArgoDocumentStore
 Store.RegisterDocument<Person>(c =>
 {
     c.PrimaryKey(p => p.EmailAddress);
@@ -46,6 +47,7 @@ Composite keys are not supported.
 Following code will throw exception:
 
 ```csharp
+// Store is instance of IArgoDocumentStore or ArgoDocumentStore
 Store.RegisterDocument<Person>(c =>
 {
     c.PrimaryKey(p => new { p.EmailAddress, p.CookiesCount });
