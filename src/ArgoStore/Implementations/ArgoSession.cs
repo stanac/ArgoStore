@@ -221,6 +221,11 @@ internal class ArgoSession : IArgoDocumentSession
             _sessionId);
     }
 
+    internal DocumentMetadata GetRequiredMetadata<T>()
+    {
+        return GetRequiredMetadata(typeof(T));
+    }
+
     private void DebugLogMethodStart(string methodName, params object[] args)
     {
         if (_logger.IsEnabled(LogLevel.Debug))
@@ -252,11 +257,6 @@ internal class ArgoSession : IArgoDocumentSession
         DocumentMetadata meta = GetRequiredMetadata(document.GetType());
 
         _crudOps.Add(new DeleteOperation(meta, document, TenantId, null));
-    }
-
-    private DocumentMetadata GetRequiredMetadata<T>()
-    {
-        return GetRequiredMetadata(typeof(T));
     }
 
     private DocumentMetadata GetRequiredMetadata(Type type)

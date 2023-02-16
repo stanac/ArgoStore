@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using ArgoStore.Command;
 using ArgoStore.Config;
 using ArgoStore.Helpers;
 using ArgoStore.Implementations;
@@ -84,6 +85,29 @@ public class ArgoDocumentStore : IArgoDocumentStore
         DocumentMetadata meta = c.CreateMetadata();
         _ddExec.CreateDocumentObjects(meta);
         _docTypeMetaMap[typeof(T)] = meta;
+    }
+
+    /// <inheritdoc />
+    public IReadOnlyList<string> ListTenants<T>()
+    {
+        using ArgoSession session = (ArgoSession)OpenSession();
+
+        DocumentMetadata docMeta = session.GetRequiredMetadata<T>();
+
+        string sql = $@"SELECT DISTINCT
+            json_insert('{{}}', '$.value', tenantId)
+            FROM {docMeta.DocumentName}
+        ";
+
+        ArgoCommand cmd = new ArgoCommand(sql, new ArgoCommandParameterCollection(), ArgoCommandTypes.ToList, typeof(string), false, false);
+        
+        ArgoCommandExecutor ex = session.CreateExecutor();
+
+        object result = ex.ExecuteToList(cmd);
+
+        List<string> list = (List<string>) result;
+
+        return list;
     }
 
     private static JsonSerializerOptions CreateJsonSerializerOptions()

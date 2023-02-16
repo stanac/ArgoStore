@@ -43,6 +43,19 @@ public class MultitenancyTests : IntegrationTestBase
         p.Name.Should().Be(_tenant2Person.Name);
     }
 
+    [Fact]
+    public void GetTenants_ReturnsCorrectTenants()
+    {
+        InsertTenant1Person();
+        InsertTenant2Person();
+        
+        IReadOnlyList<string> tenants = Store.ListTenants<Person>();
+
+        tenants.Should().HaveCount(2);
+        tenants.Should().Contain(Tenant1);
+        tenants.Should().Contain(Tenant2);
+    }
+
     private void InsertTenant1Person()
     {
         using IArgoDocumentSession s = Store.OpenSession(Tenant1);

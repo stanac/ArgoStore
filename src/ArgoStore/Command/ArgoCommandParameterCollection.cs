@@ -8,6 +8,11 @@ public class ArgoCommandParameterCollection : IEnumerable<ArgoCommandParameter>
     private readonly FromAlias _alias;
     private readonly Dictionary<string, object> _parameters = new();
 
+    internal ArgoCommandParameterCollection()
+        : this (new FromAlias())
+    {
+    }
+
     internal ArgoCommandParameterCollection(FromAlias alias)
     {
         _alias = alias;

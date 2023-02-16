@@ -47,4 +47,11 @@ public interface IArgoDocumentStore
     /// <param name="configure">Configuration action for document type</param>
     /// <typeparam name="T">Document type</typeparam>
     void RegisterDocument<T>([DisallowNull] Action<IDocumentConfiguration<T>> configure) where T : class, new();
+
+    /// <summary>
+    /// Returns distinct list of tenants used for provided document type
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns>Distinct list of tenants</returns>
+    IReadOnlyList<string> ListTenants<T>();
 }
