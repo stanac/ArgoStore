@@ -1,6 +1,6 @@
 # Getting Started with ASP .NET Core
 
-Please, if you didn't already, read [Getting started with console application](/docs/introduction/getting-started).
+Please, if you didn't already, read [Getting started with console applications](/docs/introduction/getting-started).
 Reading it is recommended before reading this page.
 It will explain types, interfaces and some methods provided by ArgoStore.
 
@@ -32,9 +32,9 @@ dotnet add package ArgoStore.Extensions.DependencyInjection
 ```
 
 ::: tip
-In this case we are using `ArgoStore.Extensions.DependencyInjection`
+In this guide we are using `ArgoStore.Extensions.DependencyInjection`
 instead of `ArgoStore` package. DI package is referencing `ArgoStore` package
-and has support for dependency injection.
+and adds support for dependency injection.
 :::
 
 ## Create Document model
@@ -74,7 +74,7 @@ Edit `appsettings.json` and add connection string
 ```
 
 ::: tip
-This example code is available in [GitHub repo](https://github.com/stanac/ArgoStore/tree/master/examples)
+Whole code for this example is available in [GitHub repo](https://github.com/stanac/ArgoStore/tree/master/examples).
 :::
 
 Edit `Program.cs` and register ArgoStore before `var app = builder.Build();` line.
@@ -93,8 +93,8 @@ builder.Services.AddArgoStore(c =>
 In the snipped above, code is getting connection string from configuration JSON file and
 registering ArgoStore with it. `Person` is also registered as supported document type.
 
-If we wanted to register another document type outside `Program.cs`
-we can call `IArgoDocumentStore.RegisterDocument<T>()`.
+If you wanted to register another document type outside `Program.cs`
+you can call `IArgoDocumentStore.RegisterDocument<T>()` or `ArgoDocumentStore.RegisterDocument<T>()`.
 
 ::: warning
 - ArgoStore intentionally does not support operations on non registered documents.
@@ -239,7 +239,7 @@ public IActionResult DeletePersonById([FromRoute] Guid id)
 ```
 
 ::: warning
-Delete is permanent, ArgoStore does not support soft delete out of the box (at least for now)
+Delete is permanent, ArgoStore does not support soft delete out of the box (at least for now).
 :::
 
 This action when called first time with valid Id will return `204`
@@ -257,6 +257,9 @@ public IActionResult DeletePersonById([FromRoute] Guid id)
 }
 ```
 
+In this case we are deleting person if exists, if not nothing will happen.
+In both cases `204` is returned.
+
 ## Create PUT Update/Upsert Action
 
 ArgoStore supports both update and upsert operations.
@@ -266,7 +269,7 @@ found and cannot be updated.
 To support both update and upsert in single API endpoint we are going to use
 `x-upsert` header, which if set to `true` will indicate to perform upsert.
 
-Following code is implementing upsert or not logic: 
+Following code is implementing upsert or update logic: 
 
 ```csharp
 [HttpPut, Route("{id}")]
@@ -299,7 +302,7 @@ Now we need to implement `Update` and `Upsert` methods.
 
 ### Update
 
-For `Update` method we are going to get person and if not found return `404`.
+For `Update` method we are going to get the person and if not found return `404`.
 Otherwise we are going to update document in DB and return `200`.
 
 Replace `Update` method with following:
@@ -324,13 +327,13 @@ private IActionResult Update(Person person)
 :::
 
 ::: warning
-If we don't check if person exists and call `Update` no row will be updated.
-`SaveChanges()` will not throw exception it's a simple `SQL UPDATE` call in the background.
+If we don't check if person exists and call `Update`, on non existing document, no row will be updated.
+`SaveChanges()` will not throw exception it's a simple `SQL` `UPDATE` call in the background.
 :::
 
 ### Upsert
 
-For upsert we are going call `Upsert` method and always return `200`.
+For upsert we are going to call `Upsert` method and always return `200`.
 
 Replace `Upsert` method with following:
 
@@ -342,10 +345,6 @@ private IActionResult Upsert(Person person)
     return Ok(person);
 }
 ```
-
-::: warning
-Upsert only works with document types where key is of type `Guid` or `String`
-:::
 
 ### Testing Update and Upsert
 
@@ -452,6 +451,8 @@ and
 
 We are going to use this documents for testing.
 
+---
+
 Empty action method:
 
 ```csharp
@@ -466,7 +467,7 @@ public IActionResult GetPersons(
 ```
 
 We want to be able to query persons by name, role and cookiesCount.
-In case of our action if name is provided we want to filter by name,
+In case when name is provided we want to filter by name,
 if role is provided we want to query by role, etc...
 
 In order to build query dynamically we need to use `IQueryable<Person>`
@@ -509,7 +510,7 @@ if (cookiesCount.HasValue)
 
 
 ::: tip
-Query is  executed at the end when needed (when returning from method or calling `ToList`, `First`, ...), no data is filtered in memory.
+Query is  executed at the end when needed (when writing HTTP response or calling `ToList`, `First`, ...), no data is filtered in memory.
 :::
 
 Full method looks like this:
