@@ -29,10 +29,10 @@ public class UpdateTests : IntegrationTestBase
         s.Update(p1, p2);
         s.SaveChanges();
 
-        using IArgoDocumentSession s2 = Store.OpenSession();
+        using IArgoQueryDocumentSession qs = Store.OpenQuerySession();
 
-        Person fromDbP1 = s2.GetById<Person>(p1.Id);
-        Person fromDbP2 = s2.GetById<Person>(p2.Id);
+        Person fromDbP1 = qs.GetById<Person>(p1.Id);
+        Person fromDbP2 = qs.GetById<Person>(p2.Id);
 
         fromDbP1.Should().BeEquivalentTo(p1);
         fromDbP2.Should().BeEquivalentTo(p2);

@@ -26,7 +26,7 @@ internal class UpdateOperation : CrudOperation
                     jsonData = @jsonData,
                     updatedAt = @updatedAt
                 WHERE 
-                    serialId = @key
+                    stringId = @key
                     AND tenantId = @tenantId
             """ ;
 
