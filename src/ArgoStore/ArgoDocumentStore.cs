@@ -120,7 +120,7 @@ public class ArgoDocumentStore : IArgoDocumentStore
         
         ArgoCommandExecutor ex = session.CreateExecutor();
 
-        object result = ex.ExecuteToList(cmd);
+        object result = ex.ExecuteToList(cmd, null);
 
         List<string> list = (List<string>) result;
 

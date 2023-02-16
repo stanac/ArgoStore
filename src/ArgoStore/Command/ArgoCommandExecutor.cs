@@ -22,14 +22,18 @@ internal class ArgoCommandExecutor
         _sessionId = sessionId;
     }
 
-    public object? Execute(ArgoCommand command)
+    public object? Execute(ArgoCommand command, ArgoActivity? argoActivity)
     {
+        ArgoActivity? ca = argoActivity?.CreateChild("Execute");
+
         if (_logger.IsEnabled(LogLevel.Debug))
         {
             _logger.LogDebug("Execute command type: {CommandType} in session: {SessionId} with command text: " +
                              Environment.NewLine + "{CommandText}",
                 command.CommandType, _sessionId.Id, command.Sql);
         }
+
+        object? result;
 
         switch (command.CommandType)
         {
@@ -38,45 +42,69 @@ internal class ArgoCommandExecutor
 
             case ArgoCommandTypes.Count:
             case ArgoCommandTypes.LongCount:
-                return ExecuteCount(command);
+                result = ExecuteCount(command, ca);
+                break;
 
             case ArgoCommandTypes.ToList:
-                return ExecuteToList(command);
+                result = ExecuteToList(command, ca);
+                break;
 
             case ArgoCommandTypes.First:
             case ArgoCommandTypes.FirstOrDefault:
-                return ExecuteFirstOrDefault(command);
+                result = ExecuteFirstOrDefault(command, ca);
+                break;
 
             case ArgoCommandTypes.Single:
             case ArgoCommandTypes.SingleOrDefault:
-                return ExecuteSingleOrDefault(command);
+                result = ExecuteSingleOrDefault(command, ca);
+                break;
 
             case ArgoCommandTypes.Any:
-                return ExecuteAny(command);
+                result = ExecuteAny(command, ca);
+                break;
 
             default:
                 throw new ArgumentOutOfRangeException();
         }
+
+        ca?.Stop();
+
+        return result;
     }
 
-    public object ExecuteToList(ArgoCommand command)
+    public object ExecuteToList(ArgoCommand command, ArgoActivity? activity)
     {
-        using SqliteConnection con = CreateAndOpenConnection();
+        ArgoActivity? ca = activity?.CreateChild("ExecuteToList");
+
+        using SqliteConnection con = CreateAndOpenConnection(ca);
         using SqliteCommandCollection cmds = command.ToSqliteCommands();
         cmds.Connection = con;
 
+        ArgoActivity? executePreCommands = ca?.CreateChild("ExecutePreCommands");
+
         SqliteCommand cmd = ExecutePreCommandsAndGetCommand(cmds);
+
+        ArgoActivity? executeReaderActivity = executePreCommands?.StopAndCreateSibling("ExecuteReader");
 
         SqliteDataReader reader = cmd.ExecuteReader();
 
+        ArgoActivity? createListInstanceActivity = executeReaderActivity?.StopAndCreateSibling("CreateListInstance");
+
         IList result = (IList)Activator.CreateInstance(typeof(List<>).MakeGenericType(command.ResultingType))!;
+
+        createListInstanceActivity?.Stop();
 
         if (command.IsResultingTypeJson)
         {
             while (reader.Read())
             {
                 string json = (string) reader[0];
+
+                ArgoActivity? deserializeActivity = ca?.CreateChild("Deserialize");
+
                 result.Add(JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions));
+
+                deserializeActivity?.Stop();
             }
         }
         else
@@ -84,17 +112,26 @@ internal class ArgoCommandExecutor
             while (reader.Read())
             {
                 string json = (string)reader[0];
+
+                ArgoActivity? deserializeActivity = ca?.CreateChild("Deserialize");
+
                 SelectValueHolder valueHolder = SelectValueHolder.ParseFromJson(json, command.ResultingType, _serializerOptions);
                 result.Add(valueHolder.GetValue());
+
+                deserializeActivity?.Stop();
             }
         }
+
+        ca?.Stop();
 
         return result;
     }
 
-    public object? ExecuteFirstOrDefault(ArgoCommand command)
+    public object? ExecuteFirstOrDefault(ArgoCommand command, ArgoActivity? activity)
     {
-        using SqliteConnection con = CreateAndOpenConnection();
+        ArgoActivity? ca = activity?.CreateChild("ExecuteFirstOrDefault");
+
+        using SqliteConnection con = CreateAndOpenConnection(ca);
         using SqliteCommandCollection cmds = command.ToSqliteCommands();
         cmds.Connection = con;
 
@@ -112,12 +149,18 @@ internal class ArgoCommandExecutor
             return null;
         }
 
-        return JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions);
+        object? result = JsonSerializer.Deserialize(json, command.ResultingType, _serializerOptions);
+
+        ca?.Stop();
+
+        return result;
     }
 
-    public object? ExecuteSingleOrDefault(ArgoCommand command)
+    public object? ExecuteSingleOrDefault(ArgoCommand command, ArgoActivity? activity)
     {
-        object? result = ExecuteFirstOrDefault(command);
+        ArgoActivity? ca = activity?.CreateChild("ExecuteSingleOrDefault");
+
+        object? result = ExecuteFirstOrDefault(command, activity);
 
         if (result is null && command.CommandType == ArgoCommandTypes.SingleOrDefault)
         {
@@ -125,7 +168,7 @@ internal class ArgoCommandExecutor
         }
 
         ArgoCommand countCommand = command.ConvertToLongCount(2);
-        long count = (long)ExecuteCount(countCommand);
+        long count = (long)ExecuteCount(countCommand, ca);
 
         if (count > 1)
         {
@@ -137,12 +180,16 @@ internal class ArgoCommandExecutor
             throw new InvalidOperationException("No item found in collection.");
         }
 
+        ca?.Stop();
+
         return result;
     }
 
-    public object ExecuteCount(ArgoCommand command)
+    public object ExecuteCount(ArgoCommand command, ArgoActivity? activity)
     {
-        using SqliteConnection con = CreateAndOpenConnection();
+        ArgoActivity? ca = activity?.CreateChild("ExecuteCount");
+        
+        using SqliteConnection con = CreateAndOpenConnection(ca);
         using SqliteCommandCollection cmds = command.ToSqliteCommands();
         cmds.Connection = con;
 
@@ -160,18 +207,24 @@ internal class ArgoCommandExecutor
         {
             return (int)ret;
         }
+        
+        ca?.Stop();
 
         return ret;
     }
 
-    public object ExecuteAny(ArgoCommand command)
+    public object ExecuteAny(ArgoCommand command, ArgoActivity? activity)
     {
-        object result = ExecuteCount(command);
+        ArgoActivity? ca = activity?.CreateChild("ExecuteAny");
+
+        object result = ExecuteCount(command, ca);
 
         int value;
         if (result is int i) value = i;
         else value = (int)(long) result;
 
+        ca?.Stop();
+        
         return value > 0;
     }
 
@@ -195,7 +248,7 @@ internal class ArgoCommandExecutor
             return;
         }
 
-        using SqliteConnection con = CreateAndOpenConnection();
+        using SqliteConnection con = CreateAndOpenConnection(null);
         using SqliteTransaction tr = con.BeginTransaction();
 
         foreach (CrudOperation op in ops)
@@ -222,10 +275,14 @@ internal class ArgoCommandExecutor
         cmd.ExecuteNonQuery();
     }
     
-    private SqliteConnection CreateAndOpenConnection()
+    private SqliteConnection CreateAndOpenConnection(ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("CreateAndOpenConnection");
+
         SqliteConnection c = new SqliteConnection(_connectionString);
         c.Open();
+
+        ca?.Stop();
 
         return c;
     }

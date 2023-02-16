@@ -75,7 +75,7 @@ internal class ArgoSession : IArgoDocumentSession
         ArgoCommand cmd = new ArgoCommand(sql, parameters, ArgoCommandTypes.FirstOrDefault, typeof(T), true, false);
 
         ArgoCommandExecutor exec = CreateExecutor();
-        object? result = exec.ExecuteFirstOrDefault(cmd);
+        object? result = exec.ExecuteFirstOrDefault(cmd, null);
 
         if (result == null)
         {

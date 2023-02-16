@@ -8,6 +8,8 @@ namespace ArgoStore.Implementations;
 internal class ArgoStoreQueryProvider : IQueryProvider
 {
     private readonly ArgoSession _session;
+    internal static bool MeasureExecutionTime { get; set; }
+    internal static ArgoActivity? LastActivity { get; private set; }
 
     public ArgoStoreQueryProvider(ArgoSession session)
     {
@@ -28,26 +30,44 @@ internal class ArgoStoreQueryProvider : IQueryProvider
     {
         throw new NotSupportedException("Execute non generic not supported.");
     }
-    
+
     public TResult Execute<TResult>(Expression expression)
     {
-        ArgoQueryModelVisitor v = VisitAndBuild(expression);
-        ArgoCommand cmd = v.CommandBuilder.Build(_session.TenantId);
+        ArgoActivity? activity = MeasureExecutionTime
+            ? new ArgoActivity("QueryProvider.Execute")
+            : null;
+
+        TResult result = Execute<TResult>(expression, activity);
+
+        activity?.Stop();
+        LastActivity = activity;
+
+        return result;
+    }
+
+    internal TResult Execute<TResult>(Expression expression, ArgoActivity? activity)
+    {
+        ArgoQueryModelVisitor v = VisitAndBuild(expression, activity);
+        ArgoCommand cmd = v.CommandBuilder.Build(_session.TenantId, activity);
 
         ArgoCommandExecutor exec = _session.CreateExecutor();
-        TResult? result = (TResult?)exec.Execute(cmd);
+        TResult? result = (TResult?)exec.Execute(cmd, activity);
 
         return result!;
     }
 
-    internal ArgoQueryModelVisitor VisitAndBuild(Expression expression)
+    private ArgoQueryModelVisitor VisitAndBuild(Expression expression, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("VisitAndBuild");
+
         QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);
         DocumentMetadata meta = _session.DocumentTypesMetaMap[query.MainFromClause.ItemType];
         
         ArgoQueryModelVisitor v = new(meta);
         v.VisitQueryModel(query);
-        
+
+        ca?.Stop();
+
         return v;
     }
 }

@@ -55,8 +55,10 @@ internal class ArgoCommandBuilder
         IsDistinct = value;
     }
     
-    public ArgoCommand Build(string tenantId)
+    public ArgoCommand Build(string tenantId, ArgoActivity? argoActivity)
     {
+        ArgoActivity? ca = argoActivity?.CreateChild("BuildCommand");
+
         if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
         
         StringBuilder sb = StringBuilderBag.Default.Get();
@@ -71,10 +73,12 @@ internal class ArgoCommandBuilder
         string sql = sb.ToString();
 
         StringBuilderBag.Default.Return(sb);
-
-        // QueryModel m = _model;
         
-        return new ArgoCommand(sql, _params, GetCommandType(), ResultingType, IsResultingTypeJson, _containsLikeOperator);
+        ArgoCommand cmd = new ArgoCommand(sql, _params, GetCommandType(), ResultingType, IsResultingTypeJson, _containsLikeOperator);
+
+        ca?.Stop();
+
+        return cmd;
     }
 
     private ArgoCommandTypes GetCommandType()

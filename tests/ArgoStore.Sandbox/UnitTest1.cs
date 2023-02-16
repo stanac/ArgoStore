@@ -1,5 +1,4 @@
-using System.Linq.Expressions;
-using FluentAssertions;
+using ArgoStore.Implementations;
 
 namespace ArgoStore.Sandbox
 {
@@ -8,6 +7,8 @@ namespace ArgoStore.Sandbox
         [Fact]
         public void Test1()
         {
+            ArgoStoreQueryProvider.MeasureExecutionTime = true;
+
             Person p = Person.TestData().First();
 
             ArgoDocumentStore store = new ArgoDocumentStore("Data Source=c:\\temp\\temp.sqlite");
@@ -17,6 +18,8 @@ namespace ArgoStore.Sandbox
             List<Person> items = s.Query<Person>().Where(x => x.Id != Guid.Empty).ToList();
 
             Assert.NotEmpty(items);
+
+            string? activityString = ArgoStoreQueryProvider.LastActivity?.Dump();
         }
 
         private static IQueryable<Person> Queryable()
