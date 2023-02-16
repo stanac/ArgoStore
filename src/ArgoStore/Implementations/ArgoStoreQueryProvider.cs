@@ -47,7 +47,7 @@ internal class ArgoStoreQueryProvider : IQueryProvider
         
         ArgoQueryModelVisitor v = new(meta);
         v.VisitQueryModel(query);
-
+        
         return v;
     }
 }
