@@ -74,16 +74,18 @@ internal class DocumentMetadata
         return pk;
     }
     
-    internal static PropertyInfo GetKeyProperty(Type entityType)
+    internal static PropertyInfo GetKeyProperty(Type documentType)
     {
-        PropertyInfo[] props = entityType.GetProperties();
+        PropertyInfo[] props = documentType.GetProperties();
 
         List<string> expectedKeyPropertyNames = new()
         {
             "Id",
+            "ID",
             "Key",
-            entityType.Name + "Id",
-            entityType.Name + "Key"
+            documentType.Name + "Id",
+            documentType.Name + "ID",
+            documentType.Name + "Key"
         };
 
         List<PropertyInfo> prop = props.Where(x => x.CanRead && x.CanWrite && expectedKeyPropertyNames.Contains(x.Name)).ToList();
@@ -99,12 +101,12 @@ internal class DocumentMetadata
         {
             throw new InvalidOperationException(
                 "Cannot find public property with public getter and setter to use as primary key " +
-                $"for `{entityType.Name}`, looked for {expectedNames}.");
+                $"for `{documentType.Name}`, looked for {expectedNames}.");
         }
 
         throw new InvalidOperationException(
             "Found multiple public properties with public getter and setter to use as primary key " +
-            $"for `{entityType.Name}`, looked for {expectedNames}.");
+            $"for `{documentType.Name}`, looked for {expectedNames}.");
     }
 
     private static void EnsureTypeIsValid(Type documentType, string documentName)
