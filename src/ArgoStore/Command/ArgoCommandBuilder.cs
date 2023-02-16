@@ -242,7 +242,7 @@ internal class ArgoCommandBuilder
 
         if (tenantId != null)
         {
-            sb.Append("tenantId = @").AppendLine(_params.AddNewParameter(tenantId));
+            sb.Append(Alias.CurrentAliasName).Append('.').Append("tenantId = @").AppendLine(_params.AddNewParameter(tenantId));
         }
 
         for (var i = 0; i < WhereStatements.Count; i++)

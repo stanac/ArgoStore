@@ -1,4 +1,5 @@
 using AspNetCoreExample.Models;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace AspNetCoreExample;
 
