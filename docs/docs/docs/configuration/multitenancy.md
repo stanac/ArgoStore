@@ -4,7 +4,7 @@ Multitenancy is supported out of the box.
 Limiting data operations to specific tenant can be done by opening session and providing tenant id as argument.
 
 ::: info
-In every code snippets on this page `Store` is instance of `IArgoDocumentStore` or `ArgoDocumentStore`.
+In every code snippet on this page `Store` is instance of `IArgoDocumentStore` or `ArgoDocumentStore`.
 :::
 
 ## Opening Tenant Session
