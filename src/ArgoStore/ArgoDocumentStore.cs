@@ -6,6 +6,7 @@ using ArgoStore.Config;
 using ArgoStore.Helpers;
 using ArgoStore.Implementations;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ArgoStore;
 
@@ -15,7 +16,7 @@ namespace ArgoStore;
 public class ArgoDocumentStore : IArgoDocumentStore
 {
     private readonly string _connectionString;
-    private readonly ILoggerFactory _loggerFactory;
+    private readonly ILoggerFactory _loggerFactory = NullLoggerFactory.Instance;
     private readonly JsonSerializerOptions _serializerOptions;
     private readonly SqlDataDefinitionExecutor _ddExec;
     private readonly ConcurrentDictionary<Type, DocumentMetadata> _docTypeMetaMap;
@@ -34,6 +35,11 @@ public class ArgoDocumentStore : IArgoDocumentStore
     /// </summary>
     /// <param name="configure">Configure action</param>
     public ArgoDocumentStore(Action<IArgoStoreConfiguration> configure)
+        : this (configure, null)
+    {
+    }
+
+    internal ArgoDocumentStore(Action<IArgoStoreConfiguration> configure, Func<ILoggerFactory?>? loggerFactoryFactory)
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
 
@@ -46,7 +52,18 @@ public class ArgoDocumentStore : IArgoDocumentStore
         _ddExec = new SqlDataDefinitionExecutor(_connectionString);
         _serializerOptions = CreateJsonSerializerOptions();
         _docTypeMetaMap = new ConcurrentDictionary<Type, DocumentMetadata>(c.DocumentMeta);
-        _loggerFactory = config.LoggerFactory;
+
+        if (loggerFactoryFactory != null)
+        {
+            _loggerFactory = loggerFactoryFactory() ?? NullLoggerFactory.Instance;
+        }
+
+        ILoggerFactory? configLoggerFactoryFactory = config.LoggerFactoryFactory?.Invoke();
+
+        if (configLoggerFactoryFactory != null)
+        {
+            _loggerFactory = configLoggerFactoryFactory;
+        }
 
         foreach (KeyValuePair<Type, DocumentMetadata> pair in _docTypeMetaMap)
         {

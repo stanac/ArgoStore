@@ -1,4 +1,5 @@
 ﻿using ArgoStore;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
@@ -18,13 +19,11 @@ public static class DependencyInjectionExtensions
     public static IServiceCollection AddArgoStore(this IServiceCollection services, Action<IArgoStoreConfiguration> configure)
     {
         if (configure == null) throw new ArgumentNullException(nameof(configure));
-
-        ArgoDocumentStore store = new ArgoDocumentStore(configure);
-
-        services.AddSingleton(store);
+        
+        services.AddSingleton(sp => new ArgoDocumentStore(configure, sp.GetService<ILoggerFactory>));
         services.AddSingleton<IArgoDocumentStore>(s => s.GetRequiredService<ArgoDocumentStore>());
-        services.AddScoped(_ => store.OpenSession());
-        services.AddTransient(_ => store.OpenQuerySession());
+        services.AddScoped(sp => sp.GetRequiredService<IArgoDocumentStore>().OpenSession());
+        services.AddTransient(sp => sp.GetRequiredService<IArgoDocumentStore>().OpenQuerySession());
 
         return services;
     }

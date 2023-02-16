@@ -16,7 +16,11 @@ public interface IArgoStoreConfiguration
     /// <param name="connectionString">SQLite connection string</param>
     void ConnectionString([DisallowNull] string connectionString);
 
-    void SetLogger(ILoggerFactory loggerFactory);
+    /// <summary>
+    /// Sets Factory of LoggerFactory
+    /// </summary>
+    /// <param name="loggerFactoryFactory">Func&lt;ILoggerFactory&gt;</param>
+    void SetLogger(Func<ILoggerFactory> loggerFactoryFactory);
 
     /// <summary>
     /// Registers document type without any additional options

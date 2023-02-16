@@ -5,7 +5,7 @@ namespace ArgoStore.Config;
 
 internal class DocumentStoreConfiguration : IArgoStoreConfiguration
 {
-    internal ILoggerFactory LoggerFactory { get; private set; } = new NullLoggerFactory();
+    internal Func<ILoggerFactory>? LoggerFactoryFactory { get; private set; }
     private string? _connectionString;
     private readonly Dictionary<Type, DocumentConfiguration> _entityConfigs = new();
 
@@ -15,9 +15,9 @@ internal class DocumentStoreConfiguration : IArgoStoreConfiguration
         _connectionString = connectionString;
     }
 
-    public void SetLogger(ILoggerFactory loggerFactory)
+    public void SetLogger(Func<ILoggerFactory> loggerFactoryFactory)
     {
-        LoggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
+        LoggerFactoryFactory = loggerFactoryFactory ?? throw new ArgumentNullException(nameof(loggerFactoryFactory));
     }
 
     public IDocumentConfiguration<TDocument> RegisterDocument<TDocument>() where TDocument : class, new()

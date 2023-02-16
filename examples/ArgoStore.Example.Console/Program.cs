@@ -30,8 +30,8 @@ static class Program
                 p.NonUniqueIndex(x => new {x.EmailAddress, x.Id});
             });
 
-            c.SetLogger(loggerFactory);
-
+            // ReSharper disable once AccessToDisposedClosure
+            c.SetLogger(() => loggerFactory);
         });
 
         // INSERT
