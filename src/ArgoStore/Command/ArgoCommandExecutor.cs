@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Text.Json;
-using ArgoStore.Config;
 using ArgoStore.CrudOperations;
 using ArgoStore.Helpers;
 using Microsoft.Data.Sqlite;
@@ -215,116 +214,19 @@ internal class ArgoCommandExecutor
         if (serializerOptions == null) throw new ArgumentNullException(nameof(serializerOptions));
 
         SqliteCommand cmd = op.CreateCommand(serializerOptions);
-        try
-        {
-            cmd.EnsureNoGuidParams();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+
+        cmd.EnsureNoGuidParams();
         cmd.Connection = tr.Connection;
         cmd.Transaction = tr;
 
-        if (op is InsertOperation && op.Metadata.IsKeyPropertyInt)
-        {
-            ExecuteInsert(tr, op, cmd);
-        }
-        else
-        {
-            try
-            {
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-        }
-    }
-
-    private void ExecuteInsert(SqliteTransaction tr, CrudOperation op, SqliteCommand cmd)
-    {
-        object serialId = cmd.ExecuteScalar() ?? throw new InvalidOperationException("Insert failed");
-
-        if (serialId is int i)
-        {
-            if (op.Metadata.KeyPropertyType == typeof(int))
-            {
-                op.Metadata.SetKey(op.Document!, i);
-            }
-            else if (op.Metadata.KeyPropertyType == typeof(uint))
-            {
-                op.Metadata.SetKey(op.Document!, (uint)i);
-            }
-            else if (op.Metadata.KeyPropertyType == typeof(long))
-            {
-                op.Metadata.SetKey(op.Document!, (long)i);
-            }
-            else if (op.Metadata.KeyPropertyType == typeof(uint))
-            {
-                op.Metadata.SetKey(op.Document!, (uint)i);
-            }
-            else if (op.Metadata.KeyPropertyType == typeof(ulong))
-            {
-                op.Metadata.SetKey(op.Document!, (ulong)i);
-            }
-        }
-        else if (serialId is long l)
-        {
-            if (op.Metadata.KeyPropertyType == typeof(int))
-            {
-                op.Metadata.SetKey(op.Document!, (int)l);
-            }
-            else if (op.Metadata.KeyPropertyType == typeof(uint))
-            {
-                op.Metadata.SetKey(op.Document!, (uint)l);
-            }
-            else if (op.Metadata.KeyPropertyType == typeof(long))
-            {
-                op.Metadata.SetKey(op.Document!, l);
-            }
-            else if (op.Metadata.KeyPropertyType == typeof(uint))
-            {
-                op.Metadata.SetKey(op.Document!, (uint)l);
-            }
-            else if (op.Metadata.KeyPropertyType == typeof(ulong))
-            {
-                op.Metadata.SetKey(op.Document!, (ulong)l);
-            }
-        }
-
-        UpdateDocumentSerialIdAfterSerialInsert(tr, op.Metadata, serialId);
-    }
-
-    private void UpdateDocumentSerialIdAfterSerialInsert(SqliteTransaction tr, DocumentMetadata meta, object serialId)
-    {
-        string propName = ConvertPropertyName(meta.KeyPropertyName);
-
-        string sql = $"""
-            UPDATE {meta.DocumentName}
-            SET jsonData = json_set(jsonData, '$.{propName}', {serialId})
-            """;
-
-        SqliteCommand cmd = tr.Connection!.CreateCommand();
-        cmd.CommandText = sql;
-        cmd.Transaction = tr;
         cmd.ExecuteNonQuery();
     }
-
+    
     private SqliteConnection CreateAndOpenConnection()
     {
         SqliteConnection c = new SqliteConnection(_connectionString);
         c.Open();
 
         return c;
-    }
-
-    private static string ConvertPropertyName(string propertyName)
-    {
-        propertyName = JsonNamingPolicy.CamelCase.ConvertName(propertyName);
-        return propertyName.Replace("'", "''");
     }
 }

@@ -11,7 +11,7 @@ internal class InsertOperation : CrudOperation
     {
         if (metadata.IsKeyPropertyString)
         {
-            var key = metadata.GetPrimaryKeyValue(document, out _);
+            var key = metadata.SetIfNeededAndGetPrimaryKeyValue(document);
 
             if (key == null)
             {
@@ -23,40 +23,18 @@ internal class InsertOperation : CrudOperation
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
         if (jsonSerializerOptions == null) throw new ArgumentNullException(nameof(jsonSerializerOptions));
-
-        object key = Metadata.SetIfNeededAndGetPrimaryKeyValue(Document!, out bool insertKey);
-
-        object guidId = Metadata.IsKeyPropertyInt
-            ? Guid.NewGuid().ToString().ToLower()
-            : key;
-
-        if (guidId is Guid g)
-        {
-            guidId = g.ToString().ToLower();
-        }
-
-        insertKey = insertKey && Metadata.IsKeyPropertyInt;
-
-        string sql = insertKey 
-            ? $"""
-                INSERT INTO {Metadata.DocumentName} (serialId, stringId, jsonData, tenantId, createdAt)
-                VALUES (@serialId, @guidId, json(@jsonData), @tenantId, @createdAt)
-                RETURNING serialId
-              """
-            : $"""
+        
+        string key = Metadata.SetIfNeededAndGetPrimaryKeyValue(Document!).ToString()!;
+        
+        string sql =
+            $"""
                 INSERT INTO {Metadata.DocumentName} (stringId, jsonData, tenantId, createdAt)
-                VALUES (@guidId, json(@jsonData), @tenantId, @createdAt)
-                RETURNING serialId
-              """;
+                VALUES (@stringId, json(@jsonData), @tenantId, @createdAt)
+            """;
 
         SqliteCommand cmd = new SqliteCommand(sql);
-
-        if (insertKey)
-        {
-            cmd.Parameters.AddWithValue("serialId", key);
-        }
-
-        cmd.Parameters.AddWithValue("guidId", guidId);
+        
+        cmd.Parameters.AddWithValue("stringId", key);
 
         string jsonData = JsonSerializer.Serialize(Document, jsonSerializerOptions);
         cmd.Parameters.AddWithValue("jsonData", jsonData);

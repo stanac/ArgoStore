@@ -14,6 +14,8 @@ internal static class SqliteCommandHelper
                 throw new InvalidOperationException("Guid in parameter");
             }
         }
+#else
+        // noop
 #endif
     }
 }

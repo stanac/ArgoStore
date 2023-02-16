@@ -14,29 +14,27 @@ internal class DeleteOperation : CrudOperation
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object? id = DocumentId ?? Metadata.GetPrimaryKeyValue(Document!, out _);
-
-        string idPropName = Metadata.IsKeyPropertyInt
-            ? "serialId"
-            : "stringId";
-
-        string sql = $"DELETE FROM {Metadata.DocumentName} WHERE {idPropName} = @id AND tenantId = @tenantId";
+        string id = GetKey();
+        
+        string sql = $"DELETE FROM {Metadata.DocumentName} WHERE stringId = @id AND tenantId = @tenantId";
 
         SqliteCommand cmd = new SqliteCommand(sql);
-
-        if (id is Guid g)
-        {
-            cmd.Parameters.AddWithValue("id", g.ToString().ToLower());
-        }
-        else
-        {
-            cmd.Parameters.AddWithValue("id", id);
-        }
-
+        
         cmd.Parameters.AddWithValue("tenantId", TenantId);
+        cmd.Parameters.AddWithValue("id", id);
 
         cmd.EnsureNoGuidParams();
 
         return cmd;
+    }
+
+    private string GetKey()
+    {
+        if (DocumentId != null)
+        {
+            return DocumentId.ToString()!;
+        }
+
+        return Metadata.SetIfNeededAndGetPrimaryKeyValue(Document!).ToString()!;
     }
 }

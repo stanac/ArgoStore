@@ -8,9 +8,7 @@ internal abstract class DocumentConfiguration
 {
     private static readonly Type[] _supportedPkTypes =
     {
-        typeof(string), typeof(Guid),
-        typeof(int), typeof(uint),
-        typeof(long), typeof(ulong)
+        typeof(string), typeof(Guid)
     };
 
     protected readonly List<LambdaExpression> PrimaryKeyExpressions = new();

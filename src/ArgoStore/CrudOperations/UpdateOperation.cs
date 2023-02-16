@@ -14,12 +14,8 @@ internal class UpdateOperation : CrudOperation
 
     public override SqliteCommand CreateCommand(JsonSerializerOptions jsonSerializerOptions)
     {
-        object? key = Metadata.GetPrimaryKeyValue(Document!, out _);
-
-        string pkName = Metadata.IsKeyPropertyInt
-            ? "serialId"
-            : "stringId";
-
+        string key = Metadata.SetIfNeededAndGetPrimaryKeyValue(Document!).ToString()!;
+        
         long updatedAt = Clock.Default.GetCurrentUtcMilliseconds();
 
         string jsonData = JsonSerializer.Serialize(Document, jsonSerializerOptions);
@@ -30,21 +26,13 @@ internal class UpdateOperation : CrudOperation
                     jsonData = @jsonData,
                     updatedAt = @updatedAt
                 WHERE 
-                    {pkName} = @key
+                    serialId = @key
                     AND tenantId = @tenantId
             """ ;
 
         SqliteCommand cmd = new SqliteCommand(sql);
-
-        if (key is Guid g)
-        {
-            cmd.Parameters.AddWithValue("key", g.ToString().ToLower());
-        }
-        else
-        {
-            cmd.Parameters.AddWithValue("key", key);
-        }
         
+        cmd.Parameters.AddWithValue("key", key);
         cmd.Parameters.AddWithValue("jsonData", jsonData);
         cmd.Parameters.AddWithValue("updatedAt", updatedAt);
         cmd.Parameters.AddWithValue("tenantId", TenantId);

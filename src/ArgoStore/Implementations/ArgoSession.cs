@@ -52,6 +52,7 @@ internal class ArgoSession : IArgoDocumentSession
     public T? GetById<T>(object id) where T : class, new()
     {
         DebugLogMethodStart<T>("GetById<T>");
+        id = id.ToString()!;
 
         if (id is null)
         {
@@ -59,34 +60,16 @@ internal class ArgoSession : IArgoDocumentSession
         }
 
         DocumentMetadata meta = GetRequiredMetadata<T>();
-
-        if (id.GetType() != meta.KeyPropertyType)
-        {
-            throw new InvalidOperationException($"Expected id to be of type `{meta.KeyPropertyType.FullName}` but got `{id.GetType().FullName}`.");
-        }
-
-        string pkName = meta.IsKeyPropertyInt
-            ? "serialId"
-            : "stringId";
-
+        
         string sql = $"""
                 SELECT jsonData 
                 FROM {meta.DocumentName}
-                WHERE {pkName} = @key
+                WHERE stringId = @key
                 AND tenantId = @tenantId
             """;
 
         ArgoCommandParameterCollection parameters = new(new FromAlias());
-
-        if (meta.IsKeyPropertyGuid)
-        {
-            parameters.AddWithName("key", id.ToString()!.ToLower());
-        }
-        else
-        {
-            parameters.AddWithName("key", id);
-        }
-
+        parameters.AddWithName("key", id);
         parameters.AddWithName("tenantId", TenantId);
 
         ArgoCommand cmd = new ArgoCommand(sql, parameters, ArgoCommandTypes.FirstOrDefault, typeof(T), true, false);

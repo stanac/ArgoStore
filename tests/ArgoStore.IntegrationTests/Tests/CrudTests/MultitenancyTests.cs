@@ -14,11 +14,11 @@ public class MultitenancyTests : IntegrationTestBase
     public MultitenancyTests()
     {
         _tenant1Person = PersonTestData.GetPersonTestData().First();
-        _tenant1Person.Name = "Tenant 1";
+        _tenant1Person.Name = "Person in Tenant 1";
 
         _tenant2Person = PersonTestData.GetPersonTestData().First();
         _tenant2Person.Id = _tenant1Person.Id;
-        _tenant2Person.Name = "Tenant 2";
+        _tenant2Person.Name = "Person in Tenant 2";
     }
 
     [Fact]
