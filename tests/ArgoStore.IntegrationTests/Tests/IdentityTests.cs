@@ -92,4 +92,27 @@ public class IdentityTests : IntegrationTestBase
         PersonPkGuid p2 = s.GetById<PersonPkGuid>(id);
         p2.Should().BeEquivalentTo(p);
     }
+
+    [Fact]
+    public void Pk_OverrideFromConfig_UsesDifferentPropertyForKey()
+    {
+        Store.RegisterDocument<PersonPkString>(c =>
+        {
+            c.PrimaryKey(p => p.Name);
+        });
+
+        PersonPkString p1 = new PersonPkString
+        {
+            Id = "a",
+            Name = "b"
+        };
+
+        using IArgoDocumentSession s = Store.OpenSession();
+
+        s.Insert(p1);
+        s.SaveChanges();
+
+        PersonPkString p2 = s.GetById<PersonPkString>(p1.Name);
+        p2.Should().BeEquivalentTo(p1);
+    }
 }
