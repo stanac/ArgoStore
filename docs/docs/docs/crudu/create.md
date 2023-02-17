@@ -1,6 +1,6 @@
 # Create
 
-Inserting documents can be done using `Insert<T>(params T[] documents)` method in `IArgoDocumentSession`.
+Inserting documents can be done using `Insert<T>(params T[] documents)` method in `IArgoDocumentSession`. `IArgoQueryDocumentSession` doesn't have `Insert`.
 
 Example:
 
@@ -15,7 +15,9 @@ session.Insert(new Person
 session.SaveChanges();
 ```
 
-`IArgoDocumentSession` is transactional unit of work. Changes are applied when `SaveChanges` on session object is called.
+`IArgoDocumentSession` implements unit of work pattern. Changes are applied when `SaveChanges` on session object is called. All changes are applied atomicly in a transaction, so either all changes are applied or none.
+
+To cancel changes use `session.DiscardChanges()`.
 
 ::: tip
 Please see [Identity](/docs/configuration/identity.md) for information about identity.

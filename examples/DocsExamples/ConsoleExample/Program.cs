@@ -26,7 +26,7 @@ class Program
         session.Insert(new Person
         {
             Name = "John Doe",
-            CakesCount = 1,
+            CookiesCount = 1,
             Roles = new [] {"admin", "sales"}
         });
 
@@ -34,13 +34,13 @@ class Program
             new Person
             {
                 Name = "Jane Doe",
-                CakesCount = 3,
+                CookiesCount = 3,
                 Roles = new[] { "sales" }
             },
             new Person
             {
                 Name = "Mark Marco",
-                CakesCount = 6,
+                CookiesCount = 6,
                 Roles = new[] { "management" }
             }
         );
@@ -62,7 +62,50 @@ class Program
 
         session.SaveChanges();
     }
-    
+
+    private static void ReadExample1()
+    {
+        Guid id = Guid.NewGuid();
+        const string connectionString = "Data Source=c:\\temp\\mydb.sqlite";
+        ArgoDocumentStore store = new ArgoDocumentStore(connectionString);
+        store.RegisterDocument<Person>();
+
+        IArgoQueryDocumentSession session = store.OpenQuerySession();
+        Person? person = session.GetById<Person>(id);
+    }
+
+    private static void ReadExample2()
+    {
+        const string connectionString = "Data Source=c:\\temp\\mydb.sqlite";
+        ArgoDocumentStore store = new ArgoDocumentStore(connectionString);
+        store.RegisterDocument<Person>();
+
+        IArgoQueryDocumentSession session = store.OpenQuerySession();
+
+        List<Person> persons = session.Query<Person>()
+            .Where(x => x.CookiesCount > 3)
+            .ToList();
+    }
+
+    private void UpdateExample()
+    {
+        Guid id = Guid.NewGuid();
+        const string connectionString = "Data Source=c:\\temp\\mydb.sqlite";
+        ArgoDocumentStore store = new ArgoDocumentStore(connectionString);
+        store.RegisterDocument<Person>();
+
+        IArgoDocumentSession session = store.OpenSession();
+        Person? person = session.GetById<Person>(id);
+
+        if (person != null)
+        {
+            person.CookiesCount--;
+
+            session.Update(person);
+            session.SaveChanges();
+        }
+    }
+
     private static void Query(ArgoDocumentStore store)
     {
         using IArgoQueryDocumentSession session = store.OpenQuerySession();
