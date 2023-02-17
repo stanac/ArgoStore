@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;net6.0;net7.0</TargetFrameworks>
+		<LangVersion>11</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<WarningsAsErrors>Nullable</WarningsAsErrors>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Version>0.0.1</Version>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\.editorconfig" Link=".editorconfig" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Data.Sqlite" Version="[7.0.0,8.0.0)" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[7.0.0,8.0.0)" />
+		<PackageReference Include="Remotion.Linq" Version="2.2.0" />
+		<PackageReference Include="System.Text.Json" Version="[7.0.0,8.0.0)" />
+	</ItemGroup>
+
+	<PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+		<NoWarn>$(NoWarn);nullable</NoWarn>
+		<NoWarn>CS8632</NoWarn>
+	</PropertyGroup>
+
+</Project>
