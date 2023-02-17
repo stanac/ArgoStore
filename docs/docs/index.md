@@ -31,7 +31,7 @@ features:
     details: The the most deployed DB in the world 
   - title: Stores data as JSON using JSON1
     details: With full LINQ support
-  - title: Multitenant support out of the box 
-    details: And much more...
+  - title: Not yet stable 
+    details: Work in progress...
 footer: MIT Licensed
 ---
