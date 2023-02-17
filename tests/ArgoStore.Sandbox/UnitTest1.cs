@@ -19,6 +19,10 @@ namespace ArgoStore.Sandbox
 
             Assert.NotEmpty(items);
 
+            List<Person> items2 = s.Query<Person>().Where(x => x.Id != Guid.Empty).ToList();
+
+            Assert.NotEmpty(items2);
+
             string? activityString = ArgoStoreQueryProvider.LastActivity?.Dump();
         }
 

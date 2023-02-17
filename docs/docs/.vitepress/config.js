@@ -74,6 +74,10 @@ export default {
           {
             text: 'Logging',
             link: '/docs/configuration/logging'
+          },
+          {
+            text: 'Serialization',
+            link: '/docs/configuration/serialization'
           }
         ]
       },{

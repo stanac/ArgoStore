@@ -19,7 +19,15 @@ public class Program
         builder.Services.AddArgoStore(c =>
         {
             c.ConnectionString(dbConnectionString);
-            c.RegisterDocument<Person>();
+            c.RegisterDocument<Person>(p =>
+            {
+                p.PrimaryKey(x => x.Id);
+                p.TableName("Persons");
+                p.UniqueIndex(x => x.Name);
+                p.UniqueIndex(x => new {x.Name, x.CookiesCount});
+                p.NonUniqueIndex(x => x.Name);
+                p.NonUniqueIndex(x => new { x.Name, x.CookiesCount });
+            });
         });
 
         WebApplication app = builder.Build();
