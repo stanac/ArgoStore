@@ -40,8 +40,8 @@ public class EfBenchmarksQuery
         _queryDb.SaveChanges();
     }
     
-    // [Benchmark]
-    public void QueryFirstResult()
+    [Benchmark]
+    public void EfQueryFirstResult()
     {
         foreach (string e in _emails)
         {
@@ -51,7 +51,7 @@ public class EfBenchmarksQuery
     }
 
     [Benchmark]
-    public void ToList100Rows()
+    public void EfToList100Rows()
     {
         List<Person> items = _queryDb.Persons.Where(x => x.Name == _multipleName).ToList();
         Trace.Write(items.Count);

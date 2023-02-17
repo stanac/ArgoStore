@@ -41,8 +41,8 @@ public class ArgoBenchmarksQuery
         _querySession = _queryStore.OpenQuerySession();
     }
     
-   // [Benchmark]
-    public void QueryFirstResult()
+    [Benchmark]
+    public void ArgoQueryFirstResult()
     {
         foreach (string e in _emails)
         {
@@ -52,7 +52,7 @@ public class ArgoBenchmarksQuery
     }
 
     [Benchmark]
-    public void ToList100Rows()
+    public void ArgoToList100Rows()
     {
         List<Person> items = _querySession.Query<Person>().Where(x => x.Name == _multipleName).ToList();
         Trace.Write(items.Count);

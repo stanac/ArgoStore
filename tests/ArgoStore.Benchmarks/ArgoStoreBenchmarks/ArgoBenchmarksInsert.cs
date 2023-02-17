@@ -29,7 +29,7 @@ public class ArgoBenchmarksInsert
     }
 
     [Benchmark]
-    public void InsertTests()
+    public void ArgoInsertTests()
     {
         using var s = _store.OpenSession();
         s.Insert(_testPersons);

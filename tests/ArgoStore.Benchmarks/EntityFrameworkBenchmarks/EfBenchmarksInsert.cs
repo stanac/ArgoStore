@@ -26,7 +26,7 @@ public class EfBenchmarksInsert
     }
 
     [Benchmark]
-    public void InsertTest()
+    public void EfInsertTest()
     {
         _db.Persons.AddRange(_testPersons);
         _db.SaveChanges();
