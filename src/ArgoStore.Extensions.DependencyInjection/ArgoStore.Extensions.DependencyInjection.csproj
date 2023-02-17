@@ -6,7 +6,10 @@
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>0.0.1</Version>
+		<Authors>stanac</Authors>
+		<PackageProjectUrl>http://argostore.net</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/stanac/ArgoStore</RepositoryUrl>
+		<Version>0.1.0</Version>
 		<PackageIcon>logo.png</PackageIcon>
 	</PropertyGroup>
 
@@ -22,7 +25,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="logo.png" Pack="true" PackagePath=""/>
+		<None Include="logo.png" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>

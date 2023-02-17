@@ -8,7 +8,10 @@
 		<WarningsAsErrors>Nullable</WarningsAsErrors>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<Version>0.0.1</Version>
+		<Authors>stanac</Authors>
+		<PackageProjectUrl>http://argostore.net</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/stanac/ArgoStore</RepositoryUrl>
+		<Version>0.1.0</Version>
 		<Description>Embeded transactional document database</Description>
 		<PackageIcon>logo.png</PackageIcon>
 	</PropertyGroup>
