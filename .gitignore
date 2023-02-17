@@ -357,3 +357,4 @@ TestResults/
 *.sqlite
 
 **/.vitepress/cache/
+/docs/docs/.vitepress/dist
