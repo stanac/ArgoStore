@@ -48,6 +48,11 @@ class Program
         session.SaveChanges();
     }
 
+    private static void InsertExample()
+    {
+
+    }
+
     private static void Query(ArgoDocumentStore store)
     {
         using IArgoQueryDocumentSession session = store.OpenQuerySession();
