@@ -3,6 +3,9 @@
 Upsert is combination of Update and Insert. If document in DB is matched by key it will
 be updated with new value, if not new document will be inserted.
 
+To upsert a document call `Upsert` method on `IArgoDocumentSession`, after which
+`SaveChanges()` needs to be called in order to process pending change.
+
 Example:
 
 ```csharp
