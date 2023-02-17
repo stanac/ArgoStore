@@ -12,12 +12,18 @@ internal class NotOperatorExpressionToStatementTranslator : IWhereToStatementTra
                && expression.NodeType == ExpressionType.Not;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("NotOperator");
+
         UnaryExpression e = (UnaryExpression)expression;
 
-        WhereStatementBase statement = WhereToStatementTranslatorStrategies.Translate(e.Operand, alias);
+        WhereStatementBase statement = WhereToStatementTranslatorStrategies.Translate(e.Operand, alias, ca);
 
-        return new WhereNotStatement(statement);
+        WhereNotStatement ret = new WhereNotStatement(statement);
+
+        ca?.Stop();
+
+        return ret;
     }
 }

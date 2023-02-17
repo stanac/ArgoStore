@@ -7,9 +7,9 @@ internal class WhereStatement
 {
     public WhereStatementBase Statement { get; }
 
-    public WhereStatement(WhereClause clause, FromAlias alias)
+    public WhereStatement(WhereClause clause, FromAlias alias, ArgoActivity? activity)
     {
-        Statement = WhereToStatementTranslatorStrategies.Translate(clause.Predicate, alias);
+        Statement = WhereToStatementTranslatorStrategies.Translate(clause.Predicate, alias, activity);
     }
 
     public WhereStatement(WhereStatementBase statement)

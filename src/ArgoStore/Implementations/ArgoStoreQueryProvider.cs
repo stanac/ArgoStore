@@ -63,7 +63,7 @@ internal class ArgoStoreQueryProvider : IQueryProvider
         QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);
         DocumentMetadata meta = _session.DocumentTypesMetaMap[query.MainFromClause.ItemType];
         
-        ArgoQueryModelVisitor v = new(meta);
+        ArgoQueryModelVisitor v = new(meta, activity);
         v.VisitQueryModel(query);
 
         ca?.Stop();

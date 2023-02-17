@@ -18,13 +18,18 @@ internal class WhereStringStringMethodCallToStatementTranslator : IWhereToStatem
                && _supportedMethods.Contains(mce.Method.Name);
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("StringStringMethod");
+
         MethodCallExpression mce = (MethodCallExpression)expression;
 
         StringTransformTypes type = (StringTransformTypes)Enum.Parse(typeof(StringTransformTypes), mce.Method.Name);
 
-        WhereStatementBase onObject = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias);
-        return new WhereStringTransformStatement(onObject, type);
+        WhereStatementBase onObject = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias, ca);
+        WhereStringTransformStatement r = new WhereStringTransformStatement(onObject, type);
+
+        ca?.Stop();
+        return r;
     }
 }

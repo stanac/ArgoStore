@@ -16,10 +16,12 @@ internal class WhereSubQueryAnyExpressionToStatementTranslator : IWhereToStateme
                && sqe.QueryModel.ResultOperators[0] is AnyResultOperator;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("SubQueryAny");
+
         SubQueryExpression sqe = (SubQueryExpression) expression;
-        WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias);
+        WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias, ca);
         WhereStatementBase? where = null;
         FromAlias childAlias = alias.CreateChildAlias();
 
@@ -32,7 +34,7 @@ internal class WhereSubQueryAnyExpressionToStatementTranslator : IWhereToStateme
         {
             if (sqe.QueryModel.BodyClauses[0] is WhereClause wc)
             {
-                where = WhereToStatementTranslatorStrategies.Translate(wc.Predicate, childAlias);
+                where = WhereToStatementTranslatorStrategies.Translate(wc.Predicate, childAlias, ca);
             }
             else
             {
@@ -42,6 +44,10 @@ internal class WhereSubQueryAnyExpressionToStatementTranslator : IWhereToStateme
             }
         }
 
-        return new WhereSubQueryAnyStatement(new WhereSubQueryFromStatement(from, childAlias), where, childAlias);
+        WhereSubQueryAnyStatement r = new WhereSubQueryAnyStatement(new WhereSubQueryFromStatement(from, childAlias), where, childAlias);
+
+        ca?.Stop();
+
+        return r;
     }
 }

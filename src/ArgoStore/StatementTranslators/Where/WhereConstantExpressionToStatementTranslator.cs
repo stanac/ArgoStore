@@ -11,8 +11,10 @@ internal class WhereConstantExpressionToStatementTranslator : IWhereToStatementT
         return expression is ConstantExpression;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("Constant");
+
         ConstantExpression ce = (ConstantExpression)expression;
         
         if (ce.Value is null)
@@ -20,6 +22,10 @@ internal class WhereConstantExpressionToStatementTranslator : IWhereToStatementT
             return new WhereNullValueStatement();
         }
 
-        return new WhereParameterStatement(ce.Value, ce.Type);
+        WhereParameterStatement result = new WhereParameterStatement(ce.Value, ce.Type);
+
+        ca?.Stop();
+
+        return result;
     }
 }

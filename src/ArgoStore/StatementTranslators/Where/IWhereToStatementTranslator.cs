@@ -8,5 +8,5 @@ internal interface IWhereToStatementTranslator
 {
     bool CanTranslate(Expression expression);
 
-    WhereStatementBase Translate(Expression expression, FromAlias alias);
+    WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity);
 }

@@ -16,10 +16,12 @@ internal class WhereSubQueryCountExpressionToStatementTranslator : IWhereToState
                && sqe.QueryModel.ResultOperators[0] is CountResultOperator;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("SubQueryCount");
+
         SubQueryExpression sqe = (SubQueryExpression)expression;
-        WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias);
+        WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias, ca);
         WhereStatementBase? where = null;
         FromAlias childAlias = alias.CreateChildAlias();
 
@@ -32,7 +34,7 @@ internal class WhereSubQueryCountExpressionToStatementTranslator : IWhereToState
         {
             if (sqe.QueryModel.BodyClauses[0] is WhereClause wc)
             {
-                where = WhereToStatementTranslatorStrategies.Translate(wc.Predicate, childAlias);
+                where = WhereToStatementTranslatorStrategies.Translate(wc.Predicate, childAlias, ca);
             }
             else
             {
@@ -42,6 +44,10 @@ internal class WhereSubQueryCountExpressionToStatementTranslator : IWhereToState
             }
         }
 
-        return new WhereSubQueryCountStatement(new WhereSubQueryFromStatement(from, childAlias), where, childAlias);
+        WhereSubQueryCountStatement r = new WhereSubQueryCountStatement(new WhereSubQueryFromStatement(from, childAlias), where, childAlias);
+
+        ca?.Stop();
+
+        return r;
     }
 }

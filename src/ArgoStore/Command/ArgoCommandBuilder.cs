@@ -114,9 +114,9 @@ internal class ArgoCommandBuilder
         return cmdType;
     }
 
-    public void AddWhereClause(WhereClause whereClause)
+    public void AddWhereClause(WhereClause whereClause, ArgoActivity? activity)
     {
-        WhereStatements.Add(new WhereStatement(whereClause, Alias));
+        WhereStatements.Add(new WhereStatement(whereClause, Alias, activity));
     }
 
     public void SetSelectStatement(SelectStatementBase selectStatement)
@@ -602,10 +602,10 @@ internal class ArgoCommandBuilder
 
     #endregion Where
 
-    public void HandleResultOperator(QueryModel queryModel, ContainsResultOperator cro)
+    public void HandleResultOperator(QueryModel queryModel, ContainsResultOperator cro, ArgoActivity? activity)
     {
-        WhereValueStatement value = (WhereValueStatement)WhereToStatementTranslatorStrategies.Translate(cro.Item, Alias);
-        WhereValueStatement source = (WhereValueStatement)WhereToStatementTranslatorStrategies.Translate(queryModel.MainFromClause.FromExpression, Alias);
+        WhereValueStatement value = (WhereValueStatement)WhereToStatementTranslatorStrategies.Translate(cro.Item, Alias, activity);
+        WhereValueStatement source = (WhereValueStatement)WhereToStatementTranslatorStrategies.Translate(queryModel.MainFromClause.FromExpression, Alias, activity);
 
         WhereStatementBase contains = new WhereCollectionContainsStatement(source, value);
 

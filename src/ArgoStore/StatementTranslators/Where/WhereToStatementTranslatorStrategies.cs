@@ -9,16 +9,21 @@ internal static class WhereToStatementTranslatorStrategies
 {
     private static readonly IReadOnlyList<IWhereToStatementTranslator> _translators = GetTranslators();
 
-    public static WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public static WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("WhereStrategies.Translate");
+        ArgoActivity? ca2 = ca?.CreateChild("FindTranslator");
+
         IWhereToStatementTranslator? t = _translators.FirstOrDefault(x => x.CanTranslate(expression));
+
+        ca2?.Stop();
 
         if (t == null)
         {
             throw new NotSupportedException($"Failed to translate to statement: {expression.Describe()}");
         }
 
-        return t.Translate(expression, alias);
+        return t.Translate(expression, alias, ca);
     }
 
     private static IReadOnlyList<IWhereToStatementTranslator> GetTranslators()

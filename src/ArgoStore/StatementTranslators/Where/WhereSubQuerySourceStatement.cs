@@ -12,8 +12,14 @@ internal class WhereSubQuerySourceStatement : IWhereToStatementTranslator
         return expression is QuerySourceReferenceExpression;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
-        return new WhereSubQueryValueStatement(alias.CurrentAliasName);
+        ArgoActivity? ca = activity?.CreateChild("SubQuerySource");
+
+        WhereSubQueryValueStatement r = new WhereSubQueryValueStatement(alias.CurrentAliasName);
+
+        ca?.Stop();
+
+        return r;
     }
 }

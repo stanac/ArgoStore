@@ -17,24 +17,30 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
         return false;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("Equals");
+
         MethodCallExpression mce = (MethodCallExpression)expression;
 
         if (mce.Arguments.Count == 1)
         {
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias);
-            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias, ca);
+            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias, ca);
 
-            return new WhereComparisonStatement(left, ComparisonOperators.Equal, right);
+            WhereComparisonStatement r = new WhereComparisonStatement(left, ComparisonOperators.Equal, right);
+
+            ca?.Stop();
+
+            return r;
         }
 
         if (mce.Arguments.Count == 2 && mce.Arguments[1] is ConstantExpression ce && ce.Value is StringComparison sc)
         {
             bool ignoreCase = !sc.IsCaseSensitive();
 
-            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias);
-            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias);
+            WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias, ca);
+            WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias, ca);
 
             if (ignoreCase)
             {
@@ -57,7 +63,11 @@ internal class WhereObjectEqualsMethodCallToStatementTranslator : IWhereToStatem
                 }
             }
 
-            return new WhereComparisonStatement(left, ComparisonOperators.Equal, right);
+            WhereComparisonStatement r = new WhereComparisonStatement(left, ComparisonOperators.Equal, right);
+            
+            ca?.Stop();
+
+            return r;
         }
         
         throw new NotSupportedException("2528bb28e858");

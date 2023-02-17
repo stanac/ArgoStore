@@ -17,11 +17,13 @@ internal class WhereCollectionContainsMethodCallToStatementTranslator : IWhereTo
         return false;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("CollectionContains");
+
         MethodCallExpression mce = (MethodCallExpression)expression;
 
-        WhereStatementBase c = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias);
+        WhereStatementBase c = WhereToStatementTranslatorStrategies.Translate(mce.Object!, alias, ca);
         WhereValueStatement collection;
 
         if (c is WhereValueStatement temp1)
@@ -33,7 +35,7 @@ internal class WhereCollectionContainsMethodCallToStatementTranslator : IWhereTo
             throw new NotSupportedException($"Unexpected collection type object expression: {mce.Object!.Describe()}");
         }
 
-        WhereStatementBase a = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias);
+        WhereStatementBase a = WhereToStatementTranslatorStrategies.Translate(mce.Arguments[0], alias, ca);
         WhereValueStatement argument;
 
         if (a is WhereValueStatement temp2)
@@ -45,6 +47,10 @@ internal class WhereCollectionContainsMethodCallToStatementTranslator : IWhereTo
             throw new NotSupportedException($"Unexpected collection type argument expression: {mce.Arguments[0].Describe()}");
         }
 
-        return new WhereCollectionContainsStatement(collection, argument);
+        WhereCollectionContainsStatement result = new WhereCollectionContainsStatement(collection, argument);
+
+        ca?.Stop();
+
+        return result;
     }
 }

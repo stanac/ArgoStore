@@ -11,10 +11,16 @@ internal class WhereConvertNullableExpressionToStatementTranslator : IWhereToSta
         return expression is UnaryExpression ue && expression.NodeType == ExpressionType.Convert;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("Nullable");
+
         UnaryExpression ue = (UnaryExpression) expression;
 
-        return WhereToStatementTranslatorStrategies.Translate(ue.Operand, alias);
+        WhereStatementBase result = WhereToStatementTranslatorStrategies.Translate(ue.Operand, alias, ca);
+
+        ca?.Stop();
+
+        return result;
     }
 }

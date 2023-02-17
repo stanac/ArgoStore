@@ -19,15 +19,21 @@ internal class WhereLogicalAndOrStatementTranslator : IWhereToStatementTranslato
         return expression is BinaryExpression && _supportedOperators.Contains(expression.NodeType);
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("AndOr");
+
         BinaryExpression be = (BinaryExpression)expression;
 
-        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left, alias);
-        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right, alias);
+        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left, alias, ca);
+        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right, alias, ca);
 
         bool isAnd = be.NodeType is ExpressionType.And or ExpressionType.AndAlso;
 
-        return new WhereLogicalAndOrStatement(isAnd, left, right);
+        var result = new WhereLogicalAndOrStatement(isAnd, left, right);
+
+        ca?.Stop();
+
+        return result;
     }
 }

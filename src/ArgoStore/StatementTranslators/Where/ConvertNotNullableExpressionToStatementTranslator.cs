@@ -14,10 +14,16 @@ internal class ConvertNotNullableExpressionToStatementTranslator : IWhereToState
                && ue.Operand.Type.IsNullableType(out _);
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("NotNullable");
+
         UnaryExpression ue = (UnaryExpression)expression;
 
-        return WhereToStatementTranslatorStrategies.Translate(ue.Operand, alias);
+        WhereStatementBase ret = WhereToStatementTranslatorStrategies.Translate(ue.Operand, alias, ca);
+
+        ca?.Stop();
+
+        return ret;
     }
 }

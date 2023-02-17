@@ -15,7 +15,7 @@ internal class ArgoActivity
 
     public string Name { get; }
     public int Level { get; }
-    public bool Stopped => _endTicks > 0;
+    public bool IsStopped => _endTicks > 0;
     public double ElapsedMilliseconds { get; private set; }
 
     public ArgoActivity(string name)
@@ -51,7 +51,7 @@ internal class ArgoActivity
             child.Stop();
         }
 
-        if (Stopped) return;
+        if (IsStopped) return;
 
         _endTicks = Stopwatch.GetTimestamp();
         ElapsedMilliseconds = (_endTicks - _startTicks) / TicksPerMillisecond;
@@ -59,7 +59,7 @@ internal class ArgoActivity
 
     public string Dump()
     {
-        if (!Stopped) Stop();
+        if (!IsStopped) Stop();
 
         StringBuilder sb = StringBuilderBag.Default.Get();
         Dump(sb);

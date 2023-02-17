@@ -15,10 +15,12 @@ namespace ArgoStore.Implementations;
 
 internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 {
+    private readonly ArgoActivity? _activity;
     public ArgoCommandBuilder CommandBuilder { get; }
     
-    public ArgoQueryModelVisitor(DocumentMetadata metadata)
+    public ArgoQueryModelVisitor(DocumentMetadata metadata, ArgoActivity? activity)
     {
+        _activity = activity;
         CommandBuilder = new ArgoCommandBuilder(new FromJsonData(metadata), new FromAlias());
     }
 
@@ -34,7 +36,7 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
 
     public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
     {
-        CommandBuilder.AddWhereClause(whereClause);
+        CommandBuilder.AddWhereClause(whereClause, _activity);
         base.VisitWhereClause(whereClause, queryModel, index);
     }
 
@@ -129,7 +131,7 @@ internal class ArgoQueryModelVisitor : QueryModelVisitorBase
         }
         else if (resultOperator is ContainsResultOperator cro)
         {
-            CommandBuilder.HandleResultOperator(queryModel, cro);
+            CommandBuilder.HandleResultOperator(queryModel, cro, null);
         }
         else if (resultOperator is CountResultOperator or LongCountResultOperator)
         {

@@ -21,12 +21,14 @@ internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTra
         return expression is BinaryExpression && _supportedExTypes.Contains(expression.NodeType);
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("Binary");
+
         BinaryExpression be = (BinaryExpression) expression;
         
-        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left, alias);
-        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right, alias);
+        WhereStatementBase left = WhereToStatementTranslatorStrategies.Translate(be.Left, alias, ca);
+        WhereStatementBase right = WhereToStatementTranslatorStrategies.Translate(be.Right, alias, ca);
         ComparisonOperators op;
         
         if (_supportedExTypes.Contains(be.NodeType))
@@ -38,6 +40,10 @@ internal class WhereBinaryExpressionToStatementTranslator : IWhereToStatementTra
             throw new NotSupportedException("3f173ca71821");
         }
 
-        return new WhereComparisonStatement(left, op, right);
+        WhereComparisonStatement result = new WhereComparisonStatement(left, op, right);
+
+        ca?.Stop();
+
+        return result;
     }
 }

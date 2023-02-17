@@ -15,10 +15,12 @@ internal class WhereSubQueryContainsExpressionToStatementTranslator : IWhereToSt
                && sqe.QueryModel.ResultOperators[0] is ContainsResultOperator;
     }
 
-    public WhereStatementBase Translate(Expression expression, FromAlias alias)
+    public WhereStatementBase Translate(Expression expression, FromAlias alias, ArgoActivity? activity)
     {
+        ArgoActivity? ca = activity?.CreateChild("SubQueryContains");
+
         SubQueryExpression sqe = (SubQueryExpression) expression;
-        WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias);
+        WhereStatementBase from = WhereToStatementTranslatorStrategies.Translate(sqe.QueryModel.MainFromClause.FromExpression, alias, ca);
         WhereValueStatement value;
         FromAlias childAlias = alias.CreateChildAlias();
 
@@ -28,7 +30,7 @@ internal class WhereSubQueryContainsExpressionToStatementTranslator : IWhereToSt
         }
 
         ContainsResultOperator cre = (ContainsResultOperator) sqe.QueryModel.ResultOperators[0];
-        WhereStatementBase item = WhereToStatementTranslatorStrategies.Translate(cre.Item, childAlias);
+        WhereStatementBase item = WhereToStatementTranslatorStrategies.Translate(cre.Item, childAlias, ca);
 
         if (item is WhereValueStatement wvs)
         {
@@ -39,6 +41,10 @@ internal class WhereSubQueryContainsExpressionToStatementTranslator : IWhereToSt
             throw new InvalidOperationException($"Cannot convert {item.GetType().FullName} to value statement in contains subquery.");
         }
 
-        return new WhereSubQueryContainsStatement(childAlias, new WhereSubQueryFromStatement(from, childAlias), value);
+        WhereSubQueryContainsStatement r = new WhereSubQueryContainsStatement(childAlias, new WhereSubQueryFromStatement(from, childAlias), value);
+        
+        ca?.Stop();
+
+        return r;
     }
 }
