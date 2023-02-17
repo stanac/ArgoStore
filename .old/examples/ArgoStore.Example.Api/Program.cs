@@ -17,12 +17,8 @@ namespace ArgoStore.Example.Api
                 string connectionString = builder.Configuration.GetConnectionString("db");
                 
                 config.ConnectionString(connectionString);
-
-                // This will create table whenever call to new type of entity is performed
-                // e.g. Query<Pet> will create table for Pet entity if not exists
-                config.CreateNotConfiguredEntities(true);
-
-                config.Entity<Person>()
+                
+                config.RegisterDocument<Person>()
                     .PrimaryKey(x => x.Id) // this line is optional, check docs for more info
                     .NonUniqueIndex(x => x.Name)
                     .NonUniqueIndex(x => new {x.Name, x.Age})
@@ -35,8 +31,8 @@ namespace ArgoStore.Example.Api
             // it will set CreateNotConfiguredEntities to true
 
             WebApplication app = builder.Build();
-
-            SeedData(app.Services.GetRequiredService<DocumentStore>());
+            
+            SeedData(app.Services.GetRequiredService<IArgoDocumentStore>());
 
             app.UseSwagger();
             app.UseSwaggerUI(options =>
@@ -51,11 +47,18 @@ namespace ArgoStore.Example.Api
             app.Run();
         }
 
-        private static void SeedData(DocumentStore store)
+        private static void SeedData(IArgoDocumentStore store)
         {
-            IDocumentSession s = store.CreateSession();
-            
-            s.InsertOrUpdate(new Person
+            IArgoDocumentSession s = store.OpenSession();
+
+            if (s.Query<Person>().Any())
+            {
+                return;
+            }
+
+            s.Insert(
+            // s.InsertOrUpdate(
+                new Person
                 {
                     Id = Guid.Parse("b22d7560-8657-4b7b-839c-7f9cb88b68f3"),
                     Name = "Julie Markson",

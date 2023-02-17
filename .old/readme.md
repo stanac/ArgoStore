@@ -1,6 +1,6 @@
 # ArgoStore
 
-Embedded document store for .NET and .NET Core powered by [Sqlite](https://www.sqlite.org) and [JSON1 extension](https://www.sqlite.org/json1.html).
+Embedded transactional document store for .NET and .NET Core powered by [Sqlite](https://www.sqlite.org) and [JSON1 extension](https://www.sqlite.org/json1.html).
 
 
 Inspired by [Marten](https://martendb.io/).

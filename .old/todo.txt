@@ -1,3 +1,2 @@
-
-
-compiled queries
+docs:
+    - DateTime unspecified kind

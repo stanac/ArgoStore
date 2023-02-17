@@ -1,6 +1,9 @@
 ﻿namespace ArgoStore;
 
-public interface IArgoStoreQueryable<T> : IQueryable<T>, IOrderedQueryable<T>
+/// <summary>
+/// Queryable object
+/// </summary>
+/// <typeparam name="T">Document type</typeparam>
+public interface IArgoStoreQueryable<T> : IQueryable<T>
 {
-    // string ToSqlString();
 }
