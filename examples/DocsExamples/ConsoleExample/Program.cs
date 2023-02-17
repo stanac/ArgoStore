@@ -50,9 +50,19 @@ class Program
 
     private static void InsertExample()
     {
+        const string connectionString = "Data Source=c:\\temp\\mydb.sqlite";
+        ArgoDocumentStore store = new ArgoDocumentStore(connectionString);
+        store.RegisterDocument<Person>();
 
+        IArgoDocumentSession session = store.OpenSession();
+        session.Insert(new Person
+        {
+            Name = "Marcus Kowalski"
+        });
+
+        session.SaveChanges();
     }
-
+    
     private static void Query(ArgoDocumentStore store)
     {
         using IArgoQueryDocumentSession session = store.OpenQuerySession();

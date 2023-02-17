@@ -5,9 +5,7 @@ Inserting documents can be done using `Insert<T>(params T[] documents)` method i
 Example:
 
 ```csharp
-ArgoDocumentStore store = new ArgoDocumentStore(connectionString);
-store.RegisterDocument<Person>();
-
+// store is instance of IArgoDocumentStore
 IArgoDocumentSession session = store.OpenSession();
 session.Insert(new Person
 {
