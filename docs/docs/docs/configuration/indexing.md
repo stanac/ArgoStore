@@ -20,4 +20,4 @@ builder.Services.AddArgoStore(c =>
 });
 ```
 
-Also see [Configuration](/docs/configuration/configuration) for more information.
+Please see [Configuration](/docs/configuration/configuration) for more information.
