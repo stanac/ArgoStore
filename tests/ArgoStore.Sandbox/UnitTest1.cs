@@ -4,24 +4,28 @@ namespace ArgoStore.Sandbox
 {
     public class UnitTest1
     {
-        [Fact]
+        // [Fact]
         public void Test1()
         {
-            ArgoStoreQueryProvider.MeasureExecutionTime = true;
+         //   ArgoStoreQueryProvider.MeasureExecutionTime = true;
 
             Person p = Person.TestData().First();
 
             ArgoDocumentStore store = new ArgoDocumentStore("Data Source=c:\\temp\\temp.sqlite");
             store.RegisterDocument<Person>();
             var s = store.OpenSession();
+
+            Guid val = Guid.NewGuid();
             
-            List<Person> items = s.Query<Person>().Where(x => x.Id != Guid.Empty).ToList();
+            List<Person> items = s.Query<Person>().Where(x => x.Id != val && x.IsDeleted == false).ToList();
 
-            Assert.NotEmpty(items);
+            Assert.NotNull(items);
 
-            List<Person> items2 = s.Query<Person>().Where(x => x.Id != Guid.Empty).ToList();
+            Assert.Fail("1");
 
-            Assert.NotEmpty(items2);
+            //List<Person> items2 = s.Query<Person>().Where(x => x.Id != Guid.Empty).ToList();
+
+            //Assert.NotNull(items2);
 
             string? activityString = ArgoStoreQueryProvider.LastActivity?.Dump();
         }

@@ -21,7 +21,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="logo.png" Pack="true" PackagePath=""/>
+		<None Include="logo.png" Pack="true" PackagePath="" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -32,6 +32,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
 		<PackageReference Include="Microsoft.Data.Sqlite" Version="[7.0.0,8.0.0)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="[7.0.0,8.0.0)" />
 		<PackageReference Include="Remotion.Linq" Version="2.2.0" />
