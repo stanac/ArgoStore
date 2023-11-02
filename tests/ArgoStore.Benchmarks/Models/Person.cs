@@ -19,11 +19,6 @@ public class Person
     }
 }
 
-[JsonSerializable(typeof(Person))]
-public partial class PersonSerializationContext
-    : JsonSerializerContext
-{ }
-
 file static class TestData
 {
     private static readonly string[] _names = @"Lula Floyd

@@ -8,6 +8,11 @@ public class ArgoTypeInfoResolver : IJsonTypeInfoResolver
 {
     private readonly IDictionary<Type, JsonTypeInfo> _typeInfos = new ConcurrentDictionary<Type, JsonTypeInfo>();
 
+    public ArgoTypeInfoResolver(JsonSerializerOptions options)
+    {
+        options.TypeInfoResolver = this;
+    }
+
     public void Register<T>(JsonTypeInfo<T> typeInfo)
     {
         _typeInfos[typeof(T)] = typeInfo;

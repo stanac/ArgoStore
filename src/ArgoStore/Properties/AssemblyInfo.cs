@@ -5,3 +5,4 @@
 [assembly: InternalsVisibleTo("ArgoStore.UnitTests")]
 [assembly: InternalsVisibleTo("ArgoStore.IntegrationTests")]
 [assembly: InternalsVisibleTo("ArgoStore.ArgoStore.TestsCommon")]
+[assembly: InternalsVisibleTo("ArgoStore.Sandbox.Tests")]

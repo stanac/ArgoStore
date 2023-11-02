@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using ArgoStore.Benchmarks.Models;
+using ArgoStore.Implementations;
 
 namespace ArgoStore.Sandbox;
 
@@ -8,8 +10,6 @@ public static class Program
 {
     public static void Main(string[] args)
     {
-        bool codeGen = args.Any(x => "codeGen".Equals(x, StringComparison.OrdinalIgnoreCase));
-
         Person[] testData = Person.GetTestData();
 
         string[] jsons = testData.Select(x => JsonSerializer.Serialize(x)).ToArray();
@@ -17,24 +17,27 @@ public static class Program
         Stopwatch sw = Stopwatch.StartNew();
 
         JsonSerializerOptions options = new JsonSerializerOptions();
-        var argoTypeInfoResolver = new ArgoTypeInfoResolver();
-        options.TypeInfoResolver = argoTypeInfoResolver;
+        options.Converters.Add(new JsonStringEnumConverter());
 
-        if (codeGen)
-        {
-            Console.WriteLine("Using codeGen");
-            argoTypeInfoResolver.Register(PersonSerializationContext.Default.Person);
-        }
-        else
-        {
-            Console.WriteLine("Not using codeGen");
-        }
-
-        for (int j = 0; j < 1000; j++)
+        for (int j = 0; j < 100; j++)
         {
             for (int i = 0; i < jsons.Length; i++)
             {
-                JsonSerializer.Deserialize<Person>(jsons[i], options);
+                if (i == 12 && j == 3)
+                {
+                    ArgoStoreQueryProvider.MeasureExecutionTime = true;
+                }
+                else
+                {
+                    ArgoStoreQueryProvider.MeasureExecutionTime = false;
+                }
+                
+                JsonSerializer.Deserialize<Person>(jsons[i]);
+
+                if (i == 12 && j == 3)
+                {
+                    Console.WriteLine(ArgoStoreQueryProvider.LastActivity?.Dump());
+                }
             }
         }
 
