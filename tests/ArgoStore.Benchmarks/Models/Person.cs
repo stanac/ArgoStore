@@ -1,4 +1,6 @@
-﻿namespace ArgoStore.Benchmarks.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace ArgoStore.Benchmarks.Models;
 
 public class Person
 {
@@ -16,6 +18,11 @@ public class Person
         return TestData.GetTestData().ToArray();
     }
 }
+
+[JsonSerializable(typeof(Person))]
+public partial class PersonSerializationContext
+    : JsonSerializerContext
+{ }
 
 file static class TestData
 {

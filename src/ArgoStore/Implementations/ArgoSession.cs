@@ -28,7 +28,6 @@ internal class ArgoSession : IArgoDocumentSession
         if (string.IsNullOrWhiteSpace(connectionString)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(connectionString));
         if (string.IsNullOrWhiteSpace(tenantId)) throw new ArgumentException("Value cannot be null or whitespace.", nameof(tenantId));
 
-
         TenantId = tenantId;
         DocumentTypesMetaMap = documentTypes ?? throw new ArgumentNullException(nameof(documentTypes));
         _connectionString = connectionString;

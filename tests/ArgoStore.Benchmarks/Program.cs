@@ -8,8 +8,8 @@ internal class Program
 {
     static void Main()
     {
-        BenchmarkRunner.Run<ArgoBenchmarksInsert>();
-        BenchmarkRunner.Run<EfBenchmarksInsert>();
+        // BenchmarkRunner.Run<ArgoBenchmarksInsert>();
+        // BenchmarkRunner.Run<EfBenchmarksInsert>();
 
         BenchmarkRunner.Run<ArgoBenchmarksQuery>();
         BenchmarkRunner.Run<EfBenchmarksQuery>();
