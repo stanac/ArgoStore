@@ -10,24 +10,25 @@ public class UnitTest1
     private const string ConnectionString = "Data source=" + FilePath;
 
     /*
-QueryProvider.Execute 002.061 ms
-    QueryProvider.Execute::VisitAndBuild 001.786 ms
-    QueryProvider.Execute::WhereStrategies.Translate 000.298 ms
-        QueryProvider.Execute::WhereStrategies.Translate::FindTranslator 000.004 ms
-        QueryProvider.Execute::WhereStrategies.Translate::Binary 000.012 ms
-            QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate 000.012 ms
-                QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate::FindTranslator 000.002 ms
-                QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate::Property 000.003 ms
-            QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate 000.007 ms
-                QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate::FindTranslator 000.001 ms
-                QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate::Constant 000.000 ms
-    QueryProvider.Execute::BuildCommand 000.024 ms
-    QueryProvider.Execute::Execute 000.244 ms
-        QueryProvider.Execute::Execute::ExecuteFirstOrDefault 000.235 ms
-            QueryProvider.Execute::Execute::ExecuteFirstOrDefault::CreateAndOpenConnection 000.011 ms       
+QueryProvider.Execute 001.328 ms
+----QueryProvider.Execute::VisitAndBuild 001.079 ms
+----QueryProvider.Execute::WhereStrategies.Translate 000.269 ms
+--------QueryProvider.Execute::WhereStrategies.Translate::FindTranslator 000.003 ms
+--------QueryProvider.Execute::WhereStrategies.Translate::Binary 000.012 ms
+------------QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate 000.011 ms
+----------------QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate::FindTranslator 000.001 ms
+----------------QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate::Property 000.003 ms
+------------QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate 000.007 ms
+----------------QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate::FindTranslator 000.000 ms
+----------------QueryProvider.Execute::WhereStrategies.Translate::Binary::WhereStrategies.Translate::Constant 000.001 ms
+----QueryProvider.Execute::BuildCommand 000.014 ms
+----QueryProvider.Execute::Execute 000.230 ms
+--------QueryProvider.Execute::Execute::ExecuteFirstOrDefault 000.220 ms
+------------QueryProvider.Execute::Execute::ExecuteFirstOrDefault::CreateAndOpenConnection 000.010 ms     
      */
 
-    // [Fact]
+
+    [Fact]
     public void Test1()
     {
         if (File.Exists(FilePath))

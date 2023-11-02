@@ -70,7 +70,7 @@ internal class ArgoActivity
 
     private void Dump(StringBuilder sb)
     {
-        sb.Append(new string(' ', Level * 4))
+        sb.Append(new string('-', Level * 4))
             .Append(Name).Append(" ")
             .Append(ElapsedMilliseconds.ToString("000.000"))
             .AppendLine(" ms");
