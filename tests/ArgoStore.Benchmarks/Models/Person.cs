@@ -1,4 +1,6 @@
-﻿namespace ArgoStore.Benchmarks.Models;
+﻿using System.Text.Json.Serialization;
+
+namespace ArgoStore.Benchmarks.Models;
 
 public class Person
 {

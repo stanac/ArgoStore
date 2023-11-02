@@ -137,7 +137,7 @@ public class ArgoDocumentStore : IArgoDocumentStore
 
         opt.Converters.Add(new JsonStringEnumConverter());
         opt.Converters.Add(new IntToBoolJsonSerializerConverterFactory());
-
+        
 #if !NETSTANDARD
         opt.Converters.Add(new TimeOnlyToIntJsonSerializerConverterFactory());
 #endif

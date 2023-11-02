@@ -20,5 +20,16 @@ internal class ArgoStoreQueryParser : IQueryParser
         _parser = new QueryParser(expressionTreeParser);
     }
 
+    public QueryModel GetParsedQuery(Expression expressionTreeRoot, ArgoActivity? activity)
+    {
+        var childActivity = activity?.CreateChild("GetParsedQuery");
+
+        var model = GetParsedQuery(expressionTreeRoot);
+
+        childActivity?.Stop();
+
+        return model;
+    }
+
     public QueryModel GetParsedQuery(Expression expressionTreeRoot) => _parser.GetParsedQuery(expressionTreeRoot);
 }

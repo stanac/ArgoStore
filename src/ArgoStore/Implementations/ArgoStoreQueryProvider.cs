@@ -70,10 +70,10 @@ internal class ArgoStoreQueryProvider : IQueryProvider
     {
         ArgoActivity? ca = activity?.CreateChild("VisitAndBuild");
 
-        QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);
+        QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression, ca);
         DocumentMetadata meta = _session.DocumentTypesMetaMap[query.MainFromClause.ItemType];
-
-        ArgoQueryModelVisitor v = new(meta, activity);
+        
+        ArgoQueryModelVisitor v = new(meta, ca);
         v.VisitQueryModel(query);
 
         ca?.Stop();
