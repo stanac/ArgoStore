@@ -19,6 +19,7 @@ internal class ArgoSession : IArgoDocumentSession
     private readonly ILogger<ArgoSession> _logger;
     private readonly SessionId _sessionId = new();
     internal const string DefaultTenant = "DEFAULT";
+    internal bool UseCaching { get; set; }
 
     private readonly List<CrudOperation> _crudOps = new();
     

@@ -47,13 +47,23 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
     internal TResult Execute<TResult>(Expression expression, ArgoActivity? activity)
     {
+        if (_session.UseCaching)
+        {
+            return ExecuteWithCache<TResult>(expression);
+        }
+
         ArgoQueryModelVisitor v = VisitAndBuild(expression, activity);
         ArgoCommand cmd = v.CommandBuilder.Build(_session.TenantId, activity);
 
         ArgoCommandExecutor exec = _session.CreateExecutor();
-        TResult? result = (TResult?)exec.Execute(cmd, activity);
+        TResult? result = (TResult?) exec.Execute(cmd, activity);
 
         return result!;
+    }
+
+    private TResult ExecuteWithCache<TResult>(Expression expression)
+    {
+
     }
 
     private ArgoQueryModelVisitor VisitAndBuild(Expression expression, ArgoActivity? activity)
@@ -62,7 +72,7 @@ internal class ArgoStoreQueryProvider : IQueryProvider
 
         QueryModel query = new ArgoStoreQueryParser().GetParsedQuery(expression);
         DocumentMetadata meta = _session.DocumentTypesMetaMap[query.MainFromClause.ItemType];
-        
+
         ArgoQueryModelVisitor v = new(meta, activity);
         v.VisitQueryModel(query);
 
